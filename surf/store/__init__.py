@@ -74,6 +74,9 @@ class Store(object):
         self.reader.close()
         self.writer.close()
     
+    def clear(self,context=None):
+        self.writer.clear(context=context)
+    
     def enable_logging(self,enable):
         self.reader.enable_logging(enable)
         self.writer.enable_logging(enable)

@@ -211,7 +211,8 @@ class Resource(object):
             datatype = value['datatype'] if 'datatype' in value else None
             if val:
                 return Literal(val,language=language,datatype=datatype)
-        elif isinstance(value,Resource):
+        #elif isinstance(value,Resource):
+        elif hasattr(value,'subject'):
             return value.subject
         else:
             return value
@@ -223,7 +224,8 @@ class Resource(object):
         predicate, direct = util.attr2rdf(name)
         if predicate:
             value = value if type(value) in [list, tuple] else [value]
-            #print 'SET ',name,' DIRECT ',direct
+            value = map(lambda val: Literal(val,datatype=XSD['string']) if type(val) in [str,unicode] else val,value)
+            
             self.__clear(predicate,direct)
             for v in value:
                 s,p,o = (self.subject, predicate, self.__val2rdf(v))
@@ -304,7 +306,7 @@ class Resource(object):
         for s, types in subjects.items():
             if type(s) is URIRef:
                 instances.append(cls._instance(s,[cls.uri] if cls.uri else types))
-        return instances if len(instances) > 0 else None
+        return instances if len(instances) > 0 else []
         
     @classmethod
     def all(cls,offset=None,limit=None):
@@ -312,8 +314,8 @@ class Resource(object):
             subjects = [] if cls == Resource else cls.session.store.all(cls.uri,limit=limit,offset=offset)
             if subjects:
                 return [cls(subject) for subject in subjects]
-            return None
-        return None
+            return []
+        return []
         
     @classmethod
     def __get(cls,filter,*objects,**symbols):
@@ -337,7 +339,7 @@ class Resource(object):
         for s, types in subjects.items():
             if type(s) is URIRef:
                 instances.append(cls._instance(s,[cls.uri] if cls.uri else types))
-        return instances if len(instances) > 0 else None
+        return instances if len(instances) > 0 else []
         
     @classmethod
     def get_by(cls,*objects,**symbols):

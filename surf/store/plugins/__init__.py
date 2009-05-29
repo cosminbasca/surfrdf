@@ -169,6 +169,9 @@ class RDFWriter(object):
         return cls.__type__
     
     #methods exposed up to the Resource class
+    def clear(self,context=None):
+        self._clear(context=context)
+    
     def save(self,resource):
         if hasattr(resource,'subject') and hasattr(resource,'graph'):
             self._save(resource.subject,resource.graph)
@@ -194,6 +197,9 @@ class RDFWriter(object):
         self._remove_triple(s,p,o,context)
         
     # to be implemented by plugins
+    def _clear(self,context=None):
+        pass
+    
     def _save(self,subject,graph):
         pass
     

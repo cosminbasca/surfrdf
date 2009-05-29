@@ -129,7 +129,7 @@ try:
             format = RDFFormat.NTRIPLES if format is 'nt' else RDFFormat.RDFXML
             self.__con.addFile(file,base=base,format=format,context=su.toSesame(context,self.__f),serverSide=server_side)
         
-        def clear(self,context=None):
+        def _clear(self,context=None):
             self.__con.clear(contexts = su.toSesame(context,self.__f))
             
         def namespaces(self):
