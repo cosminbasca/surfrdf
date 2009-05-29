@@ -91,6 +91,13 @@ class Session(object):
     auto_load = property(fget = lambda self: self.__auto_load,
                                  fset = set_auto_load)
     
+        
+    def set_enable_logging(self,enable):
+        self.store.enable_logging(enable)
+        
+    enable_logging = property(fget = lambda self: self.store.is_enable_logging(),
+                              fset = set_enable_logging)
+    
     def __uri(self,uri):
         if not uri:
             return None
@@ -177,6 +184,3 @@ class Session(object):
     
     #load resource from file ...
     #load all resources from file ...
-    
-    def enable_logging(self,enable):
-        self.store.enable_logging(enable)

@@ -80,6 +80,9 @@ class Store(object):
     def enable_logging(self,enable):
         self.reader.enable_logging(enable)
         self.writer.enable_logging(enable)
+        
+    def is_enable_logging(self):
+        return self.reader.is_enable_logging() or self.writer.is_enable_logging()
     
     def execute(self,query):
         results = self.reader.execute(query)

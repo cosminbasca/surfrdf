@@ -92,8 +92,11 @@ class RDFReader(object):
         if enable:
             self.log.setLevel(logging.DEBUG)
         else :
-            self.log.setLevel(logging.NOTSET)    
+            self.log.setLevel(logging.NOTSET)
     
+    def is_enable_logging(self):
+        return False if self.log.level == logging.NOTSET else True
+            
     # to implement
     def _execute(self,q):
         return None
@@ -162,8 +165,11 @@ class RDFWriter(object):
         if enable:
             self.log.setLevel(logging.DEBUG)
         else :
-            self.log.setLevel(logging.NOTSET)    
-    
+            self.log.setLevel(logging.NOTSET)
+            
+    def is_enable_logging(self):
+        return False if self.log.level == logging.NOTSET else True
+            
     @classmethod
     def get_type(cls):
         return cls.__type__
