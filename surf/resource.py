@@ -146,7 +146,11 @@ class ResourceMeta(type):
         '''        
         attr_value = []
         for r in value:
-            inst = cls._instance(r, value[r]) if type(r) is URIRef else r
+            inst = r
+            if isinstance(value[r], Resource) :
+                inst = value[r]
+            elif type(r) is URIRef:
+                inst = cls._instance(r, value[r])
             attr_value.append(inst)
         
         if len(attr_value) == 0:
@@ -275,13 +279,31 @@ class Resource(object):
         if predicate:
             #print 'GET ',attr_name
             q = qSP(self.subject,predicate,direct)
-            value = self._lazy(self.session.store.predicate_dict(q,'v','c'))
+            values = self.session.store.predicate_dict(q,'v','c')
+            # reuse already existing instances - CACHED
+            
+            cached_values = {}
+            for subj in values:
+                if type(subj) is URIRef:
+                    cached_values[subj] = self.instance(subj)
+                else:
+                    cached_values[subj] = values[subj]
+                
+            value =  self._lazy(cached_values) if self.session.use_cached else self._lazy(values)
+            
             if value or (type(value) is list and len(value) > 0):
                 self.__setattr__(attr_name,value)
             else:
                 value = None
         return value
-        
+
+    @classmethod
+    def instance(cls,subject):
+        for i in cls._instances:
+            if i.subject == subject:
+                return i
+        return None
+
     def load(self):
         def update(results,direct):
             for p,v in results.items():
@@ -465,4 +487,4 @@ class Resource(object):
         return not self.__eq__(other)
 
     def __eq__(self, other):
-        return self.subject == other.subject if isinstance(other, ResourceMeta) else False
+        return self.subject == other.subject if isinstance(other, Resource) else False

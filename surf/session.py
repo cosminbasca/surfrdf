@@ -61,7 +61,7 @@ class Session(object):
     type factory for surf, the resources will walk the graph in a lazy manner based
     on the session that they are bound to (the last created session)
     '''
-    def __init__(self,store,mapping={},auto_persist=False,auto_load=False):
+    def __init__(self,store,mapping={},auto_persist=False,auto_load=False,use_cached=True):
         '''
         creates a new session object that handles the creation of types and
         instances, also the session binds itself to the Resource objects to allow
@@ -78,6 +78,7 @@ class Session(object):
         
         self.__auto_persist = auto_persist
         self.__auto_load = auto_load
+        self.__use_cached = use_cached
     
     def set_auto_persist(self,val):
         self.__auto_persist = val if type(val) is bool else False
@@ -91,12 +92,16 @@ class Session(object):
     auto_load = property(fget = lambda self: self.__auto_load,
                                  fset = set_auto_load)
     
-        
     def set_enable_logging(self,enable):
         self.store.enable_logging(enable)
         
     enable_logging = property(fget = lambda self: self.store.is_enable_logging(),
                               fset = set_enable_logging)
+    def set_use_cached(self,val):
+        self.__use_cached = val if type(val) is bool else False
+        
+    use_cached = property(fget = lambda self: self.__use_cached,
+                                 fset = set_use_cached)
     
     def __uri(self,uri):
         if not uri:
