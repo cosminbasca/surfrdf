@@ -97,6 +97,7 @@ class Session(object):
         
     enable_logging = property(fget = lambda self: self.store.is_enable_logging(),
                               fset = set_enable_logging)
+    
     def set_use_cached(self,val):
         self.__use_cached = val if type(val) is bool else False
         
@@ -113,7 +114,7 @@ class Session(object):
             return uri.uri
         else:
             return URIRef(uri)
-    
+        
     def close(self):
         '''
         good practice to close the session when no longer needed, remember, all
@@ -125,7 +126,7 @@ class Session(object):
         self.mapping = None
         setattr(Resource,'session',None)
         setattr(ResourceMeta,'session',None)
-    
+        
     def map_type(self,uri,*classes):
         '''
         creates a Python class based on the uri given, also will add the classes
@@ -161,7 +162,7 @@ class Session(object):
         '''
         subject = subject if type(subject) is URIRef else URIRef(str(subject))
         return self.map_type(uri,*classes)(subject,block_outo_load=block_outo_load)
-    
+        
     def load_resource(self,uri,subject,data=None,file=None,location=None,format=None,*classes):
         '''
         creates a Python instance of the class specified by uri, and sets the intenal
@@ -170,7 +171,7 @@ class Session(object):
         resource = self.map_type(uri,*classes)(subject)
         resource.load_from_source(data=data,file=file,location=location,format=format)
         return resource
-    
+        
     def create_resource(self,uri,subject,graph,*classes):
         '''
         creates a Python instance of the class specified by uri, and sets the intenal
@@ -179,13 +180,10 @@ class Session(object):
         resource = self.map_type(uri,*classes)(subject)
         resource.set(graph)
         return resource
-    
+        
     def commit(self):
         resources = Resource.instances()
         for resource in resources:
             if resource.is_dirty():
                 resource.update()
         
-    
-    #load resource from file ...
-    #load all resources from file ...
