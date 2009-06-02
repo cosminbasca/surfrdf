@@ -45,6 +45,7 @@ from surf.store import Store
 import util
 import serializer
 from weakref import WeakKeyDictionary
+from threading import Timer
 
 __all__ = ['Resource', 'ResourceMeta']
 
@@ -189,11 +190,19 @@ class Resource(object):
         self.__dirty = False
         self.__to_delete = []
         self._instances[self] = True
+        self.__expired = False
+        if self.session:
+            self.__timer = Timer(self.session.cache_expire, self.__do_expire)
+            self.__timer.start()
         if self.session and self.session.auto_load and not block_outo_load:
             self.load()
         
     subject = property(lambda self: self.__subject)
     graph = property(lambda self: self.__graph)
+    expired = property(lambda self: self.__expired)
+    
+    def __do_expire(self):
+        self.__expired = True
     
     @classmethod
     def instances(cls):
@@ -220,9 +229,7 @@ class Resource(object):
             return value.subject
         else:
             return value
-    #========================
-    #===   SET ATTR
-    #========================
+        
     def __setattr__(self,name,value):
         object.__setattr__(self,name,value)
         predicate, direct = util.attr2rdf(name)
@@ -248,9 +255,6 @@ class Resource(object):
         if self.session.auto_persist:
             self.session.store.remove_triple(s=S,p=P,o=O)
             
-    #========================
-    #===   DEL ATTR
-    #========================
     def __delattr__(self,attr_name):
         predicate, direct = util.attr2rdf(attr_name)
         if predicate:
@@ -270,9 +274,6 @@ class Resource(object):
         
         object.__delattr__(self,attr_name)
     
-    #========================
-    #===   GET ATTR
-    #========================
     def __getattr__(self,attr_name):
         value = None
         predicate, direct = util.attr2rdf(attr_name)
@@ -285,7 +286,8 @@ class Resource(object):
             cached_values = {}
             for subj in values:
                 if type(subj) is URIRef:
-                    cached_values[subj] = self.instance(subj)
+                    inst = self.instance(subj)
+                    cached_values[subj] = inst if hasattr(inst,'expired') and not inst.expired else values[subj]
                 else:
                     cached_values[subj] = values[subj]
                 

@@ -41,6 +41,7 @@ from query import Query
 from store import Store
 from resource import Resource, ResourceMeta
 import util
+from exceptions import TypeError
 
 '''
 TODO:
@@ -55,13 +56,15 @@ TODO:
 
 __all__ = ['Session']
 
+DEFAULT_RESOURCE_EXPIRE_TIME = 60 * 60
+
 class Session(object):
     '''
     the session will manage the rest of the components in surf, it also acts as the
     type factory for surf, the resources will walk the graph in a lazy manner based
     on the session that they are bound to (the last created session)
     '''
-    def __init__(self,store,mapping={},auto_persist=False,auto_load=False,use_cached=True):
+    def __init__(self,store,mapping={},auto_persist=False,auto_load=False,use_cached=True,cache_expire=DEFAULT_RESOURCE_EXPIRE_TIME):
         '''
         creates a new session object that handles the creation of types and
         instances, also the session binds itself to the Resource objects to allow
@@ -79,6 +82,7 @@ class Session(object):
         self.__auto_persist = auto_persist
         self.__auto_load = auto_load
         self.__use_cached = use_cached
+        self.__cache_expire = cache_expire
     
     def set_auto_persist(self,val):
         self.__auto_persist = val if type(val) is bool else False
@@ -103,6 +107,14 @@ class Session(object):
         
     use_cached = property(fget = lambda self: self.__use_cached,
                                  fset = set_use_cached)
+    def set_cache_expire(self,val):
+        try:
+            self.__cache_expire = int(val)
+        except TypeError:
+            self.__cache_expire = DEFAULT_RESOURCE_EXPIRE_TIME
+        
+    cache_expire = property(fget = lambda self: self.__cache_expire,
+                                 fset = set_cache_expire)
     
     def __uri(self,uri):
         if not uri:
