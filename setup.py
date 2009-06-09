@@ -35,24 +35,42 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-try:
-    from setuptools import setup, find_packages
-except ImportError:
-    from ez_setup import use_setuptools
-    use_setuptools()
-    from setuptools import setup, find_packages
-
+#try:
+#    from setuptools import setup, find_packages
+#except ImportError:
+from ez_setup import use_setuptools
+use_setuptools()
+from setuptools import setup, find_packages
 
 setup(
-    name='SuRF',
-    version="0.4",
-    #description='',
-    author='Cosmin Basca',
-    author_email='cosmin.basca@gmail.com',
-    #url='',
-    install_requires=['rdflib>=3.0.0a6',
+      name='SuRF',
+      version='0.4.0',
+      description='RDF Resource Mapper',
+      long_description = 'This is RDF Resource Mapper to python objects, allows one to connect to various triple stores or arbitrary SPARQL endpoints. It is inspired by the work on ActiveRDF for ruby',
+      license = 'New BSD SOFTWARE', 
+      author="Cosmin Basca",
+      author_email="cosmin.basca at google.com",
+      url = 'http://code.google.com/p/surfrdf/',
+      #download_url = 'http://surfrdf.googlecode.com/files/SuRF-0.4-py2.5.egg',
+      platforms = ['any'], #Should be removed by PEP  314
+      packages=find_packages(exclude=['ez_setup']),
+      requires=['simplejson'], # Used by distutils to create metadata PKG-INFO
+      install_requires=['rdf>=0.9a6',
+                      'rdf.plugins.parsers.n3p>=0.9a1',
+                      'rdf.plugins.parsers.rdfxml>=0.9a1',
+                      'rdf.plugins.serializers.n3>=0.9a1',
+                      'rdf.plugins.stores.iomemory>=0.9a1',
+                      'rdf.plugins.stores.memory>=0.9a1',
                       'simplejson>=1.9.2',
-                      'sparqlwrapper>=1.2.0'],
-    packages=find_packages(exclude=['ez_setup']),
-    include_package_data=True,
+                      'sparqlwrapper>=1.2.0',], #Used by setuptools to install the dependencies
+      classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: BSD License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 2.5',
+      ],
+      keywords = 'python SPARQL RDF resource mapper',
+      requires_python = '>=2.5', # Future in PEP 345
+      scripts = ['ez_setup.py']
 )
