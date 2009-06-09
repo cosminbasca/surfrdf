@@ -175,15 +175,21 @@ class ResourceMeta(type):
     
 class Resource(object):
     '''
-    the Resource class holds an internal GRAPH, the graph is not synchronized completly
-    with the class, as it can be manipulated from outside, if so, the logic will break
-    ... not nice, will have to implement this mechanism, but if used properly than
-    the resource will behave :], ....
+    The Resource class, represents the transparent proxy object that exposes sets of
+    RDF triples under the form of <s,p,o> and <s',p,s> as an object in python,
+    one can create resource directly by instantiating this class, but it is advisable
+    to use the session to do so, as the session will create subclasses of Resource based
+    on the subjects rdf:type
     '''
     __metaclass__ = ResourceMeta
     _instances = WeakKeyDictionary()
     
     def __init__(self,subject,block_outo_load=False):
+        '''
+        initializes a Resource, with the subject (a URI - either a string or a URIRef),
+        block_autoload will prevent the resource from autoloading all rdf attributes associated
+        with the subject of the resource
+        '''
         self.__subject = subject if type(subject) is URIRef else URIRef(subject)
         self.__graph = ConjunctiveGraph()
         self.__graph.add((self.subject,a,self.uri))
@@ -197,8 +203,13 @@ class Resource(object):
         if self.session and self.session.auto_load and not block_outo_load:
             self.load()
         
+    '''the subject of the resource '''
     subject = property(lambda self: self.__subject)
+    
+    ''' internal graph representation of resources (ConjunctiveGraph ) '''
     graph = property(lambda self: self.__graph)
+    
+    ''' reflects the state of the resource, expired or not (see documentation for explanation) '''
     expired = property(lambda self: self.__expired)
     
     def __do_expire(self):
@@ -206,12 +217,22 @@ class Resource(object):
     
     @classmethod
     def instances(cls):
+        '''
+        returns all the instances of type Resource currently available in memory
+        '''
         return cls._instances.keys()
         
     def is_dirty(self):
+        '''
+        True if the resource has been modified during runtime and not persisted, False
+        otherwise
+        '''
         return self.__dirty
     
     def __val2rdf(self,value):
+        '''
+        for internal use, converts the value to an RDFLib compatible type if appropriate
+        '''
         if type(value) in [str, unicode]:
             return Literal(value)
         elif type(value) in [list, tuple]:
@@ -301,12 +322,20 @@ class Resource(object):
 
     @classmethod
     def instance(cls,subject):
+        '''
+        returns the Resource instance currently in memory with the specified subject
+        '''
         for i in cls._instances:
             if i.subject == subject:
                 return i
         return None
 
     def load(self):
+        '''
+        loads all attributes from the data store, both direct attributes (where the subject
+        is the subject of the resource) and indirect attributes (where the object is the subject
+        of the resource)
+        '''
         def update(results,direct):
             for p,v in results.items():
                 attr = util.rdf2attr(p,direct)
@@ -323,6 +352,10 @@ class Resource(object):
 
     @classmethod
     def get_by_attribute(cls,*attributes):
+        '''
+        retrieves all resources from the data store that have the specified attributes
+        and have the type of the class
+        '''
         subjects = {}
         subjects.update(cls.session.store.predicate_dict(qP_S(cls.uri,attributes,True),'s','c'))
         subjects.update(cls.session.store.predicate_dict(qP_S(cls.uri,attributes,False),'s','c'))
@@ -334,6 +367,10 @@ class Resource(object):
         
     @classmethod
     def all(cls,offset=None,limit=None):
+        '''
+        retrieves all (or just a limited number from the specified offset) resources
+        that are of the specified type as the resource class
+        '''
         if hasattr(cls,'uri'):
             subjects = [] if cls == Resource else cls.session.store.all(cls.uri,limit=limit,offset=offset)
             if subjects:
@@ -367,10 +404,17 @@ class Resource(object):
         
     @classmethod
     def get_by(cls,*objects,**symbols):
+        '''
+        retrieves all resources that have attribute value pairs as specified
+        '''
         return cls.__get(None,*objects,**symbols)
     
     @classmethod
     def get_like(cls,*objects,**symbols):
+        '''
+        retrieves all resources that have attribute value pairs, with support for regex
+        matching on values, currently reges is slow, try to avoid
+        '''
         return cls.__get('regex',*objects,**symbols)
     
     def serialize(self,format='xml'):
@@ -388,7 +432,8 @@ class Resource(object):
     
     def save(self):
         '''
-        performs persistence of the internal graph representation
+        saves the resource to the data store, replacing the representation with
+        the current one
         '''
         self.session.store.save(self)
         self.__dirty = False
@@ -427,6 +472,9 @@ class Resource(object):
     }
     
     def load_from_source(self,data=None,file=None,location=None,format=None):
+        '''
+        load the resource from a source (uri, file or string rdf data)
+        '''
         graph = ConjunctiveGraph()
         if format is None:
             format = 'application/rdf+xml'
@@ -469,12 +517,18 @@ class Resource(object):
         
     @classmethod
     def namespace(cls):
+        '''
+        returns the namespace of the Resources type
+        '''
         if cls.uri:
             return util.namespace_split(cls.uri)[0]
         return None
         
     @classmethod
     def concept(cls,subject):
+        '''
+        returns the Resources Concept uri (type)
+        '''
         return cls.session.store.concept(subject)
         
     def bind_namespaces(self,namespaces):
