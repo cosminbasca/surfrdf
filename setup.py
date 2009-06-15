@@ -55,14 +55,14 @@ setup(
       platforms = ['any'], #Should be removed by PEP  314
       packages=find_packages(exclude=['ez_setup']),
       requires=['simplejson'], # Used by distutils to create metadata PKG-INFO
-      install_requires=['rdf>=0.9a6',
-                      'rdf.plugins.parsers.n3p>=0.9a1',
-                      'rdf.plugins.parsers.rdfxml>=0.9a1',
-                      'rdf.plugins.serializers.n3>=0.9a1',
-                      'rdf.plugins.stores.iomemory>=0.9a1',
-                      'rdf.plugins.stores.memory>=0.9a1',
-                      'simplejson>=1.9.2',
-                      'sparqlwrapper>=1.2.0',], #Used by setuptools to install the dependencies
+      install_requires=['rdf==0.9a6',
+                      'rdf.plugins.parsers.n3p==0.9a1',
+                      'rdf.plugins.parsers.rdfxml==0.9a1',
+                      'rdf.plugins.serializers.n3==0.9a1',
+                      'rdf.plugins.stores.iomemory==0.9a1',
+                      'rdf.plugins.stores.memory==0.9a1',
+                      'simplejson==2.0.9',
+                      'sparqlwrapper==1.3.0',], #Used by setuptools to install the dependencies
       classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',

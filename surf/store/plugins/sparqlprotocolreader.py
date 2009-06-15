@@ -38,7 +38,7 @@ __author__ = 'Cosmin Basca'
 from surf.store.plugins import RDFReader, UnsupportedResultType
 from sparqlquery import translate
 from SPARQLWrapper import SPARQLWrapper, JSON, XML, GET, POST
-from SPARQLWrapper.sparqlexceptions import EndPointNotFound, QueryBadFormed, SPARQLWrapperException
+from SPARQLWrapper.SPARQLExceptions import EndPointNotFound, QueryBadFormed, SPARQLWrapperException
 
 class SPARQLProtocolReader(RDFReader):
     __type__ = 'sparql-protocol'

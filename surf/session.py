@@ -138,6 +138,7 @@ class Session(object):
         self.mapping = None
         setattr(Resource,'session',None)
         setattr(ResourceMeta,'session',None)
+        # expire resources (stop timers)
         
     def map_type(self,uri,*classes):
         '''

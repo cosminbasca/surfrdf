@@ -126,13 +126,3 @@ if __name__ == '__main__':
     print 'Open :',allegro.open_repository('corona')
     print 'Repositories : ',allegro.repositories()
     
-    q = '''
-    SELECT  DISTINCT ?v ?c
-    WHERE {
-        {  <http://corona.deri.ie/resources/tier/3> <http://rdfs.org/sioc/ns#name> ?v.
-            OPTIONAL { ?v <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?c.  }
-        }
-    }
-    '''
-    
-    print 'RESULTS : ',allegro.sparql_query('corona',q)
