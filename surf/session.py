@@ -57,7 +57,7 @@ TODO:
 __all__ = ['Session']
 
 DEFAULT_RESOURCE_EXPIRE_TIME = 60 * 60
-DEFAULT = 'default'
+DEFAULT_STORE_KEY = 'default'
 
 class Session(object):
     '''
@@ -153,15 +153,15 @@ class Session(object):
                                  fset = set_cache_expire)
     
     def get_default_store_key(self):
-        if DEFAULT in self.__stores:
-            return DEFAULT
+        if DEFAULT_STORE_KEY in self.__stores:
+            return DEFAULT_STORE_KEY
         elif len(self.__stores) > 0:
             return self.__stores.keys()[0]
         return None
     default_store_key = property(fget = get_default_store_key)
     
     def set_default_store(self,store):
-        self.__setitem__(DEFAULT,store)
+        self.__setitem__(DEFAULT_STORE_KEY,store)
     def get_default_store(self):
         ds_key = self.default_store_key
         if ds_key:
@@ -196,11 +196,13 @@ class Session(object):
         # expire resources (stop timers)
         
     #TODO
-    def map_type(self,uri,store=DEFAULT,*classes):
+    def map_type(self,uri,store=None,*classes):
         '''
         creates a Python class based on the uri given, also will add the classes
         to the inheritance list
         '''
+        store = self.default_store_key if not store else store
+        
         uri = self.__uri(uri)
         if not uri:
             return None
@@ -210,10 +212,10 @@ class Session(object):
         base_classes.extend(list(classes) if classes != None else [])
         return new.classobj(str(name), tuple(base_classes),{'uri':uri,'store_key':store})
         
-    def get_class(self,uri,store=DEFAULT,*classes):
+    def get_class(self,uri,store=None,*classes):
         return self.map_type(uri,store,*classes)
         
-    def map_instance(self,uri,subject,store=DEFAULT,classes = [],block_outo_load=False):
+    def map_instance(self,uri,subject,store=None,classes = [],block_outo_load=False):
         '''
         creates a Python instance of the class specified by uri and classes to be
         inherited, see map_type for more information
@@ -221,7 +223,7 @@ class Session(object):
         subject = subject if type(subject) is URIRef else URIRef(str(subject))
         return self.map_type(uri,store,*classes)(subject,block_outo_load=block_outo_load)
         
-    def get_resource(self,subject,uri=None,store=DEFAULT,graph=None,block_outo_load=False,*classes):
+    def get_resource(self,subject,uri=None,store=None,graph=None,block_outo_load=False,*classes):
         subject = subject if type(subject) is URIRef else URIRef(str(subject))
         uri = uri if uri else Resource.concept(subject)
         resource = self.map_instance(uri,subject,store,block_outo_load=block_outo_load,*classes)
@@ -229,7 +231,7 @@ class Session(object):
             resource.set(graph)
         return resource
         
-    def load_resource(self,uri,subject,store=DEFAULT,data=None,file=None,location=None,format=None,*classes):
+    def load_resource(self,uri,subject,store=None,data=None,file=None,location=None,format=None,*classes):
         '''
         creates a Python instance of the class specified by uri, and sets the intenal
         properties according to the ones by the specified source
