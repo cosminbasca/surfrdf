@@ -37,6 +37,7 @@ __author__ = 'Cosmin Basca'
 
 import namespace as NS
 import re
+import new
 
 pattern_direct = re.compile('^[a-z0-9]{1,}_[a-zA-Z0-9_]{1,}$', re.DOTALL)
 pattern_inverse = re.compile('^is_[a-z0-9]{1,}_[a-zA-Z0-9_]{1,}_of$', re.DOTALL)
@@ -77,5 +78,8 @@ def rdf2attr(uri,direct):
 
 def is_attr_direct(attrname):
     return True if pattern_direct.match(attrname) else False
+    
+def uri_to_class(uri):
+    return new.classobj(str(uri_to_classname(uri)),(),{'uri':uri})
 
 

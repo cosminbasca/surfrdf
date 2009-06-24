@@ -135,7 +135,7 @@ class ResourceMeta(type):
     def _instance(cls,subject,vals):
         if cls.session:
             uri = vals[0] if len(vals) > 0 else None
-            classes = map(cls.session.uri_to_class,vals[1:]) if len(vals) > 1 else []
+            classes = map(util.uri_to_class,vals[1:]) if len(vals) > 1 else []
             return cls.session.map_instance(uri,subject,classes=classes,block_outo_load=True) if uri else Resource(subject,block_outo_load=True)
         else:
             return None
@@ -166,7 +166,7 @@ class ResourceMeta(type):
         predicate, direct = util.attr2rdf(attr_name)
         if predicate:
             q = qP_V(self.uri,direct,[predicate])
-            value = self._lazy(self.session.store.predicate_dict(q,'v','c'))
+            value = self._lazy(self.session[self.store_key].predicate_dict(q,'v','c'))
             if value or (type(value) is list and len(value) > 0):
                 pass
             else:
@@ -266,7 +266,7 @@ class Resource(object):
                 
                 self.__graph.add((s,p,o))
                 if self.session.auto_persist:
-                    self.session.store.add_triple(s,p,o)
+                    self.session[self.store_key].add_triple(s,p,o)
                 else:
                     self.__dirty = True
     
@@ -274,7 +274,7 @@ class Resource(object):
         S,P,O = (self.subject, predicate, None) if direct else (None, predicate, self.subject)
         self.__graph.remove((S,P,O))
         if self.session.auto_persist:
-            self.session.store.remove_triple(s=S,p=P,o=O)
+            self.session[self.store_key].remove_triple(s=S,p=P,o=O)
             
     def __delattr__(self,attr_name):
         predicate, direct = util.attr2rdf(attr_name)
@@ -288,7 +288,7 @@ class Resource(object):
                 
                 self.graph.remove((s,p,o))
                 if self.session.auto_persist:
-                    self.session.store.remove_triple(s,p,o)
+                    self.session[self.store_key].remove_triple(s,p,o)
                 else:
                     self.__to_delete.append((s,p,o))
                     self.__dirty = True
@@ -301,7 +301,7 @@ class Resource(object):
         if predicate:
             #print 'GET ',attr_name
             q = qSP(self.subject,predicate,direct)
-            values = self.session.store.predicate_dict(q,'v','c')
+            values = self.session[self.store_key].predicate_dict(q,'v','c')
             # reuse already existing instances - CACHED
             
             cached_values = {}
@@ -344,8 +344,8 @@ class Resource(object):
                 if value or (type(value) is list and len(value) > 0):
                     self.__setattr__(attr,value)
                 
-        direct_r = self.session.store.predicates_dict(qS(self.subject,True),'p','v','c')
-        inverse_r = self.session.store.predicates_dict(qS(self.subject,False),'p','v','c')
+        direct_r = self.session[self.store_key].predicates_dict(qS(self.subject,True),'p','v','c')
+        inverse_r = self.session[self.store_key].predicates_dict(qS(self.subject,False),'p','v','c')
         update(direct_r,True)
         update(inverse_r,False)
         self.__dirty = False
@@ -357,8 +357,8 @@ class Resource(object):
         and have the type of the class
         '''
         subjects = {}
-        subjects.update(cls.session.store.predicate_dict(qP_S(cls.uri,attributes,True),'s','c'))
-        subjects.update(cls.session.store.predicate_dict(qP_S(cls.uri,attributes,False),'s','c'))
+        subjects.update(cls.session[cls.store_key].predicate_dict(qP_S(cls.uri,attributes,True),'s','c'))
+        subjects.update(cls.session[cls.store_key].predicate_dict(qP_S(cls.uri,attributes,False),'s','c'))
         instances = []
         for s, types in subjects.items():
             if type(s) is URIRef:
@@ -372,7 +372,7 @@ class Resource(object):
         that are of the specified type as the resource class
         '''
         if hasattr(cls,'uri'):
-            subjects = [] if cls == Resource else cls.session.store.all(cls.uri,limit=limit,offset=offset)
+            subjects = [] if cls == Resource else cls.session[cls.store_key].all(cls.uri,limit=limit,offset=offset)
             if subjects:
                 return [cls(subject) for subject in subjects]
             return []
@@ -388,9 +388,9 @@ class Resource(object):
         subjects = {}
         if len(symbols) > 0:
             if len(direct_p) > 0:
-                subjects.update( cls.session.store.predicate_dict(qPO(cls.uri,True,filter,direct_p),'s','c') )
+                subjects.update( cls.session[cls.store_key].predicate_dict(qPO(cls.uri,True,filter,direct_p),'s','c') )
             if len(inverse_p) > 0:
-                subjects.update( cls.session.store.predicate_dict(qPO(cls.uri,False,filter,inverse_p),'s','c') )
+                subjects.update( cls.session[cls.store_key].predicate_dict(qPO(cls.uri,False,filter,inverse_p),'s','c') )
         
         #if len(objects) > 0:
         #    subjects.update(cls.store().o(True,cls.uri(),filter,objects))
@@ -435,14 +435,14 @@ class Resource(object):
         saves the resource to the data store, replacing the representation with
         the current one
         '''
-        self.session.store.save(self)
+        self.session[self.store_key].save(self)
         self.__dirty = False
     
     def remove(self):
         '''
         remove the resource from the store
         '''
-        self.session.store.remove(self)
+        self.session[self.store_key].remove(self)
         self.__dirty = False
         
     def update(self):
@@ -450,12 +450,12 @@ class Resource(object):
         update the resource in the store, does not remove other triples
         related to it
         '''
-        self.session.store.update(self)
+        self.session[self.store_key].update(self)
         #del_graph = ConjunctiveGraph()
         for s,p,o in self.__to_delete:
-            self.session.store.remove_triple(s,p,o)
+            self.session[self.store_key].remove_triple(s,p,o)
         #    del_graph.add(triple)
-        #self.session.store.remove()
+        #self.session[self.store_key].remove()
         # better to remove all statements to be removed at once...
         self.__dirty = False
         
@@ -463,7 +463,7 @@ class Resource(object):
         '''
         returns True if the resource is present in the Store or False otherwise
         '''
-        return self.session.store.is_present(self)
+        return self.session[self.store_key].is_present(self)
     
     formats = {'n3': 'text/rdf+n3',
                  'nt': 'text/plain',
@@ -529,7 +529,7 @@ class Resource(object):
         '''
         returns the Resources Concept uri (type)
         '''
-        return cls.session.store.concept(subject)
+        return cls.session[cls.store_key].concept(subject)
         
     def bind_namespaces(self,namespaces):
         '''

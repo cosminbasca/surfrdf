@@ -53,10 +53,8 @@ class SPARQLProtocolReader(RDFReader):
         
         #if self.__results_format not in [JSON, XML]:
         #    raise UnsupportedResultType('Result of type %s is unsupported'%self.__results_format)
-        self.__sparql_wrapper = SPARQLWrapper(self.__endpoint, self.__results_format)
-        if self.__default_graph:
-            self.__sparql_wrapper.addDefaultGraph(self.__default_graph)
-    
+        self.__sparql_wrapper = SPARQLWrapper(self.__endpoint, self.__results_format,defaultGraph=self.__default_graph)
+        
     endpoint = property(lambda self: self.__endpoint)
     default_graph = property(lambda self: self.__default_graph)
     results_format = property(lambda self: self.__results_format)
