@@ -198,8 +198,9 @@ class Resource(object):
         self._instances[self] = True
         self.__expired = False
         if self.session:
-            self.__timer = Timer(self.session.cache_expire, self.__do_expire)
-            self.__timer.start()
+            if self.session.use_cached:
+                self.__timer = Timer(self.session.cache_expire, self.__do_expire)
+                self.__timer.start()
         if self.session and self.session.auto_load and not block_outo_load:
             self.load()
         
