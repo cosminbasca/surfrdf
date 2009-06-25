@@ -66,7 +66,7 @@ class Session(object):
     on the session that they are bound to (the last created session)
     '''
     
-    def __init__(self,default_store=None,mapping={},auto_persist=False,auto_load=False,use_cached=True,cache_expire=DEFAULT_RESOURCE_EXPIRE_TIME):
+    def __init__(self,default_store=None,mapping={},auto_persist=False,auto_load=False,use_cached=False,cache_expire=DEFAULT_RESOURCE_EXPIRE_TIME):
         '''
         creates a new session object that handles the creation of types and
         instances, also the session binds itself to the Resource objects to allow

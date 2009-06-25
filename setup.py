@@ -45,7 +45,7 @@ from setuptools import setup, find_packages
 setup(
       name='SuRF',
       version='0.4.0',
-      description='RDF Resource Mapper',
+      description='Object RDF Resource Mapper',
       long_description = 'This is RDF Resource Mapper to python objects, allows one to connect to various triple stores or arbitrary SPARQL endpoints. It is inspired by the work on ActiveRDF for ruby',
       license = 'New BSD SOFTWARE', 
       author="Cosmin Basca",
