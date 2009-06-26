@@ -45,7 +45,7 @@ from surf.store import Store
 import util
 import serializer
 from weakref import WeakKeyDictionary
-from threading import Timer
+#from threading import Timer
 
 __all__ = ['Resource', 'ResourceMeta']
 
