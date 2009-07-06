@@ -167,7 +167,7 @@ try:
                         lit_type = 'typed-literal' if dtype else 'literal'
                         json_binding[b] = {'type':lit_type, 'value': value.getLabel()}
                         if dtype:
-                            if dtype.startswith('<') and dtype.endswith('>'):
+                            if type(dtype) in [str,unicode] and dtype.startswith('<') and dtype.endswith('>'):
                                 dtype = dtype.strip('<>')
                             json_binding[b]['datatype'] = term.URIRef(dtype)
                         if lang:
