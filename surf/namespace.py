@@ -41,7 +41,8 @@ import sys
 from rdf.namespace import Namespace, ClosedNamespace
 from rdf import namespace
 
-__anonimous__ = 'NS'
+__anonimous = 'NS'
+__anonimous_count = 0
 
 # defined in RDFLIB
 RDF = namespace.RDF
@@ -105,6 +106,16 @@ DBLP = Namespace('http://www4.wiwiss.fu-berlin.de/dblp/terms.rdf#')
 # FRANZ
 FTI = Namespace('http://franz.com/ns/allegrograph/2.2/textindex/')
 
+# an internal inverted dict - for fast access 
+__inverted_dict__ = {}
+for k,v in sys.modules[__name__].__dict__.items():
+    if type(v) in [Namespace, ClosedNamespace]:
+         __inverted_dict__[v.__str__()] = k
+         
+def __add_inverted(prefix):
+    ns_dict = sys.modules[__name__].__dict__
+    __inverted_dict__[ns_dict[prefix].__str__()] = prefix
+
 def base(property):
     if '#' in property:
         return '%s#'%property.rsplit('#',1)[0]
@@ -115,61 +126,44 @@ def symbol(property):
         return property.rsplit('#',1)[-1]
     return property.rsplit('/',1)[-1]
 
-def register(**namespaces):
-    """
-    @summary: registers namespaces passed in the form of a dictionary 
-    name : base uri
-    @param namespaces: the namespaces (dictionary)
-    @return: nothing
-    """
-    module = sys.modules[__name__]
-    for _ns in namespaces:
-        #print 'Registered :',_ns, namespaces[_ns]
-        module.__dict__[_ns.upper()] = namespaces[_ns] if type(namespaces[_ns]) is Namespace else Namespace(namespaces[_ns])
-
+def register(**namespaces):    
+    ns_dict = sys.modules[__name__].__dict__
+    for key in namespaces:
+        uri = namespaces[key]
+        prefix = key.upper()
+        ns_dict[prefix] = uri if type(uri) in [Namespace, ClosedNamespace] else Namespace(uri)
+        # also keep inverted dict presistent
+        __add_inverted(prefix)
+        
 def get_namespace(base):
-    """
-    @summary: returns a registered namespace in the module or creates an
-            anonimous one if the base uri is not there
-    @param base: the base uri of the namespace
-    @return: a tuple consisting of (namespace key, rdfLib namespace object)
-    """
-    module = sys.modules[__name__]
-    __anonim_cnt = 0
-    for ns_key in dir(module):
-        ns = module.__dict__[ns_key]
-        if ns_key.startswith(__anonimous__):
-            __anonim_cnt = int(ns_key.split(__anonimous__)[1])
-        if type(ns) in [Namespace, ClosedNamespace] and base == str(ns):
-            return ns_key,ns
-    ns_key = '%s%d'%(__anonimous__,__anonim_cnt+1)
-    ns = Namespace(base)
-    module.__dict__[ns_key] = ns
-    return ns_key, ns
+    global __anonimous_count
+    ns_dict = sys.modules[__name__].__dict__
+    base = base if type(base) in [str, unicode] else base.__str__()
+    try:
+        prefix = __inverted_dict__[base]
+        uri = ns_dict[prefix]
+    except:
+        prefix = '%s%d'%(__anonimous,__anonimous_count + 1)
+        __anonimous_count += 1
+        uri = Namespace(base)
+        register(**{prefix:uri})
+    return prefix, uri
 
-
-def get_namespace_url(ns):
-    """
-    @summary: returns a rdflib namespace object by it's label
-    e.g.: get_namesapce_url('rdfs') should return RDFS
-    @param ns: namesapace label
-    @return: rdflib Namespace coresponding to lable or None
-    """
-    module = sys.modules[__name__]
-    if str(ns).upper() in module.__dict__:
-        return module.__dict__[str(ns).upper()]
-    return None
+def get_namespace_url(prefix):
+    ns_dict = sys.modules[__name__].__dict__
+    try:
+        return ns_dict[prefix.__str__().upper()]
+    except:
+        return None
     
     
-def get_name(ns):
-    """
-    @summary: returns the name of the namespace to be used as a label lateron
-    @param ns: the namespace
-    @return: the name of the namespace: e.g.: FOAF{rdf.Namespace} -> FOAF{string}
-    """
-    module = sys.modules[__name__]
-    for key, value in module.__dict__.items():
-        if value == ns:
-            return key
-    return None
+def get_prefix(uri):
+    try:
+        return __inverted_dict__[uri.__str__()]
+    except:
+        return None
+
+    
+    
+    
     

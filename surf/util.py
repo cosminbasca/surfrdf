@@ -35,7 +35,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-import namespace as NS
+from namespace import *
 import re
 import new
 
@@ -43,16 +43,14 @@ pattern_direct = re.compile('^[a-z0-9]{1,}_[a-zA-Z0-9_]{1,}$', re.DOTALL)
 pattern_inverse = re.compile('^is_[a-z0-9]{1,}_[a-zA-Z0-9_]{1,}_of$', re.DOTALL)
 
 def namespace_split(uri):
-    sp = '#' if '#' in uri else '/'
+    sp = '#' if uri.rfind('#') != -1 else '/'
     base, predicate = uri.rsplit(sp,1)
-    base = base+sp
-    return NS.get_namespace(base)[1], predicate
+    return get_namespace('%s%s'%(base,sp))[1], predicate
 
 def uri_split(uri):
-    sp = '#' if '#' in uri else '/'
+    sp = '#' if uri.rfind('#') != -1 else '/'
     base, predicate = uri.rsplit(sp,1)
-    base = base+sp
-    return NS.get_namespace(base)[0], predicate
+    return get_namespace('%s%s'%(base,sp))[0], predicate
 
 def uri_to_classname(uri):
     ns_key, predicate = uri_split(uri)
@@ -60,9 +58,12 @@ def uri_to_classname(uri):
 
 def attr2rdf(attrname):
     def tordf(attrname):
-        ns, predicate = attrname.split('_',1)
-        ns = NS.get_namespace_url(ns)
-        return ns[predicate] if ns!=None else None
+        prefix, predicate = attrname.split('_',1)
+        ns = get_namespace_url(prefix)
+        try:
+            return ns[predicate]
+        except:
+            return None
     
     if pattern_inverse.match(attrname):
         return  tordf(attrname.replace('is_','').replace('_of','')), False
