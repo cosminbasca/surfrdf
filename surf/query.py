@@ -44,6 +44,14 @@ abstract representation of a query, based on rdflib concepts, and basic python
 types
 '''
 class InvalidTypeQueryException(Exception):
+    '''
+    The invalid Query Type exception, is raised when the query type is different
+    from:
+        - select
+        - ask
+        - describe
+        - construct
+    '''
     def __init__(self,message):
         self.message = message
         
@@ -53,16 +61,30 @@ class InvalidTypeQueryException(Exception):
 # SPARQL vriables are represented as strings that follow the sparql
 # variable definition: "?name" represents the SPARQL variable name
 class Query(object):
+    '''
+    The `Query` object is used by surf to construct queries in a programatic manner
+    The class supports the major SPARQL query types: *select*,*ask*,*describe*,*construct*
+    Although it follows the SPARQL format the query can be translated to other Query
+    formats such as **PROLOG**, for now though only *SPARQL* is supported.
+    
+    the query methods can be chained.
+    '''
     __query_types__ = ['select','ask','describe','construct']
     
     @classmethod
     def select(cls,*vars):
+        '''
+        Creates a **select** `query`
+        '''
         q = cls('select')
         q.select_clauses.extend(vars)
         return q
     
     @classmethod
     def ask(cls,*patterns):
+        '''
+        Creates a **ask** `query`
+        '''
         askq = cls('ask')
         for pattern in patterns:
             if type(pattern) in [list, tuple]:
@@ -83,15 +105,25 @@ class Query(object):
     
     @classmethod
     def describe(cls):
+        '''
+        Creates a **describe** `query`
+        '''
         return cls('describe')
     
     @classmethod
     def construct(cls,*vars):
+        '''
+        Creates a **construct** `query`
+        '''
         q = cls('construct')
         q.select_clauses.extend(vars)
         return q
     
-    def __init__(self,q_type='select',template=r'c:\work\.Eclipse\pySurf\src\surf\store\sparql.mako'):
+    def __init__(self,q_type='select'):
+        '''
+        the `query` initialization.
+        `q_type` = the query type
+        '''
         if q_type.lower() not in Query.__query_types__:
             raise InvalidTypeQueryException('Unsupported Query type [%s]'%q_type)
         
@@ -108,7 +140,9 @@ class Query(object):
     
     def where(self,s,p,o,c=None,optional=False,filter=''):
         '''
-        filter syntax must follow SPARQL syntax
+        a `where` clause, accepts the `subject`, `predicate`, `object` and `context`,
+        also `optional` specifies if the clause is optional and `filter` wether it
+        is accompanied by a `filter`, `filter` syntax must follow **SPARQL** syntax
         '''
         if not c:
             c = '' # default graph
@@ -118,24 +152,36 @@ class Query(object):
         return self
     
     def order_by(self,*vars):
+        '''
+        order by the specified variables (`vars`)
+        '''
         self.order_by_clauses.extend(vars)
         return self
     
     def offset(self,value):
+        '''
+        the `offset` of the results
+        '''
         self.offset_value = value
         return self
     
     def limit(self,value):
+        '''
+        the `limit` of the results
+        '''
         self.limit_value = value
         return self
     
     def distinct(self,*vars):
+        '''
+        specify which variables (`vars`) are `distinct`
+        '''
         self.distinct_clauses.extend(vars)
         return self
     
     def filter(self,filter_expression,c=None):
         '''
-        takes valid SPARQL filter expressions passed in as strings, no checks are
+        takes valid **SPARQL** filter expressions passed in as strings, no checks are
         performed for malformed expressions, the sparql processor against which the
         query is exectued will signall the error.
         '''

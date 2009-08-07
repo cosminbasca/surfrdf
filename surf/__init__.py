@@ -56,6 +56,10 @@ import os
 import re
 
 def get_svn_revision(path=None):
+    '''
+    returns the `svn revision number` of the current surf source folder
+    the rev. number is used by the `__version__` property
+    '''
     rev = None
     if path is None:
         path = sys.modules[__name__].__path__[0]
@@ -81,5 +85,3 @@ def get_svn_revision(path=None):
     return u'Sunknown'
 
 __version__ = (0,5,0,get_svn_revision())
-
-print 'SuRF version : ',__version__

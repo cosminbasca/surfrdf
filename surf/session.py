@@ -61,17 +61,16 @@ DEFAULT_STORE_KEY = 'default'
 
 class Session(object):
     '''
-    the session will manage the rest of the components in surf, it also acts as the
+    the `Session` will manage the rest of the components in **SuRF**, it also acts as the
     type factory for surf, the resources will walk the graph in a lazy manner based
     on the session that they are bound to (the last created session)
     '''
     
     def __init__(self,default_store=None,mapping={},auto_persist=False,auto_load=False,use_cached=False,cache_expire=DEFAULT_RESOURCE_EXPIRE_TIME):
         '''
-        creates a new session object that handles the creation of types and
-        instances, also the session binds itself to the Resource objects to allow
+        creates a new `session` object that handles the creation of types and
+        instances, also the session binds itself to the `Resource` objects to allow
         the Resources to perform lazy binding of results
-        -- auto_load not working yet problem is deeper
         '''
         self.mapping = mapping
         
@@ -241,6 +240,9 @@ class Session(object):
         return resource
         
     def commit(self):
+        '''
+        commits all the changes
+        '''
         resources = Resource.instances()
         for resource in resources:
             if resource.is_dirty():

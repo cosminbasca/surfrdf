@@ -6,11 +6,20 @@
 Welcome to SuRF's documentation!
 ================================
 
-Contents:
+.. image:: images/surf-logo.png
+   :alt: SuRF
+   :align: center
+
+SuRF is an Object - RDF Mapper based on the popular rdflib python library.
+It exposes the RDF triple sets as sets of resources and seamlessly integrates them
+into the Object Oriented paradigm of python in a similar manner as ActiveRDF does for ruby.
 
 .. toctree::
    :maxdepth: 2
    
+   install
+   plugins
+   build
    
 Indices and tables
 ==================
@@ -28,6 +37,7 @@ Modules
    modules/namespace
    modules/query
    modules/resource
+   modules/serializer
    modules/session
    modules/store
    modules/util
