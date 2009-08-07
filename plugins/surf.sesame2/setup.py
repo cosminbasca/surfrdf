@@ -50,7 +50,7 @@ setup(
     description=__doc__,
     author=__author__,
     packages=['sesame2'],
-    #install_requires=['surf>=0.5.0',],
+    install_requires=['surf>=0.5.0',],
     entry_points={
     'surf.plugins.reader': 'sesame2 = sesame2.reader:ReaderPlugin',
     'surf.plugins.writer': 'sesame2 = sesame2.writer:WriterPlugin',

@@ -50,7 +50,7 @@ setup(
     description=__doc__,
     author=__author__,
     packages=['sparql_protocol'],
-    #install_requires=['surf>=0.5.0',],
+    install_requires=['surf>=0.5.0',],
     entry_points={
     'surf.plugins.reader': 'sparql_protocol = sparql_protocol.reader:ReaderPlugin',
     #'surf.plugins.writer': 'sparql_protocol = sparql_protocol.writer:WriterPlugin',

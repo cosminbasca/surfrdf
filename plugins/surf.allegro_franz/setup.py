@@ -50,7 +50,7 @@ setup(
     description=__doc__,
     author=__author__,
     packages=['allegro_franz'],
-    #install_requires=['surf>=0.5.0',],
+    install_requires=['surf>=0.5.0',],
     entry_points={
     'surf.plugins.reader': 'allegro_franz = allegro_franz.reader:ReaderPlugin',
     'surf.plugins.writer': 'allegro_franz = allegro_franz.writer:WriterPlugin',

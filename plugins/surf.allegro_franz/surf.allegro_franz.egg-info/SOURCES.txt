@@ -7,4 +7,5 @@ surf.allegro_franz.egg-info/PKG-INFO
 surf.allegro_franz.egg-info/SOURCES.txt
 surf.allegro_franz.egg-info/dependency_links.txt
 surf.allegro_franz.egg-info/entry_points.txt
+surf.allegro_franz.egg-info/requires.txt
 surf.allegro_franz.egg-info/top_level.txt
