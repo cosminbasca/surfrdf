@@ -1,0 +1,225 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The surf.store Module &mdash; SuRF vbeta documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'beta',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="SuRF vbeta documentation" href="../index.html" />
+    <link rel="next" title="The surf.util Module" href="util.html" />
+    <link rel="prev" title="The surf.session Module" href="session.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../modindex.html" title="Global Module Index"
+             accesskey="M">modules</a> |</li>
+        <li class="right" >
+          <a href="util.html" title="The surf.util Module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="session.html" title="The surf.session Module"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">SuRF vbeta documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-surf.store">
+<h1>The <tt class="xref docutils literal"><span class="pre">surf.store</span></tt> Module<a class="headerlink" href="#module-surf.store" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="surf.store.Store">
+<em class="property">
+class </em><tt class="descclassname">surf.store.</tt><tt class="descname">Store</tt><big>(</big><em>reader=None</em>, <em>writer=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#surf.store.Store" title="Permalink to this definition">¶</a></dt>
+<dd><p>The plugin manager, also provides convenience methods for working with plugins</p>
+<dl class="method">
+<dt id="surf.store.Store.add_triple">
+<tt class="descname">add_triple</tt><big>(</big><em>s=None</em>, <em>p=None</em>, <em>o=None</em>, <em>context=None</em><big>)</big><a class="headerlink" href="#surf.store.Store.add_triple" title="Permalink to this definition">¶</a></dt>
+<dd>add a triple to the store, with the specified context,
+None can be used as a wildcard</dd></dl>
+
+<dl class="method">
+<dt id="surf.store.Store.all">
+<tt class="descname">all</tt><big>(</big><em>concept</em>, <em>limit=None</em>, <em>offset=None</em><big>)</big><a class="headerlink" href="#surf.store.Store.all" title="Permalink to this definition">¶</a></dt>
+<dd>returns all uri&#8217;s that are instances of concept within [limit,limit+offset]</dd></dl>
+
+<dl class="method">
+<dt id="surf.store.Store.clear">
+<tt class="descname">clear</tt><big>(</big><em>context=None</em><big>)</big><a class="headerlink" href="#surf.store.Store.clear" title="Permalink to this definition">¶</a></dt>
+<dd>empty the store</dd></dl>
+
+<dl class="method">
+<dt id="surf.store.Store.concept">
+<tt class="descname">concept</tt><big>(</big><em>resource</em><big>)</big><a class="headerlink" href="#surf.store.Store.concept" title="Permalink to this definition">¶</a></dt>
+<dd>returns the concept URI of the following resource,
+resource can be a string or a URIRef</dd></dl>
+
+<dl class="method">
+<dt id="surf.store.Store.execute">
+<tt class="descname">execute</tt><big>(</big><em>query</em><big>)</big><a class="headerlink" href="#surf.store.Store.execute" title="Permalink to this definition">¶</a></dt>
+<dd>execute a query of type surf.query.Query</dd></dl>
+
+<dl class="method">
+<dt id="surf.store.Store.execute_sparql">
+<tt class="descname">execute_sparql</tt><big>(</big><em>sparql_query</em><big>)</big><a class="headerlink" href="#surf.store.Store.execute_sparql" title="Permalink to this definition">¶</a></dt>
+<dd>execute a SPARQL query as a string</dd></dl>
+
+<dl class="method">
+<dt id="surf.store.Store.get">
+<tt class="descname">get</tt><big>(</big><em>resource</em>, <em>attribute</em>, <em>direct</em><big>)</big><a class="headerlink" href="#surf.store.Store.get" title="Permalink to this definition">¶</a></dt>
+<dd>returns the value(s) of the corresponding attribute</dd></dl>
+
+<dl class="method">
+<dt id="surf.store.Store.index_triples">
+<tt class="descname">index_triples</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#surf.store.Store.index_triples" title="Permalink to this definition">¶</a></dt>
+<dd>performs index of the triples if such functionality is present
+returns True if operation successfull</dd></dl>
+
+<dl class="method">
+<dt id="surf.store.Store.instances">
+<tt class="descname">instances</tt><big>(</big><em>resource</em>, <em>direct</em>, <em>filter</em>, <em>predicates</em><big>)</big><a class="headerlink" href="#surf.store.Store.instances" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="surf.store.Store.instances_by_attribute">
+<tt class="descname">instances_by_attribute</tt><big>(</big><em>resource</em>, <em>attributes</em>, <em>direct</em><big>)</big><a class="headerlink" href="#surf.store.Store.instances_by_attribute" title="Permalink to this definition">¶</a></dt>
+<dd>returns all uri&#8217;s that are instances of concept that have the attributes</dd></dl>
+
+<dl class="method">
+<dt id="surf.store.Store.instances_by_value">
+<tt class="descname">instances_by_value</tt><big>(</big><em>resource</em>, <em>direct</em>, <em>attributes</em><big>)</big><a class="headerlink" href="#surf.store.Store.instances_by_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="surf.store.Store.is_present">
+<tt class="descname">is_present</tt><big>(</big><em>resource</em><big>)</big><a class="headerlink" href="#surf.store.Store.is_present" title="Permalink to this definition">¶</a></dt>
+<dd>True if the resource is present in the store, False otherwise</dd></dl>
+
+<dl class="method">
+<dt id="surf.store.Store.load">
+<tt class="descname">load</tt><big>(</big><em>resource</em>, <em>direct</em><big>)</big><a class="headerlink" href="#surf.store.Store.load" title="Permalink to this definition">¶</a></dt>
+<dd>fully loads the resource from the store, returns all statements about the resource</dd></dl>
+
+<dl class="method">
+<dt id="surf.store.Store.load_triples">
+<tt class="descname">load_triples</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#surf.store.Store.load_triples" title="Permalink to this definition">¶</a></dt>
+<dd>loads triples from supported sources if such functionality is present
+returns True if operation successfull</dd></dl>
+
+<dl class="method">
+<dt id="surf.store.Store.remove">
+<tt class="descname">remove</tt><big>(</big><em>resource</em><big>)</big><a class="headerlink" href="#surf.store.Store.remove" title="Permalink to this definition">¶</a></dt>
+<dd>completly remove the resource from the store</dd></dl>
+
+<dl class="method">
+<dt id="surf.store.Store.remove_triple">
+<tt class="descname">remove_triple</tt><big>(</big><em>s=None</em>, <em>p=None</em>, <em>o=None</em>, <em>context=None</em><big>)</big><a class="headerlink" href="#surf.store.Store.remove_triple" title="Permalink to this definition">¶</a></dt>
+<dd>remove a triple from the store, with the specified context
+None can be used as a wildcard</dd></dl>
+
+<dl class="method">
+<dt id="surf.store.Store.save">
+<tt class="descname">save</tt><big>(</big><em>resource</em><big>)</big><a class="headerlink" href="#surf.store.Store.save" title="Permalink to this definition">¶</a></dt>
+<dd>replace the resource with it&#8217;s current state</dd></dl>
+
+<dl class="method">
+<dt id="surf.store.Store.set_triple">
+<tt class="descname">set_triple</tt><big>(</big><em>s=None</em>, <em>p=None</em>, <em>o=None</em>, <em>context=None</em><big>)</big><a class="headerlink" href="#surf.store.Store.set_triple" title="Permalink to this definition">¶</a></dt>
+<dd>replace a triple in the store, with the specified context
+None can be used as a wildcard</dd></dl>
+
+<dl class="method">
+<dt id="surf.store.Store.size">
+<tt class="descname">size</tt><big>(</big><big>)</big><a class="headerlink" href="#surf.store.Store.size" title="Permalink to this definition">¶</a></dt>
+<dd>returns the size in triples, that are contained in the current store</dd></dl>
+
+<dl class="method">
+<dt id="surf.store.Store.update">
+<tt class="descname">update</tt><big>(</big><em>resource</em><big>)</big><a class="headerlink" href="#surf.store.Store.update" title="Permalink to this definition">¶</a></dt>
+<dd>update the current resource</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="session.html"
+                                  title="previous chapter">The <tt class="docutils literal docutils literal docutils literal"><span class="pre">surf.session</span></tt> Module</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="util.html"
+                                  title="next chapter">The <tt class="docutils literal docutils literal"><span class="pre">surf.util</span></tt> Module</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="../_sources/modules/store.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="../search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../modindex.html" title="Global Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="util.html" title="The surf.util Module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="session.html" title="The surf.session Module"
+             >previous</a> |</li>
+        <li><a href="../index.html">SuRF vbeta documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2009, Cosmin Basca.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.1.
+    </div>
+  </body>
+</html>

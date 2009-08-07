@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Example using the public SPARQL-endpoint from DBpedia &mdash; SuRF vbeta documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'beta',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="SuRF vbeta documentation" href="../index.html" />
+    <link rel="next" title="Example using AllegroGraph from Franz" href="allegro.html" />
+    <link rel="prev" title="The surf.plugin.writer Module" href="../modules/plugin/writer.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../modindex.html" title="Global Module Index"
+             accesskey="M">modules</a> |</li>
+        <li class="right" >
+          <a href="allegro.html" title="Example using AllegroGraph from Franz"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../modules/plugin/writer.html" title="The surf.plugin.writer Module"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">SuRF vbeta documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="example-using-the-public-sparql-endpoint-from-dbpedia">
+<h1>Example using the public SPARQL-endpoint from DBpedia<a class="headerlink" href="#example-using-the-public-sparql-endpoint-from-dbpedia" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">surf</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">store</span> <span class="o">=</span>  <span class="n">Store</span><span class="p">(</span> <span class="n">reader</span><span class="o">=</span><span class="s">&#39;sparql_protocol&#39;</span><span class="p">,</span>
+                <span class="n">endpoint</span><span class="o">=</span><span class="s">&#39;http://dbpedia.org/sparql&#39;</span><span class="p">,</span>
+                <span class="n">default_graph</span><span class="o">=</span><span class="s">&#39;http://dbpedia.org&#39;</span><span class="p">)</span>
+
+<span class="k">print</span> <span class="s">&#39;Create the session&#39;</span>
+<span class="n">session</span> <span class="o">=</span> <span class="n">Session</span><span class="p">(</span><span class="n">store</span><span class="p">,{})</span>
+<span class="n">session</span><span class="o">.</span><span class="n">enable_logging</span> <span class="o">=</span> <span class="bp">False</span>
+
+<span class="n">PhilCollinsAlbums</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get_class</span><span class="p">(</span><span class="n">ns</span><span class="o">.</span><span class="n">YAGO</span><span class="p">[</span><span class="s">&#39;PhilCollinsAlbums&#39;</span><span class="p">])</span>
+
+<span class="n">all_albums</span> <span class="o">=</span> <span class="n">PhilCollinsAlbums</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+<span class="k">print</span> <span class="s">&#39;Phill Collins has </span><span class="si">%d</span><span class="s"> albums on dbpedia&#39;</span><span class="o">%</span><span class="nb">len</span><span class="p">(</span><span class="n">all_albums</span><span class="p">)</span>
+
+<span class="n">first_album</span> <span class="o">=</span> <span class="n">all_albums</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span>
+<span class="n">first_album</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+
+<span class="k">print</span> <span class="s">&#39;All covers&#39;</span>
+<span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">all_albums</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">dbpedia_name</span><span class="p">:</span>
+        <span class="n">cvr</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">dbpedia_cover</span>
+        <span class="k">print</span> <span class="s">&#39;</span><span class="se">\t</span><span class="s">Cover </span><span class="si">%s</span><span class="s"> for &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span><span class="o">%</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">dbpedia_cover</span><span class="p">),</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">dbpedia_name</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="../modules/plugin/writer.html"
+                                  title="previous chapter">The <tt class="docutils literal"><span class="pre">surf.plugin.writer</span></tt> Module</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="allegro.html"
+                                  title="next chapter">Example using AllegroGraph from Franz</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="../_sources/examples/dbpedia.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="../search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../modindex.html" title="Global Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="allegro.html" title="Example using AllegroGraph from Franz"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../modules/plugin/writer.html" title="The surf.plugin.writer Module"
+             >previous</a> |</li>
+        <li><a href="../index.html">SuRF vbeta documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2009, Cosmin Basca.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The surf.resource Module &mdash; SuRF vbeta documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'beta',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="SuRF vbeta documentation" href="../index.html" />
+    <link rel="next" title="The surf.session Module" href="session.html" />
+    <link rel="prev" title="The surf.query Module" href="query.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../modindex.html" title="Global Module Index"
+             accesskey="M">modules</a> |</li>
+        <li class="right" >
+          <a href="session.html" title="The surf.session Module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="query.html" title="The surf.query Module"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">SuRF vbeta documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-surf.resource">
+<h1>The <tt class="xref docutils literal"><span class="pre">surf.resource</span></tt> Module<a class="headerlink" href="#module-surf.resource" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="surf.resource.Resource">
+<em class="property">
+class </em><tt class="descclassname">surf.resource.</tt><tt class="descname">Resource</tt><big>(</big><em>subject</em>, <em>block_outo_load=False</em><big>)</big><a class="headerlink" href="#surf.resource.Resource" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Resource class, represents the transparent proxy object that exposes sets of
+RDF triples under the form of &lt;s,p,o&gt; and &lt;s&#8217;,p,s&gt; as an object in python,
+one can create resource directly by instantiating this class, but it is advisable
+to use the session to do so, as the session will create subclasses of Resource based
+on the subjects rdf:type</p>
+<dl class="classmethod">
+<dt id="surf.resource.Resource.all">
+<em class="property">
+classmethod </em><tt class="descname">all</tt><big>(</big><em>offset=None</em>, <em>limit=None</em><big>)</big><a class="headerlink" href="#surf.resource.Resource.all" title="Permalink to this definition">¶</a></dt>
+<dd>retrieves all (or just a limited number from the specified offset) resources
+that are of the specified type as the resource class</dd></dl>
+
+<dl class="classmethod">
+<dt id="surf.resource.Resource.concept">
+<em class="property">
+classmethod </em><tt class="descname">concept</tt><big>(</big><em>subject</em>, <em>store=None</em><big>)</big><a class="headerlink" href="#surf.resource.Resource.concept" title="Permalink to this definition">¶</a></dt>
+<dd>returns the Resources Concept uri (type)</dd></dl>
+
+<dl class="classmethod">
+<dt id="surf.resource.Resource.get_by">
+<em class="property">
+classmethod </em><tt class="descname">get_by</tt><big>(</big><em>*objects</em>, <em>**symbols</em><big>)</big><a class="headerlink" href="#surf.resource.Resource.get_by" title="Permalink to this definition">¶</a></dt>
+<dd>retrieves all resources that have attribute value pairs as specified</dd></dl>
+
+<dl class="classmethod">
+<dt id="surf.resource.Resource.get_by_attribute">
+<em class="property">
+classmethod </em><tt class="descname">get_by_attribute</tt><big>(</big><em>*attributes</em><big>)</big><a class="headerlink" href="#surf.resource.Resource.get_by_attribute" title="Permalink to this definition">¶</a></dt>
+<dd>retrieves all resources from the data store that have the specified attributes
+and have the type of the class</dd></dl>
+
+<dl class="classmethod">
+<dt id="surf.resource.Resource.get_like">
+<em class="property">
+classmethod </em><tt class="descname">get_like</tt><big>(</big><em>*objects</em>, <em>**symbols</em><big>)</big><a class="headerlink" href="#surf.resource.Resource.get_like" title="Permalink to this definition">¶</a></dt>
+<dd>retrieves all resources that have attribute value pairs, with support for regex
+matching on values, currently reges is slow, try to avoid</dd></dl>
+
+<dl class="method">
+<dt id="surf.resource.Resource.graph">
+<tt class="descname">graph</tt><big>(</big><em>direct=True</em><big>)</big><a class="headerlink" href="#surf.resource.Resource.graph" title="Permalink to this definition">¶</a></dt>
+<dd>returns an RDFLib ConjunctiveGraph represenation of the current resource</dd></dl>
+
+<dl class="classmethod">
+<dt id="surf.resource.Resource.instance">
+<em class="property">
+classmethod </em><tt class="descname">instance</tt><big>(</big><em>subject</em><big>)</big><a class="headerlink" href="#surf.resource.Resource.instance" title="Permalink to this definition">¶</a></dt>
+<dd>returns the Resource instance currently in memory with the specified subject</dd></dl>
+
+<dl class="classmethod">
+<dt id="surf.resource.Resource.instances">
+<em class="property">
+classmethod </em><tt class="descname">instances</tt><big>(</big><big>)</big><a class="headerlink" href="#surf.resource.Resource.instances" title="Permalink to this definition">¶</a></dt>
+<dd>returns all the instances of type Resource currently available in memory</dd></dl>
+
+<dl class="method">
+<dt id="surf.resource.Resource.is_dirty">
+<tt class="descname">is_dirty</tt><big>(</big><big>)</big><a class="headerlink" href="#surf.resource.Resource.is_dirty" title="Permalink to this definition">¶</a></dt>
+<dd>True if the resource has been modified during runtime and not persisted, False
+otherwise</dd></dl>
+
+<dl class="method">
+<dt id="surf.resource.Resource.is_present">
+<tt class="descname">is_present</tt><big>(</big><big>)</big><a class="headerlink" href="#surf.resource.Resource.is_present" title="Permalink to this definition">¶</a></dt>
+<dd>returns True if the resource is present in the Store or False otherwise</dd></dl>
+
+<dl class="method">
+<dt id="surf.resource.Resource.load">
+<tt class="descname">load</tt><big>(</big><big>)</big><a class="headerlink" href="#surf.resource.Resource.load" title="Permalink to this definition">¶</a></dt>
+<dd>loads all attributes from the data store, both direct attributes (where the subject
+is the subject of the resource) and indirect attributes (where the object is the subject
+of the resource)</dd></dl>
+
+<dl class="method">
+<dt id="surf.resource.Resource.load_from_source">
+<tt class="descname">load_from_source</tt><big>(</big><em>data=None</em>, <em>file=None</em>, <em>location=None</em>, <em>format=None</em><big>)</big><a class="headerlink" href="#surf.resource.Resource.load_from_source" title="Permalink to this definition">¶</a></dt>
+<dd>load the resource from a source (uri, file or string rdf data)</dd></dl>
+
+<dl class="classmethod">
+<dt id="surf.resource.Resource.namespace">
+<em class="property">
+classmethod </em><tt class="descname">namespace</tt><big>(</big><big>)</big><a class="headerlink" href="#surf.resource.Resource.namespace" title="Permalink to this definition">¶</a></dt>
+<dd>returns the namespace of the Resources type</dd></dl>
+
+<dl class="method">
+<dt id="surf.resource.Resource.remove">
+<tt class="descname">remove</tt><big>(</big><big>)</big><a class="headerlink" href="#surf.resource.Resource.remove" title="Permalink to this definition">¶</a></dt>
+<dd>remove the resource from the store</dd></dl>
+
+<dl class="method">
+<dt id="surf.resource.Resource.save">
+<tt class="descname">save</tt><big>(</big><big>)</big><a class="headerlink" href="#surf.resource.Resource.save" title="Permalink to this definition">¶</a></dt>
+<dd>saves the resource to the data store, replacing the representation with
+the current one</dd></dl>
+
+<dl class="method">
+<dt id="surf.resource.Resource.serialize">
+<tt class="descname">serialize</tt><big>(</big><em>format='xml'</em>, <em>direct=False</em><big>)</big><a class="headerlink" href="#surf.resource.Resource.serialize" title="Permalink to this definition">¶</a></dt>
+<dd>returns a serialized version of the internal graph represenatation
+of the resource, the format is the same as expected by rdflib&#8217;s graph
+serialize method</dd></dl>
+
+<dl class="method">
+<dt id="surf.resource.Resource.set">
+<tt class="descname">set</tt><big>(</big><em>graph</em><big>)</big><a class="headerlink" href="#surf.resource.Resource.set" title="Permalink to this definition">¶</a></dt>
+<dd>sets a resource from the supplied graph</dd></dl>
+
+<dl class="attribute">
+<dt id="surf.resource.Resource.subject">
+<tt class="descname">subject</tt><a class="headerlink" href="#surf.resource.Resource.subject" title="Permalink to this definition">¶</a></dt>
+<dd>the namespaces</dd></dl>
+
+<dl class="method">
+<dt id="surf.resource.Resource.update">
+<tt class="descname">update</tt><big>(</big><big>)</big><a class="headerlink" href="#surf.resource.Resource.update" title="Permalink to this definition">¶</a></dt>
+<dd>update the resource in the store, does not remove other triples
+related to it</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="query.html"
+                                  title="previous chapter">The <tt class="docutils literal docutils literal docutils literal"><span class="pre">surf.query</span></tt> Module</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="session.html"
+                                  title="next chapter">The <tt class="docutils literal"><span class="pre">surf.session</span></tt> Module</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="../_sources/modules/resource.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="../search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../modindex.html" title="Global Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="session.html" title="The surf.session Module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="query.html" title="The surf.query Module"
+             >previous</a> |</li>
+        <li><a href="../index.html">SuRF vbeta documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2009, Cosmin Basca.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.1.
+    </div>
+  </body>
+</html>
