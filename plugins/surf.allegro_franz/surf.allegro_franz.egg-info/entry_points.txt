@@ -1,0 +1,6 @@
+[surf.plugins.reader]
+allegro_franz = allegro_franz.reader:ReaderPlugin
+
+[surf.plugins.writer]
+allegro_franz = allegro_franz.writer:WriterPlugin
+

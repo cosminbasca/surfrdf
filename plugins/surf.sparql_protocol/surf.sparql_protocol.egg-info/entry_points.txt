@@ -1,0 +1,3 @@
+[surf.plugins.reader]
+sparql_protocol = sparql_protocol.reader:ReaderPlugin
+

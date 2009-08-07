@@ -38,6 +38,7 @@ __author__ = 'Cosmin Basca'
 import re
 import new
 from rdf.term import URIRef, Literal, BNode, RDF, RDFS, XSD
+from rdf.namespace import Namespace, ClosedNamespace
 from rdf.graph import Graph, ConjunctiveGraph
 from namespace import *
 from surf.query import Query
@@ -45,80 +46,15 @@ from surf.store import Store
 import util
 import serializer
 from weakref import WeakKeyDictionary
-#from threading import Timer
+from datetime import datetime, date, time
 
 __all__ = ['Resource', 'ResourceMeta']
 
 a = RDF['type']
 
 '''
-the queries used by Resource
-'''
-
-def qSP(s,p,direct):
-    s, v = (s, '?v') if direct else ('?v', s)
-    return Query.select().distinct('?v','?c').where(s,p,v).where('?v',a,'?c',optional=True)
-    
-def qS(s,direct):
-    s, v = (s, '?v') if direct else ('?v', s)
-    return Query.select().distinct('?p','?v','?c').where(s,'?p',v).where('?v',a,'?c',optional=True)
-
-def qP_S(c,p,direct):
-    q = Query.select().distinct('?s','?c')
-    for i in range(len(p)):
-        s, v = ('?s', '?v%d'%i) if direct else ('?v%d'%i, '?s')
-        if type(p[i]) is URIRef:
-            q.where(s,p[i],v)
-    q.where('?s',a,'?c',optional=True)
-    return q
-
-def __literal(term):
-    #TODO - this is sparql specific, it needs to be pushed to the query, the query object
-    # must handle this by supporting a better unified model between the filters and the query
-    if type(term) is Literal:
-        return '"%s"@%s'%(term,term.language)
-    elif type(term) in [list,tuple]:
-        return '"%s"@%s'%(term[0],term[1])
-    return '"%s"'%term
-
-def qPO(c,direct,filter='',preds={}):
-    q = Query.select().distinct('?s','?c')
-    i = 0 
-    for p, v in preds.items():
-        s, v, f = ('?s', v, '') if direct else (v, '?s', '')
-        if filter is 'regex':
-            s, v, f = ('?s', '?v%d'%i, 'regex(?v%d,%s)'%(i,__literal(v))) if direct else (v, '?s', '')
-        q.where(s,p,v,filter=f)
-        i += 1    
-    q.where('?s',a,'?c',optional=True)
-    return q
-
-def qP_V(c,direct,p=[]):
-    q = Query.select().distinct('?v','?c')
-    for i in range(len(p)):
-        s, v= (c, '?v') if direct else ('?v', c)
-        q.where(s,p[i],v)
-    q.where('?v',a,'?c',optional=True)
-    return q
-
-'''
-def qO(c,direct,filter='',preds=[]):
-    q = Query.select().distinct('?s','?c')
-    i = 0 
-    for p in preds:
-        s, v, f = ('?s', v, '') if direct else (v, '?s', '')
-        if filter is 'regex':
-            s, v, f = ('?s', '?v%d'%i, 'regex(?v%d,%s)'%(i,__literal(v))) if direct else (v, '?s', '')
-        q.where(s,p,v,filter=f)
-        i += 1    
-    q.where('?s',a,'?c',optional=True)
-    return q
-'''
-
-'''
 the Resource
 '''
-
 class ResourceMeta(type):
     def __new__(meta,classname,bases,class_dict):
         ResourceClass = super(ResourceMeta,meta).__new__(meta,classname,bases,class_dict)
@@ -136,7 +72,7 @@ class ResourceMeta(type):
         if cls.session:
             uri = vals[0] if len(vals) > 0 else None
             classes = map(util.uri_to_class,vals[1:]) if len(vals) > 1 else []
-            return cls.session.map_instance(uri,subject,classes=classes,block_outo_load=True) if uri else Resource(subject,block_outo_load=True)
+            return cls.session.map_instance(uri,subject,classes=classes,block_outo_load=True) if uri else subject
         else:
             return None
     
@@ -144,6 +80,7 @@ class ResourceMeta(type):
     def _lazy(cls,value):
         '''
         does lazy instantiation of rdf predicates
+        value is a dictionary {val:[concept,concept,...]}
         '''        
         attr_value = []
         for r in value:
@@ -165,14 +102,15 @@ class ResourceMeta(type):
         value = None
         predicate, direct = util.attr2rdf(attr_name)
         if predicate:
-            q = qP_V(self.uri,direct,[predicate])
-            value = self._lazy(self.session[self.store_key].predicate_dict(q,'v','c'))
+            instances = self.session[self.store_key].instances_by_value(self,direct,[predicate])
+            value = self._lazy(instances)
             if value or (type(value) is list and len(value) > 0):
                 pass
             else:
                 value = None
         return value
     
+#TODO: add context to resource --- resources reside in different contexts
 class Resource(object):
     '''
     The Resource class, represents the transparent proxy object that exposes sets of
@@ -191,30 +129,34 @@ class Resource(object):
         with the subject of the resource
         '''
         self.__subject = subject if type(subject) is URIRef else URIRef(subject)
-        self.__graph = ConjunctiveGraph()
-        self.__graph.add((self.subject,a,self.uri))
         self.__dirty = False
-        self.__to_delete = []
         self._instances[self] = True
         self.__expired = False
-        #if self.session:
-        #    if self.session.use_cached:
-        #        self.__timer = Timer(self.session.cache_expire, self.__do_expire)
-        #        self.__timer.start()
-        if self.session and self.session.auto_load and not block_outo_load:
-            self.load()
-        
+        self.rdf_direct = {}
+        self.rdf_direct[a] = [self.uri]
+        self.rdf_inverse = {}
+        self.__namespaces = {}
+        if self.session:
+            if not self.store_key: self.store_key = self.session.default_store_key
+            if self.session.auto_load and not block_outo_load: self.load()
+            
     '''the subject of the resource '''
     subject = property(lambda self: self.__subject)
     
-    ''' internal graph representation of resources (ConjunctiveGraph ) '''
-    graph = property(lambda self: self.__graph)
+    '''the namespaces'''
+    namespaces = property(fget = lambda self: self.__namespaces)
     
-    ''' reflects the state of the resource, expired or not (see documentation for explanation) '''
-    expired = property(lambda self: self.__expired)
-    
-    def __do_expire(self):
-        self.__expired = True
+    def bind_namespaces(self,*namespaces):
+        for ns in namespaces:
+            if type(ns) in [str,unicode]:
+                self.__namespaces[ns] = get_namespace_url(ns)
+            elif type(ns) in [Namespace, ClosedNamespace]:
+                self.__namespaces[get_prefix(ns)] = ns
+                
+    def bind_namespaces_to_graph(self,graph):
+        if graph:
+            for prefix in self.namespaces:
+                graph.namespace_manager.bind(prefix, self.namespaces[prefix])
     
     @classmethod
     def instances(cls):
@@ -222,6 +164,16 @@ class Resource(object):
         returns all the instances of type Resource currently available in memory
         '''
         return cls._instances.keys()
+        
+    @classmethod
+    def instance(cls,subject):
+        '''
+        returns the Resource instance currently in memory with the specified subject
+        '''
+        for i in cls._instances:
+            if i.subject == subject:
+                return i
+        return None
         
     def is_dirty(self):
         '''
@@ -234,7 +186,7 @@ class Resource(object):
         '''
         for internal use, converts the value to an RDFLib compatible type if appropriate
         '''
-        if type(value) in [str, unicode]:
+        if type(value) in [str, unicode, basestring, float, int, long, bool, datetime, date, time]:
             return Literal(value)
         elif type(value) in [list, tuple]:
             language = value[1] if len(value) > 1 else None
@@ -242,15 +194,14 @@ class Resource(object):
             return Literal(value[0],language=language,datatype=datatype)
         elif type(value) is dict:
             val = value['value'] if 'value' in value else None
-            lang = value['language'] if 'language' in value else None
+            language = value['language'] if 'language' in value else None
             datatype = value['datatype'] if 'datatype' in value else None
             if val:
                 return Literal(val,language=language,datatype=datatype)
-        #elif isinstance(value,Resource):
+            return value
         elif hasattr(value,'subject'):
             return value.subject
-        else:
-            return value
+        return value
         
     def __setattr__(self,name,value):
         object.__setattr__(self,name,value)
@@ -259,77 +210,37 @@ class Resource(object):
             value = value if type(value) in [list, tuple] else [value]
             value = map(lambda val: Literal(val,datatype=XSD['string']) if type(val) in [str,unicode] else val,value)
             
-            self.__clear(predicate,direct)
-            for v in value:
-                s,p,o = (self.subject, predicate, self.__val2rdf(v))
-                if not direct:
-                    s,p,o = (self.__val2rdf(v), predicate, self.subject)
-                
-                self.__graph.add((s,p,o))
-                if self.session.auto_persist:
-                    self.session[self.store_key].add_triple(s,p,o)
-                else:
-                    self.__dirty = True
-    
-    def __clear(self,predicate,direct):
-        S,P,O = (self.subject, predicate, None) if direct else (None, predicate, self.subject)
-        self.__graph.remove((S,P,O))
-        if self.session.auto_persist:
-            self.session[self.store_key].remove_triple(s=S,p=P,o=O)
+            rdf_dict = self.rdf_direct if direct else self.rdf_inverse
+            rdf_dict[predicate] = []
+            rdf_dict[predicate].extend([val.subject if hasattr(val,'subject') else val for val in value])
+            self.__dirty = True
+            #TODO: add the auto_persist feature...
             
     def __delattr__(self,attr_name):
         predicate, direct = util.attr2rdf(attr_name)
         if predicate:
             value = self.__getattr__(attr_name)
             value = value if type(value) is list else [value]
-            for v in value:
-                s,p,o = (self.subject, predicate, self.__val2rdf(v))
-                if not direct:
-                    s,p,o = (self.__val2rdf(v), predicate, self.subject)
-                
-                self.graph.remove((s,p,o))
-                if self.session.auto_persist:
-                    self.session[self.store_key].remove_triple(s,p,o)
-                else:
-                    self.__to_delete.append((s,p,o))
-                    self.__dirty = True
-        
+            
+            rdf_dict = self.rdf_direct if direct else self.rdf_inverse
+            rdf_dict[predicate] = []
+            self.__dirty = True
+            #TODO: add the auto_persist feature...
+            
         object.__delattr__(self,attr_name)
     
     def __getattr__(self,attr_name):
         value = None
         predicate, direct = util.attr2rdf(attr_name)
         if predicate:
-            #print 'GET ',attr_name
-            q = qSP(self.subject,predicate,direct)
-            values = self.session[self.store_key].predicate_dict(q,'v','c')
-            # reuse already existing instances - CACHED
-            
-            cached_values = {}
-            for subj in values:
-                if type(subj) is URIRef:
-                    inst = self.instance(subj)
-                    cached_values[subj] = inst if hasattr(inst,'expired') and not inst.expired else values[subj]
-                else:
-                    cached_values[subj] = values[subj]
-                
-            value =  self._lazy(cached_values) if self.session.use_cached else self._lazy(values)
-            
+            values = self.session[self.store_key].get(self,predicate,direct)
+            # TODO: reuse already existing instances - CACHED
+            value =  self._lazy(values)
             if value or (type(value) is list and len(value) > 0):
                 self.__setattr__(attr_name,value)
             else:
                 value = None
         return value
-
-    @classmethod
-    def instance(cls,subject):
-        '''
-        returns the Resource instance currently in memory with the specified subject
-        '''
-        for i in cls._instances:
-            if i.subject == subject:
-                return i
-        return None
 
     def load(self):
         '''
@@ -341,14 +252,13 @@ class Resource(object):
             for p,v in results.items():
                 attr = util.rdf2attr(p,direct)
                 value = self._lazy(v)
-                #print 'FILL ',p,type(value)
                 if value or (type(value) is list and len(value) > 0):
                     self.__setattr__(attr,value)
                 
-        direct_r = self.session[self.store_key].predicates_dict(qS(self.subject,True),'p','v','c')
-        inverse_r = self.session[self.store_key].predicates_dict(qS(self.subject,False),'p','v','c')
-        update(direct_r,True)
-        update(inverse_r,False)
+        results_d = self.session[self.store_key].load(self,True)
+        results_i = self.session[self.store_key].load(self,False)
+        update(results_d,True)
+        update(results_i,False)
         self.__dirty = False
 
     @classmethod
@@ -358,8 +268,8 @@ class Resource(object):
         and have the type of the class
         '''
         subjects = {}
-        subjects.update(cls.session[cls.store_key].predicate_dict(qP_S(cls.uri,attributes,True),'s','c'))
-        subjects.update(cls.session[cls.store_key].predicate_dict(qP_S(cls.uri,attributes,False),'s','c'))
+        subjects.update(cls.session[cls.store_key].instances_by_attribute(self,attributes,True))
+        subjects.update(cls.session[cls.store_key].instances_by_attribute(self,attributes,False))
         instances = []
         for s, types in subjects.items():
             if type(s) is URIRef:
@@ -373,7 +283,7 @@ class Resource(object):
         that are of the specified type as the resource class
         '''
         if hasattr(cls,'uri'):
-            subjects = [] if cls == Resource else cls.session[cls.store_key].all(cls.uri,limit=limit,offset=offset)
+            subjects = [] if cls == Resource else cls.session[cls.store_key].all(cls,limit=limit,offset=offset)
             if subjects:
                 return [cls(subject) for subject in subjects]
             return []
@@ -381,17 +291,17 @@ class Resource(object):
         
     @classmethod
     def __get(cls,filter,*objects,**symbols):
-        direct_p = {}
-        inverse_p = {}
-        direct_p.update(  [(util.attr2rdf(name)[0],symbols[name]) for name in symbols if util.is_attr_direct(name)])
-        inverse_p.update( [(util.attr2rdf(name)[0],symbols[name]) for name in symbols if not util.is_attr_direct(name)])
+        predicates_d = {}
+        predicates_d.update( [(util.attr2rdf(name)[0],symbols[name]) for name in symbols if util.is_attr_direct(name)])
+        predicates_i = {}
+        predicates_i.update( [(util.attr2rdf(name)[0],symbols[name]) for name in symbols if not util.is_attr_direct(name)])
         
         subjects = {}
         if len(symbols) > 0:
-            if len(direct_p) > 0:
-                subjects.update( cls.session[cls.store_key].predicate_dict(qPO(cls.uri,True,filter,direct_p),'s','c') )
-            if len(inverse_p) > 0:
-                subjects.update( cls.session[cls.store_key].predicate_dict(qPO(cls.uri,False,filter,inverse_p),'s','c') )
+            if len(predicates_d) > 0:
+                subjects.update( cls.session[cls.store_key].instances(self,True,filter,predicates_d) )
+            if len(predicates_i) > 0:
+                subjects.update( cls.session[cls.store_key].instances(self,False,filter,predicates_i) )
         
         #if len(objects) > 0:
         #    subjects.update(cls.store().o(True,cls.uri(),filter,objects))
@@ -418,18 +328,35 @@ class Resource(object):
         '''
         return cls.__get('regex',*objects,**symbols)
     
-    def serialize(self,format='xml'):
+    def serialize(self,format='xml',direct=False):
         '''
         returns a serialized version of the internal graph represenatation
         of the resource, the format is the same as expected by rdflib's graph
         serialize method
         '''
+        graph = self.graph(direct=direct)
         if format == 'json':
-            return serializer.to_json(self.__graph)
-        return self.__graph.serialize(format=format)
-    
+            return serializer.to_json(graph)
+        return graph.serialize(format=format)
+        
+    def graph(self,direct=True):
+        '''
+        returns an RDFLib ConjunctiveGraph represenation of the current resource
+        '''
+        graph = ConjunctiveGraph()
+        self.bind_namespaces_to_graph(graph)
+        graph.add((self.subject,RDF['type'],self.uri))
+        for predicate in self.rdf_direct:
+            for value in self.rdf_direct[predicate]:
+                graph.add((self.subject,predicate,value))
+        if not direct:
+            for predicate in self.rdf_inverse:
+                for value in self.rdf_inverse[predicate]:
+                    graph.add((value,predicate,self.subject))
+        return graph
+        
     def __str__(self):
-        return self.serialize('n3')
+        return '{%s : %s}'%(unicode(self.subject),unicode(self.uri))
     
     def save(self):
         '''
@@ -452,12 +379,6 @@ class Resource(object):
         related to it
         '''
         self.session[self.store_key].update(self)
-        #del_graph = ConjunctiveGraph()
-        for s,p,o in self.__to_delete:
-            self.session[self.store_key].remove_triple(s,p,o)
-        #    del_graph.add(triple)
-        #self.session[self.store_key].remove()
-        # better to remove all statements to be removed at once...
         self.__dirty = False
         
     def is_present(self):
@@ -484,15 +405,14 @@ class Resource(object):
         graph.parse(data=data,file=file,location=location,format=format)
         self.set(graph)
     
-    #TODO: must make this __lazy ... see how
     def set(self, graph):
+        #TODO: must make this __lazy ... see how
         '''
         sets a resource from the supplied graph
         '''
-        self.__graph = graph
         # add properties to the resource from the graph
         attrs = {}
-        for s,p,o in self.__graph:
+        for s,p,o in graph:
             attr_name = None
             value = None
             if str(s) == str(self.subject):
@@ -526,22 +446,17 @@ class Resource(object):
         return None
         
     @classmethod
-    def concept(cls,subject):
+    def concept(cls,subject,store=None):
         '''
         returns the Resources Concept uri (type)
         '''
-        return cls.session[cls.store_key].concept(subject)
+        store_k = store if store else cls.store_key
+        store_k = store_k if store_k else cls.session.default_store_key
+        return cls.session[store_k].concept(subject)
         
-    def bind_namespaces(self,namespaces):
-        '''
-        the namespaces param must be a dict of the form:
-        {prefix1: namespace1, prefix2 : namespace2, ..... }
-        '''
-        for prefix in namespaces:
-            self.__graph.namespace_manager.bind(prefix, namespaces[prefix])
-            
     def __ne__(self, other):
         return not self.__eq__(other)
 
     def __eq__(self, other):
         return self.subject == other.subject if isinstance(other, Resource) else False
+    

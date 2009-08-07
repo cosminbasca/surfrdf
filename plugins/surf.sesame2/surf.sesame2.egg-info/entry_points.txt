@@ -1,0 +1,6 @@
+[surf.plugins.reader]
+sesame2 = sesame2.reader:ReaderPlugin
+
+[surf.plugins.writer]
+sesame2 = sesame2.writer:WriterPlugin
+

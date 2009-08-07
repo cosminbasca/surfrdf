@@ -35,51 +35,36 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-# make sure rdf has the MemoryIO plugin registered
-import rdf.store
-import rdf.serializer
-import rdf.parser
-from rdf.plugin import _plugins, register
-if ('IOMemory',rdf.store.Store) not in _plugins:
-    register('IOMemory',rdf.store.Store,'iomemory','IOMemory')
-if ('Memory',rdf.store.Store) not in _plugins:
-    register('Memory',rdf.store.Store,'memory','Memory')
+import logging
+from surf.query import Query
 
+class Plugin(object):
+    '''
+    super class for all surf Plugins, provides basic instantiation + logging
+    '''
+    def __init__(self,*args,**kwargs):
+        logging.basicConfig()
+        self.log = logging.getLogger(self.__class__.__name__)
+        self.log.setLevel(logging.NOTSET)
+        self.__inference = False
 
-from query import InvalidTypeQueryException, Query
-from resource import Resource, a
-import namespace as ns
-from store import Store, PluginNotFoundException
-from session import Session
-import sys
-import os
-import re
-
-def get_svn_revision(path=None):
-    rev = None
-    if path is None:
-        path = sys.modules[__name__].__path__[0]
-    entries_path = '%s/.svn/entries' % path
-
-    if os.path.exists(entries_path):
-        entries = open(entries_path, 'r').read()
-        # Versions >= 7 of the entries file are flat text.  The first line is
-        # the version number. The next set of digits after 'dir' is the revision.
-        if re.match('(\d+)', entries):
-            rev_match = re.search('\d+\s+dir\s+(\d+)', entries)
-            if rev_match:
-                rev = rev_match.groups()[0]
-        # Older XML versions of the file specify revision as an attribute of
-        # the first entries node.
-        else:
-            from xml.dom import minidom
-            dom = minidom.parse(entries_path)
-            rev = dom.getElementsByTagName('entry')[0].getAttribute('revision')
-
-    if rev:
-        return u'r%s' % rev
-    return u'Sunknown'
-
-__version__ = (0,5,0,get_svn_revision())
-
-print 'SuRF version : ',__version__
+    def enable_logging(self,enable=True):
+        '''
+        enables or disables loggin for the current plugin
+        '''
+        level = logging.DEBUG if enable else logging.NOTSET
+        self.log.setLevel(level)
+            
+    def is_enable_logging(self):
+        '''
+        True if logging is enabled
+        '''
+        return False if self.log.level == logging.NOTSET else True
+    
+    def close(self):
+        pass
+    
+    def __set_inference(self,val):
+        self.__inference = val if type(val) is bool else False
+    inference = property(fget = lambda self:self.__inference,
+                         fset = __set_inference)

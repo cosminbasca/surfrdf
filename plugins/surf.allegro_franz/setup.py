@@ -34,52 +34,25 @@
 
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
+"""
+SuRF plugin
 
-import logging
+Support for AllegroGraph
 
-'''
-formats the results for the Resource, based on a result type
-'''
-from surf.store.plugins import AbstractMount
+to develop run the folowing command:
+python setup.py develop -d .. -m
+"""
+from setuptools import setup
 
-class FormatterPluginMount(AbstractMount):
-    pass
-
-class RDFFormatter(object):
-    __metaclass__ = FormatterPluginMount
-    __type__ = AbstractMount.default
-    
-    def __init__(self,*args,**kwargs):
-        logging.basicConfig()
-        self.log = logging.getLogger('Formatter %s '%self.__type__)
-        self.log.setLevel(logging.NOTSET)
-    
-    def enable_logging(self,enable=True):
-        if enable:
-            self.log.setLevel(logging.DEBUG)
-        else :
-            self.log.setLevel(logging.NOTSET)
-    
-    @classmethod
-    def get_type(cls):
-        return cls.__type__
-    
-    # to implement
-    def _predicate_dict(self,results,value_key,concept_key):
-        return results
-    
-    def _predicates_dict(self,results,predicate_key,value_key,concept_key):
-        return results
-    
-    def _convert_to_rdftypes(self,results):
-        return results
-    
-    # to use
-    def predicate_dict(self,results,value_key,concept_key):
-        return self._predicate_dict(self._convert_to_rdftypes(results),value_key, concept_key)
-    
-    def predicates_dict(self,results,predicate_key,value_key,concept_key):
-        return self._predicates_dict(self._convert_to_rdftypes(results), predicate_key,value_key, concept_key)
-
-# intialize formatter plugins
-import jsonformatter
+setup(
+    name='surf.allegro_franz',
+    version='0.2',
+    description=__doc__,
+    author=__author__,
+    packages=['allegro_franz'],
+    #install_requires=['surf>=0.5.0',],
+    entry_points={
+    'surf.plugins.reader': 'allegro_franz = allegro_franz.reader:ReaderPlugin',
+    'surf.plugins.writer': 'allegro_franz = allegro_franz.writer:WriterPlugin',
+    }
+)

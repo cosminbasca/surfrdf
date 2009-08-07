@@ -34,52 +34,25 @@
 
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
+"""
+SuRF plugin
 
-# make sure rdf has the MemoryIO plugin registered
-import rdf.store
-import rdf.serializer
-import rdf.parser
-from rdf.plugin import _plugins, register
-if ('IOMemory',rdf.store.Store) not in _plugins:
-    register('IOMemory',rdf.store.Store,'iomemory','IOMemory')
-if ('Memory',rdf.store.Store) not in _plugins:
-    register('Memory',rdf.store.Store,'memory','Memory')
+Support for Sesame2 Protocol
 
+to develop run the folowing command:
+python setup.py develop -d .. -m
+"""
+from setuptools import setup
 
-from query import InvalidTypeQueryException, Query
-from resource import Resource, a
-import namespace as ns
-from store import Store, PluginNotFoundException
-from session import Session
-import sys
-import os
-import re
-
-def get_svn_revision(path=None):
-    rev = None
-    if path is None:
-        path = sys.modules[__name__].__path__[0]
-    entries_path = '%s/.svn/entries' % path
-
-    if os.path.exists(entries_path):
-        entries = open(entries_path, 'r').read()
-        # Versions >= 7 of the entries file are flat text.  The first line is
-        # the version number. The next set of digits after 'dir' is the revision.
-        if re.match('(\d+)', entries):
-            rev_match = re.search('\d+\s+dir\s+(\d+)', entries)
-            if rev_match:
-                rev = rev_match.groups()[0]
-        # Older XML versions of the file specify revision as an attribute of
-        # the first entries node.
-        else:
-            from xml.dom import minidom
-            dom = minidom.parse(entries_path)
-            rev = dom.getElementsByTagName('entry')[0].getAttribute('revision')
-
-    if rev:
-        return u'r%s' % rev
-    return u'Sunknown'
-
-__version__ = (0,5,0,get_svn_revision())
-
-print 'SuRF version : ',__version__
+setup(
+    name='surf.sesame2',
+    version='0.2',
+    description=__doc__,
+    author=__author__,
+    packages=['sesame2'],
+    #install_requires=['surf>=0.5.0',],
+    entry_points={
+    'surf.plugins.reader': 'sesame2 = sesame2.reader:ReaderPlugin',
+    'surf.plugins.writer': 'sesame2 = sesame2.writer:WriterPlugin',
+    }
+)

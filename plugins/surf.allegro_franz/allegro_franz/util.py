@@ -35,40 +35,43 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-from surf.store.plugins import RDFReader
-from sparqlquery import translate
-from allegroprotocol.allegro import Allegro, AllegroException
+from rdf.term import URIRef, Literal, BNode
+from franz.openrdf.model.value import URI as fURIRef
+from franz.openrdf.model.value import BNode as fBNode
+from franz.openrdf.model.literal import Literal as fLiteral
 
-class SPARQLSesame2HttpReader(RDFReader):
-    __type__ = 'sparql-sesame2-http'
+'''
+helper functions that convert between rdflib concepts and sesame2 api concepts
+'''
+
+# TERMS
+def toRdfLib(term):
+    if type(term) is fURIRef:
+        return URIRef(term.getURI())
+    elif type(term) is fLiteral:
+        if term.getDatatype(): dtype = URIRef(term.getDatatype())
+        return Literal(term.getLabel(),language=term.getLanguage(),datatype=dtype)
+    elif type(term) is fBNode:
+        return BNode(term.getID())
+    elif type(term) in [list,tuple]:
+        return map(toRdfLib, term)
+    return term
+
+def toSesame(term,factory):
+    if type(term) is URIRef:
+        return factory.createURI(str(term))
+    elif type(term) is Literal:
+        return factory.createLiteral(str(term),datatype=term.datatype,language=term.language)
+    elif type(term) is BNode:
+        return factory.createBNode(str(term))
+    elif type(term) in [list, tuple]:
+        return map(lambda item: toSesame(item,factory), term)
+    return term
+
+
+# STATEMENTS
+def toStatement((s,p,o),factory,context=None):
+    return factory.createStatement(s,p,o,context)
     
-    def __init__(self,*args,**kwargs):
-        RDFReader.__init__(self,*args,**kwargs)
-        self.__host = kwargs['host'] if 'host' in kwargs else 'localhost'
-        self.__port = kwargs['port'] if 'port' in kwargs else 5678
-        self.__root_path = kwargs['root_path'] if 'root_path' in kwargs else '/sesame'
-        self.__repository_path = kwargs['repository_path'] if 'repository_path' in kwargs else ''
-        self.__repository = kwargs['repository'] if 'repository' in kwargs else None
-        
-        self.__allegro = Allegro(self.host,self.port,self.root_path,self.repository_path)
-        if not self.repository:
-            raise Exception('No <repository> argument supplyed.')
-        self.allegro.open_repository(self.repository)
-        
-    host = property(lambda self: self.__host)
-    port = property(lambda self: self.__port)
-    root_path = property(lambda self: self.__root_path)
-    repository_path = property(lambda self: self.__repository_path)
-    repository = property(lambda self: self.__repository)
-    
-    allegro = property(lambda self: self.__allegro)
-    
-    def _execute(self,q):
-        try:
-            q_rep = translate(q)
-            self.log.debug(q_rep)
-            results = self.allegro.sparql_query(self.repository,q_rep,infer=False,format='sparql')
-            return results
-        except Exception, e:
-            print 'Exception while querying', e
-        return None
+def toTuple(statement):
+    return (statement.getSubject(),statement.getPredicate(),statement.getObject(),statement.getContext())
