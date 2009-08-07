@@ -35,7 +35,21 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-#TODO: better integration of the namespace manager with Allegro
+'''
+The `namespace` manager module of `surf`.
+The manager holds a dictionary of the form {short_hand_notation : namespace_uri,
+                                            ...}
+For performance reasons an inverted index is also kept
+
+Usage example
+=============
+
+.. code-block:: python
+    
+    from surf import *
+    
+    ns.register(my_namespace='http://mynamespace.com/')
+'''
 
 import sys
 from rdf.namespace import Namespace, ClosedNamespace
@@ -117,16 +131,27 @@ def __add_inverted(prefix):
     __inverted_dict__[ns_dict[prefix].__str__()] = prefix
 
 def base(property):
+    '''
+    returns the base part of a URI, `property` is a string denoting a URI
+    '''
     if '#' in property:
         return '%s#'%property.rsplit('#',1)[0]
     return '%s/'%property.rsplit('/',1)[0]
 
 def symbol(property):
+    '''
+    returns the part of a URI after the last **/** or *#*, `property` is a
+    string denoting a URI
+    '''
     if '#' in property:
         return property.rsplit('#',1)[-1]
     return property.rsplit('/',1)[-1]
 
-def register(**namespaces):    
+def register(**namespaces):
+    '''
+    registers a namespace with a shorthand notation with the `namespace` manager
+    the arguments are passed in as key-value pairs.
+    '''
     ns_dict = sys.modules[__name__].__dict__
     for key in namespaces:
         uri = namespaces[key]
@@ -136,6 +161,10 @@ def register(**namespaces):
         __add_inverted(prefix)
         
 def get_namespace(base):
+    '''
+    returns the `namespace` short hand notation and the uri based on the uri `base`.
+    The namespace is a `rdf.namespace.Namespace`.
+    '''
     global __anonimous_count
     ns_dict = sys.modules[__name__].__dict__
     base = base if type(base) in [str, unicode] else base.__str__()
@@ -150,6 +179,9 @@ def get_namespace(base):
     return prefix, uri
 
 def get_namespace_url(prefix):
+    '''
+    returns the `namespace` URI registered under the specified `prefix`
+    '''
     ns_dict = sys.modules[__name__].__dict__
     try:
         return ns_dict[prefix.__str__().upper()]
@@ -158,6 +190,10 @@ def get_namespace_url(prefix):
     
     
 def get_prefix(uri):
+    '''
+    the inverse function of `get_namespace_url(prefix)`, returns the `prefix`
+    of a `namespace` based on its URI
+    '''
     try:
         return __inverted_dict__[uri.__str__()]
     except:
