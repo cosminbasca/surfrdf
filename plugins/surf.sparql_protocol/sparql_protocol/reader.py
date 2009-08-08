@@ -40,7 +40,13 @@ from surf.plugin.query_reader import RDFQueryReader
 from surf.query_to_sparql import translate
 from SPARQLWrapper import SPARQLWrapper, JSON, XML, GET, POST
 from SPARQLWrapper.SPARQLExceptions import EndPointNotFound, QueryBadFormed, SPARQLWrapperException
-from rdf.term import URIRef, BNode, Literal
+
+# the rdf way
+#from rdf.term import URIRef, BNode, Literal
+# the rdflib 2.4.x way
+from rdflib.URIRef import URIRef
+from rdflib.BNode import BNode
+from rdflib.Literal import Literal
 
 class ReaderPlugin(RDFQueryReader):
     def __init__(self,*args,**kwargs):

@@ -55,8 +55,7 @@ setup(
       platforms = ['any'], #Should be removed by PEP  314
       packages=find_packages(exclude=['ez_setup']),
       requires=['simplejson'], # Used by distutils to create metadata PKG-INFO
-      install_requires=['rdf>=0.9a6',
-                        'rdflib>=2.4.2',
+      install_requires=['rdflib>=2.4.2',
                         'simplejson==2.0.9',], #Used by setuptools to install the dependencies
       classifiers=[
         'Development Status :: 3 - Alpha',

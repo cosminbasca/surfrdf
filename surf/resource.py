@@ -37,9 +37,6 @@ __author__ = 'Cosmin Basca'
 
 import re
 import new
-from rdf.term import URIRef, Literal, BNode, RDF, RDFS, XSD
-from rdf.namespace import Namespace, ClosedNamespace
-from rdf.graph import Graph, ConjunctiveGraph
 from namespace import *
 from surf.query import Query
 from surf.store import Store
@@ -47,6 +44,20 @@ import util
 import serializer
 from weakref import WeakKeyDictionary
 from datetime import datetime, date, time
+
+# the rdf way
+#from rdf.term import URIRef, Literal, BNode, RDF, RDFS, XSD
+#from rdf.namespace import Namespace, ClosedNamespace
+#from rdf.graph import Graph, ConjunctiveGraph
+# the rdflib 2.4.x way
+from rdflib.Namespace import Namespace
+from rdflib.Graph import Graph, ConjunctiveGraph
+from rdflib.URIRef import URIRef
+from rdflib.BNode import BNode
+from rdflib.Literal import Literal
+from rdflib.RDF import RDFNS as RDF
+from rdflib.RDFS import RDFSNS as RRDFS
+
 
 __all__ = ['Resource', 'ResourceMeta']
 

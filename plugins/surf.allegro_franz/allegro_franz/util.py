@@ -35,10 +35,16 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-from rdf.term import URIRef, Literal, BNode
 from franz.openrdf.model.value import URI as fURIRef
 from franz.openrdf.model.value import BNode as fBNode
 from franz.openrdf.model.literal import Literal as fLiteral
+
+# the rdf way
+#from rdf.term import URIRef, Literal, BNode
+# the rdflib 2.4.x way
+from rdflib.URIRef import URIRef
+from rdflib.BNode import BNode
+from rdflib.Literal import Literal
 
 '''
 helper functions that convert between rdflib concepts and sesame2 api concepts

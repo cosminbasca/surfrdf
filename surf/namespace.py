@@ -52,8 +52,14 @@ Usage example
 '''
 
 import sys
-from rdf.namespace import Namespace, ClosedNamespace
-from rdf import namespace
+
+#the rdf way (rdflib 2.5.x, 3x)
+#from rdf.namespace import Namespace, ClosedNamespace, RDF, RDFS
+#the rdflib 2.4.x way
+from rdflib.Namespace import Namespace
+from rdflib.Namespace import Namespace as ClosedNamespace
+from rdflib.RDF import RDFNS as RDF
+from rdflib.RDFS import RDFSNS as RRDFS
 
 __anonimous = 'NS'
 __anonimous_count = 0

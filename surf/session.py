@@ -36,12 +36,19 @@
 __author__ = 'Cosmin Basca'
 
 import new
-from rdf.term import URIRef, BNode, Literal
 from query import Query
 from store import Store
 from resource import Resource, ResourceMeta
 import util
 from exceptions import TypeError
+
+# the rdf way
+#from rdf.term import URIRef, BNode, Literal
+# the rdflib 2.4.x way
+from rdflib.URIRef import URIRef
+from rdflib.BNode import BNode
+from rdflib.Literal import Literal
+
 
 '''
 TODO:

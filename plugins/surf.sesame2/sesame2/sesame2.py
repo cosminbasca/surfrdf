@@ -39,9 +39,17 @@ from urllib import urlencode
 import httplib
 import logging
 from xml.dom.minidom import parseString, getDOMImplementation
-from rdf.graph import Graph, ConjunctiveGraph
-from rdf.term import URIRef, Literal, BNode
-from rdf.namespace import Namespace
+
+# the rdf way
+#from rdf.graph import Graph, ConjunctiveGraph
+#from rdf.term import URIRef, Literal, BNode
+#from rdf.namespace import Namespace
+# the rdflib 2.4.x way
+from rdflib.Graph import Graph, ConjunctiveGraph
+from rdflib.URIRef import URIRef
+from rdflib.BNode import BNode
+from rdflib.Literal import Literal
+from rdflib.Namespace import Namespace
 
 def parse_sparql_xml(response):
         def get_text(node):

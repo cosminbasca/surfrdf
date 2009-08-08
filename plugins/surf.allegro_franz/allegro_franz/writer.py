@@ -39,7 +39,6 @@ __author__ = 'Cosmin Basca'
 from surf.plugin.writer import RDFWriter
 from util import toRdfLib, toSesame, toStatement, toTuple
 from surf.query_to_sparql import translate
-from rdf import term
 
 try:
     from franz.openrdf.sail.allegrographserver import AllegroGraphServer

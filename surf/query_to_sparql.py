@@ -37,9 +37,20 @@ __author__ = 'Cosmin Basca'
 
 #TODO: move the translators in the future in a pluggable architecture
 
-from rdf.graph import Graph, ConjunctiveGraph
-from rdf.term import URIRef, Literal, BNode, RDF, RDFS
-from rdf.namespace import Namespace
+# the rdf way
+#from rdf.graph import Graph, ConjunctiveGraph
+#from rdf.term import URIRef, Literal, BNode, RDF, RDFS
+#from rdf.namespace import Namespace
+# the rdflib 2.4.x way
+from rdflib.Namespace import Namespace
+from rdflib.Graph import Graph, ConjunctiveGraph
+from rdflib.URIRef import URIRef
+from rdflib.BNode import BNode
+from rdflib.Literal import Literal
+from rdflib.RDF import RDFNS as RDF
+from rdflib.RDFS import RDFSNS as RRDFS
+
+
 from surf.query import Query
 
 '''
