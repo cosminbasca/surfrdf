@@ -141,7 +141,7 @@ class ReaderPlugin(RDFQueryReader):
                         rdfType = None
                         if type == 'uri': rdfType = URIRef(value)
                         elif type == 'literal':
-                            rdfType = Literal(value,language=json_item[key]['xml:lang']) if 'xml:lang' in json_item[key] else Literal(value)  
+                            rdfType = Literal(value,lang=json_item[key]['xml:lang']) if 'xml:lang' in json_item[key] else Literal(value)  
                         elif type == 'typed-literal':
                             rdfType = Literal(value,datatype=URIRef(json_item[key]['datatype']))
                         elif type == 'bnode': rdfType = BNode(value)

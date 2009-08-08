@@ -221,13 +221,13 @@ class Resource(object):
         elif type(value) in [list, tuple]:
             language = value[1] if len(value) > 1 else None
             datatype = value[2] if len(value) > 2 else None
-            return Literal(value[0],language=language,datatype=datatype)
+            return Literal(value[0],lang=language,datatype=datatype)
         elif type(value) is dict:
             val = value['value'] if 'value' in value else None
             language = value['language'] if 'language' in value else None
             datatype = value['datatype'] if 'datatype' in value else None
             if val:
-                return Literal(val,language=language,datatype=datatype)
+                return Literal(val,lang=language,datatype=datatype)
             return value
         elif hasattr(value,'subject'):
             return value.subject

@@ -4,9 +4,13 @@ from unittest import TestCase
 
 from surf import ns
 from surf.resource import Resource
-from rdf.namespace import Namespace, ClosedNamespace
-from rdf.term import URIRef, Literal
 from surf import *
+
+#from rdf.namespace import Namespace, ClosedNamespace
+#from rdf.term import URIRef, Literal
+from rdflib.Namespace import Namespace
+from rdflib.URIRef import URIRef
+from rdflib.Literal import Literal
 
 class TestResource(TestCase):
     def setUp(self):

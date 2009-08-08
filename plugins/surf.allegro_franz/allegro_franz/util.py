@@ -57,7 +57,7 @@ try:
             return URIRef(term.getURI())
         elif type(term) is fLiteral:
             if term.getDatatype(): dtype = URIRef(term.getDatatype())
-            return Literal(term.getLabel(),language=term.getLanguage(),datatype=dtype)
+            return Literal(term.getLabel(),lang=term.getLanguage(),datatype=dtype)
         elif type(term) is fBNode:
             return BNode(term.getID())
         elif type(term) in [list,tuple]:
@@ -68,7 +68,7 @@ try:
         if type(term) is URIRef:
             return factory.createURI(str(term))
         elif type(term) is Literal:
-            return factory.createLiteral(str(term),datatype=term.datatype,language=term.language)
+            return factory.createLiteral(str(term),datatype=term.datatype,lang=term.language)
         elif type(term) is BNode:
             return factory.createBNode(str(term))
         elif type(term) in [list, tuple]:

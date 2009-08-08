@@ -3,7 +3,8 @@ import sys
 from unittest import TestCase
 
 from surf import ns
-from rdf.namespace import Namespace, ClosedNamespace
+#from rdf.namespace import Namespace, ClosedNamespace
+from rdflib.Namespace import Namespace
 
 class TestNamespace(TestCase):
     def test_01_register(self):
