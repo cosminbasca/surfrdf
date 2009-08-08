@@ -47,8 +47,24 @@ from setuptools import setup
 setup(
     name='surf.allegro_franz',
     version='0.2',
-    description=__doc__,
-    author=__author__,
+    description='surf AllegroGraph plugin',
+    long_description = 'Allows the retrieval / persistence of surf resources from / to the AllegroGraph triple-store from Franz',
+    license = 'New BSD SOFTWARE', 
+    author="Cosmin Basca",
+    author_email="cosmin.basca at google.com",
+    url = 'http://code.google.com/p/surfrdf/',
+    #download_url = 'http://surfrdf.googlecode.com/files/SuRF-0.4-py2.5.egg',
+    platforms = ['any'], #Should be removed by PEP  314
+    requires=['simplejson'], # Used by distutils to create metadata PKG-INFO
+    classifiers=[
+      'Development Status :: 3 - Alpha',
+      'Intended Audience :: Developers',
+      'License :: OSI Approved :: BSD License',
+      'Operating System :: OS Independent',
+      'Programming Language :: Python :: 2.5',
+    ],
+    keywords = 'python SPARQL RDF resource mapper',
+    requires_python = '>=2.5', # Future in PEP 345
     packages=['allegro_franz'],
     install_requires=['surf>=0.5.0',],
     entry_points={

@@ -1,7 +1,9 @@
 Metadata-Version: 1.0
 Name: surf.allegro-franz
 Version: 0.2
-Summary: UNKNOWN
+Summary: Built-in functions, exceptions, and other objects.
+
+Noteworthy: None is the `nil' object; Ellipsis represents `...' in slices.
 Home-page: UNKNOWN
 Author: Cosmin Basca
 Author-email: UNKNOWN
