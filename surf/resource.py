@@ -418,11 +418,13 @@ class Resource(object):
         graph.add((self.subject,RDF['type'],self.uri))
         for predicate in self.rdf_direct:
             for value in self.rdf_direct[predicate]:
-                graph.add((self.subject,predicate,value))
+                if type(value) in [URIRef, Literal, BNode]:
+                    graph.add((self.subject,predicate,value))
         if not direct:
             for predicate in self.rdf_inverse:
                 for value in self.rdf_inverse[predicate]:
-                    graph.add((value,predicate,self.subject))
+                    if type(value) in [URIRef, Literal, BNode]:
+                        graph.add((value,predicate,self.subject))
         return graph
         
     def __str__(self):
