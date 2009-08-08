@@ -7,6 +7,7 @@ Welcome to SuRF's documentation!
 ================================
 
 .. image:: images/surf-logo.png
+   :scale: 70
    :alt: SuRF
    :align: center
 
@@ -20,13 +21,6 @@ into the Object Oriented paradigm of python in a similar manner as ActiveRDF doe
    install
    plugins
    build
-   
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
 Modules
 =======
@@ -51,3 +45,10 @@ Examples
    
    examples/dbpedia
    examples/allegro
+   
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

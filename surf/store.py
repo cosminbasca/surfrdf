@@ -40,11 +40,6 @@ import os
 import pkg_resources
 from plugin.reader import RDFReader
 from plugin.writer import RDFWriter
-'''
-the store class is comprised of a reader and a writer, getting access to an
-underlying tripple store. Also store specific parameters must be handled by
-the class, the plugins act based on various settings
-'''
 
 __ENTRYPOINT_READER__ = 'surf.plugins.reader'
 __ENTRYPOINT_WRITER__ = 'surf.plugins.writer'
@@ -71,9 +66,11 @@ class PluginNotFoundException(Exception):
         super(PluginNotFoundException,self).__init__(self,*args,**kwargs)
 
 class Store(object):
-    '''
-    The plugin manager, also provides convenience methods for working with plugins
-    '''
+    '''the `Store` class is comprised of a reader and a writer, getting access to an
+    underlying tripple store. Also store specific parameters must be handled by
+    the class, the plugins act based on various settings
+    The `Store` is also the `plugin` manager and provides convenience methods for
+    working with plugins'''
     def __init__(self,reader=None,writer=None,*args,**kwargs):
         self.log = logging.getLogger(self.__class__.__name__)
         self.log.info('initializing the store')
@@ -97,15 +94,18 @@ class Store(object):
         self.log.info('store initialized')
      
     def enable_logging(self,enable):
+        '''Toggle `loggin` on or off'''
         level = logging.DEBUG if enable else logging.NOTSET
         self.log.setLevel(level)
         self.reader.enable_logging(enable)
         self.writer.enable_logging(enable)
     
     def is_enable_logging(self):
+        '''True if `logging` is enabled, False otherwise'''
         return False if self.log.level == logging.NOTSET else True
     
     def close(self):
+        '''close the `store`, both the `reader` and the `writer` plugins are closed'''
         try:
             self.reader.close()
             self.log('reader closed successfully')
@@ -118,68 +118,47 @@ class Store(object):
             self.log('error on closing the writer '+str(e))
             
     def index_triples(self,**kwargs):
-        '''
-        performs index of the triples if such functionality is present
-        returns True if operation successfull
-        '''
+        '''see :doc:`plugin/writer`, `index_triples` method'''
         return self.writer.index_triples(**kwargs)
         
     def load_triples(self,**kwargs):
-        '''
-        loads triples from supported sources if such functionality is present
-        returns True if operation successfull
-        '''
+        '''see :doc:`plugin/writer`, `load_triples` method'''
         return self.writer.load_triples(**kwargs)
     #---------------------------------------------------------------------------
     # the reader interface
     #---------------------------------------------------------------------------
     
     def get(self,resource,attribute,direct):
-        '''
-        returns the value(s) of the corresponding attribute
-        '''
+        '''see :doc:`plugin/reader`, `get` method'''
         return self.reader.get(resource,attribute,direct)
     
     # cRud    
     def load(self,resource,direct):
-        '''
-        fully loads the resource from the store, returns all statements about the resource
-        '''
+        '''see :doc:`plugin/reader`, `load` method'''
         return self.reader.load(resource,direct)
         
     def is_present(self,resource):
-        '''
-        True if the resource is present in the store, False otherwise
-        '''
+        '''see :doc:`plugin/reader`, `is_present` method'''
         return self.reader.is_present(resource)
         
     def all(self,concept,limit=None,offset=None):
-        '''
-        returns all uri's that are instances of concept within [limit,limit+offset]
-        '''
+        '''see :doc:`plugin/reader`, `all` method'''
         return self.reader.all(concept,limit=limit,offset=offset)
         
     def concept(self,resource):
-        '''
-        returns the concept URI of the following resource,
-        resource can be a string or a URIRef
-        '''
+        '''see :doc:`plugin/reader`, `concept` method'''
         return self.reader.concept(resource)
         
     def instances_by_attribute(self,resource,attributes,direct):
-        '''
-        returns all uri's that are instances of concept that have the attributes
-        '''
+        '''see :doc:`plugin/reader`, `instances_by_attribute` method'''
         return self.reader.instances_by_attribute(resource,attributes,direct)
         
     def instances(self,resource,direct,filter,predicates):
-        '''
-        '''
+        '''see :doc:`plugin/reader`, `instances` method'''
         return self.reader.instances(resource,direct,filter,predicates)
         
     def instances_by_value(self,resource,direct,attributes):
-        '''
-        '''
+        '''see :doc:`plugin/reader`, `instances_by_value` method'''
         return self.reader.instances_by_value(resource,direct,attributes)
     
     #---------------------------------------------------------------------------
@@ -187,17 +166,13 @@ class Store(object):
     #---------------------------------------------------------------------------
     
     def execute(self,query):
-        '''
-        execute a query of type surf.query.Query
-        '''
+        '''see :doc:`plugin/query_reader`, `execute` method'''
         if hasattr(self.reader,'execute') and type(query) is Query:
             return self.reader.execute(query)
         return None
     
     def execute_sparql(self,sparql_query):
-        '''
-        execute a SPARQL query as a string
-        '''
+        '''see :doc:`plugin/query_reader`, `execute_sparql` method'''
         if hasattr(self.reader,'execute_sparql') and type(query) in [str,unicode]:
             return self.reader.execute_sparql(query)
         return None
@@ -207,57 +182,38 @@ class Store(object):
     #---------------------------------------------------------------------------
     
     def clear(self,context=None):
-        '''
-        empty the store
-        '''
+        '''see :doc:`plugin/writer`, `clear` method'''
         self.writer.clear(context=context)
     
     # Crud    
     def save(self,resource):
-        '''
-        replace the resource with it's current state
-        '''
+        '''see :doc:`plugin/writer`, `save` method'''
         self.writer.save(resource)
     
     # crUd
     def update(self,resource):
-        '''
-        update the current resource
-        '''
+        '''see :doc:`plugin/writer`, `update` method'''
         self.writer.update(resource)
         
     # cruD
     def remove(self,resource):
-        '''
-        completly remove the resource from the store
-        '''
+        '''see :doc:`plugin/writer`, `resource` method'''
         self.writer.remove(resource)
         
     def size(self):
-        '''
-        returns the size in triples, that are contained in the current store
-        '''
+        '''see :doc:`plugin/writer`, `size` method'''
         return self.writer.size()
         
     # triple level access methods
     def add_triple(self,s=None,p=None,o=None, context=None):
-        '''
-        add a triple to the store, with the specified context,
-        None can be used as a wildcard
-        '''
+        '''see :doc:`plugin/writer`, `add_triple` method'''
         self.writer.add_triple(s=s,p=p,o=o,context=context)
     
     def set_triple(self,s=None,p=None,o=None, context=None):
-        '''
-        replace a triple in the store, with the specified context
-        None can be used as a wildcard
-        '''
+        '''see :doc:`plugin/writer`, `set_triple` method'''
         self.writer.set_triple(s=s,p=p,o=o,context=context)
     
     def remove_triple(self,s=None,p=None,o=None, context=None):
-        '''
-        remove a triple from the store, with the specified context
-        None can be used as a wildcard
-        '''
+        '''see :doc:`plugin/writer`, `remove_triple` method'''
         self.writer.remove_triple(s=s,p=p,o=o,context=context)
     

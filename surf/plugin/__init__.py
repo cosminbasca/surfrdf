@@ -39,9 +39,7 @@ import logging
 from surf.query import Query
 
 class Plugin(object):
-    '''
-    super class for all surf Plugins, provides basic instantiation + logging
-    '''
+    '''super class for all surf Plugins, provides basic instantiation + `logging`'''
     def __init__(self,*args,**kwargs):
         logging.basicConfig()
         self.log = logging.getLogger(self.__class__.__name__)
@@ -49,22 +47,23 @@ class Plugin(object):
         self.__inference = False
 
     def enable_logging(self,enable=True):
-        '''
-        enables or disables loggin for the current plugin
-        '''
+        '''enables or disables `loggin` for the current `plugin`'''
         level = logging.DEBUG if enable else logging.NOTSET
         self.log.setLevel(level)
             
     def is_enable_logging(self):
-        '''
-        True if logging is enabled
-        '''
+        '''True if `logging` is enabled'''
         return False if self.log.level == logging.NOTSET else True
     
     def close(self):
+        '''Close the `plugin` and free any resources it may hold'''
         pass
     
     def __set_inference(self,val):
+        '''setter method for the `inference` property, do not use, use the
+        `inference` property instead'''
         self.__inference = val if type(val) is bool else False
     inference = property(fget = lambda self:self.__inference,
                          fset = __set_inference)
+    '''toggles `logical inference` on / off, The property has any effect only if
+    such functionality is supported by the underlying data `store`'''

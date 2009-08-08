@@ -85,79 +85,56 @@ class RDFWriter(Plugin):
     
     #public interface
     def clear(self,context=None):
-        '''
-        empty the store
-        '''
+        '''empty the `store`'''
         self._clear(context=context)
         
     def save(self,resource):
-        '''
-        replace the resource with it's current state
-        '''
+        '''replace the `resource` with it's current state'''
         if hasattr(resource,'subject'): self._save(resource)
         else: raise InvalidResourceException('argument must be of type surf.resource.Resource')
 
     def update(self,resource):
-        '''
-        update the current resource
-        '''
+        '''update the current `resource` to the `store` - persist'''
         if hasattr(resource,'subject'): self._update(resource)
         else: raise InvalidResourceException('argument must be of type surf.resource.Resource')
         
     def remove(self,resource):
-        '''
-        completly remove the resource from the store
-        only direct triples are removed
-        '''
+        '''completly remove the `resource` from the `store`'''
         #TODO: decide wether triples that are indirect (belong to other resource should be rremoved as well)
         if hasattr(resource,'subject'): self._remove(resource)
         else: raise InvalidResourceException('argument must be of type surf.resource.Resource')
         
     def size(self):
-        '''
-        returns the size in triples, that are contained in the current store
-        '''
+        '''returns the `size` in `triples`, that are contained in the current `store`'''
         return self._size()
         
     # triple level access methods
     def add_triple(self,s=None,p=None,o=None, context=None):
-        '''
-        add a triple to the store, with the specified context,
-        None can be used as a wildcard
-        '''
+        '''add a `triple` to the `store`, with the specified `context`,
+        *None* can be used as a wildcard'''
         self._add_triple(s,p,o,context)
     
     def set_triple(self,s=None,p=None,o=None, context=None):
-        '''
-        replace a triple in the store, with the specified context
-        None can be used as a wildcard
-        '''
+        '''replace a `triple` in the `store`, with the specified `context`
+        *None* can be used as a wildcard'''
         self._set_triple(s,p,o,context)
     
     def remove_triple(self,s=None,p=None,o=None, context=None):
-        '''
-        remove a triple from the store, with the specified context
-        None can be used as a wildcard
-        '''
+        '''remove a `triple` from the `store`, with the specified `context`
+        *None* can be used as a wildcard'''
         self._remove_triple(s,p,o,context)
         
     # management
     def close(self):
-        '''
-        close the plugin
-        '''
+        '''close the `plugin`'''
         pass
     
     def index_triples(self,**kwargs):
-        '''
-        performs index of the triples if such functionality is present,
-        returns True if operation successfull
-        '''
+        '''performs `index` of the `triples` if such functionality is present
+        returns True if operation successfull'''
         return False
     
     def load_triples(self,**kwargs):
-        '''
-        loads triples from supported sources if such functionality is present
-        returns True if operation successfull
-        '''
+        '''loads `triples` from supported `sources` if such functionality is present
+        returns True if operation successfull'''
         return False

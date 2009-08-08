@@ -133,26 +133,42 @@ def __add_inverted(prefix):
     __inverted_dict__[ns_dict[prefix].__str__()] = prefix
 
 def base(property):
-    '''
-    returns the base part of a URI, `property` is a string denoting a URI
+    '''returns the base part of a URI, `property` is a string denoting a URI
+    
+    .. code-block:: python
+    
+        # output: http://sometest.ns/ns#
+        print 'output: ',ns.base('http://sometest.ns/ns#symbol')
+        
     '''
     if '#' in property:
         return '%s#'%property.rsplit('#',1)[0]
     return '%s/'%property.rsplit('/',1)[0]
 
 def symbol(property):
-    '''
-    returns the part of a URI after the last **/** or *#*, `property` is a
+    '''returns the part of a URI after the last **/** or *#*, `property` is a
     string denoting a URI
+    
+    .. code-block:: python
+    
+        # output: symbol
+        print 'output: ',ns.symbol('http://sometest.ns/ns#symbol')
+        
     '''
     if '#' in property:
         return property.rsplit('#',1)[-1]
     return property.rsplit('/',1)[-1]
 
 def register(**namespaces):
-    '''
-    registers a namespace with a shorthand notation with the `namespace` manager
-    the arguments are passed in as key-value pairs.
+    '''registers a namespace with a shorthand notation with the `namespace` manager
+    the arguments are passed in as key-value pairs
+    
+    .. code-block:: python
+    
+        ns.register(test='http://sometest.ns/ns#')
+        # true
+        assert ns.TEST == Namespace('http://sometest.ns/ns#')
+        
     '''
     ns_dict = sys.modules[__name__].__dict__
     for key in namespaces:
@@ -163,9 +179,16 @@ def register(**namespaces):
         __add_inverted(prefix)
         
 def get_namespace(base):
-    '''
-    returns the `namespace` short hand notation and the uri based on the uri `base`.
-    The namespace is a `rdf.namespace.Namespace`.
+    '''returns the `namespace` short hand notation and the uri based on the uri `base`.
+    The namespace is a `rdf.namespace.Namespace`
+    
+    .. code-block:: python
+    
+        key, namespace = ns.get_namespace('http://sometest.ns/ns#')
+        # true
+        assert key == 'TEST'
+        assert namespace == Namespace('http://sometest.ns/ns#')
+        
     '''
     global __anonimous_count
     ns_dict = sys.modules[__name__].__dict__
@@ -181,8 +204,14 @@ def get_namespace(base):
     return prefix, uri
 
 def get_namespace_url(prefix):
-    '''
-    returns the `namespace` URI registered under the specified `prefix`
+    '''returns the `namespace` URI registered under the specified `prefix`
+    
+    .. code-block:: python
+    
+        url = ns.get_namespace_url('TEST')
+        # true
+        assert url == Namespace('http://sometest.ns/ns#')
+        
     '''
     ns_dict = sys.modules[__name__].__dict__
     try:
@@ -192,9 +221,15 @@ def get_namespace_url(prefix):
     
     
 def get_prefix(uri):
-    '''
-    the inverse function of `get_namespace_url(prefix)`, returns the `prefix`
+    '''the inverse function of `get_namespace_url(prefix)`, returns the `prefix`
     of a `namespace` based on its URI
+    
+    .. code-block:: python
+    
+        name = ns.get_prefix(Namespace('http://sometest.ns/ns#'))
+        # true, if one registered the uri to the "test" prefix beforehand
+        assert name == 'TEST'
+        
     '''
     try:
         return __inverted_dict__[uri.__str__()]

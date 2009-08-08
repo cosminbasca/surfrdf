@@ -55,79 +55,105 @@ class RDFReader(Plugin):
     '''
     #protected interface
     def _get(self,subject,attribute,direct):
+        '''to be implemented by classes that inherit `RDFReader`, is called
+        directly by `get`'''
         return None
     
     def _load(self,subject):
+        '''to be implemented by classes that inherit `RDFReader`, is called
+        directly by `load`'''
         return {}
     
     def _is_present(self,subject):
+        '''to be implemented by classes that inherit `RDFReader`, is called
+        directly by `is_present`'''
         return False
     
     def _all(self,concept,limit=None,offset=None):
+        '''to be implemented by classes that inherit `RDFReader`, is called
+        directly by `all`'''
         return []
         
     def _concept(self,subject):
+        '''to be implemented by classes that inherit `RDFReader`, is called
+        directly by `concept`'''
         return None
     
     def _instances_by_attribute(self,concept,attributes,direct):
+        '''to be implemented by classes that inherit `RDFReader`, is called
+        directly by `instances_by_attribute`'''
         return []
         
     def _instances(self,concept,direct,filter,predicates):
+        '''to be implemented by classes that inherit `RDFReader`, is called
+        directly by `instances`'''
         return []
         
     def _instances_by_value(self,concept,direct,attributes):
+        '''to be implemented by classes that inherit `RDFReader`, is called
+        directly by `instances_by_value`'''
         return []
     
     
     #public interface
     def get(self,resource,attribute,direct):
-        '''
-        returns the value(s) of the corresponding attribute
-        '''
+        '''returns the `value(s)` of the corresponding `attribute`,
+        if `direct` is False, than the `subject` of the `resource` is considered
+        the `object` of the query'''
         subj = resource.subject if hasattr(resource, 'subject') else resource
         return self._get(subj, attribute, direct)
         
     def load(self,resource,direct):
-        '''
-        fully loads the resource from the store, returns all statements about the resource
-        '''
+        '''fully loads the `resource` from the `store`, returns all statements about
+        the `resource`
+        if `direct` is False, than the `subject` of the `resource` is considered
+        the `object` of the query'''
         subj = resource.subject if hasattr(resource, 'subject') else resource
         return self._load(subj,direct)
         
     def is_present(self,resource):
-        '''
-        True if the resource is present in the store, False otherwise
-        '''
+        '''True if the `resource` is present in the `store`, False otherwise'''
         subj = resource.subject if hasattr(resource, 'subject') else resource
         return self._is_present(subj)
         
     def all(self,concept,limit=None,offset=None):
-        '''
-        returns all uri's that are instances of concept within [limit,limit+offset]
-        '''
+        '''returns all `uri's` that are `instances` of `concept` within [`limit`,`limit`+`offset`]'''
         con = concept.uri if hasattr(concept, 'uri') else concept
         return self._all(con,limit=limit,offset=offset)
         
     def concept(self,resource):
-        '''
-        returns the concept URI of the following resource,
-        resource can be a string or a URIRef
-        '''
+        '''returns the `concept` URI of the following `resource`,
+        `resource` can be a `string` or a `URIRef`'''
         subj = resource.subject if hasattr(resource, 'subject') else resource
         return self._concept(subj)
         
     def instances_by_attribute(self,resource,attributes,direct):
-        '''
-        returns all uri's that are instances of concept that have the attributes
-        '''
+        '''returns all `uri's` that are `instances` of `concept` that have the specified `attributes`
+        if `direct` is False, than the `subject` of the `resource` is considered
+        the `object` of the query'''
         con = concept.uri if hasattr(concept, 'uri') else concept
         return self._instances_by_attribute(con,attributes,direct)
         
     def instances(self,resource,direct,filter,predicates):
+        '''returns all `uri's` that are `instances` of `concept` that have the
+        specified `predicates` - a `dict` where the `key` is the shorthand notation,
+        and the `value` is the predicate value
+        if `direct` is False, than the `subject` of the `resource` is considered
+        the `object` of the query
+        
+        .. code-block:: python
+            
+            store.instances(resource,True,None,{'foaf_name':'John Doe'})
+            
+        '''
         con = concept.uri if hasattr(concept, 'uri') else concept
         return self._instances(con,direct,filter,predicates)
         
     def instances_by_value(self,resource,direct,attributes):
+        '''returns all `uri's` that are `instances` of `concept` as values and
+        that have the specified `attributes`
+        if `direct` is False, than the `subject` of the `resource` is considered
+        the `object` of the query'''
         con = concept.uri if hasattr(concept, 'uri') else concept
         return self._instances_by_value(con,direct,attributes)
         

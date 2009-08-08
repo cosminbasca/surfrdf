@@ -43,20 +43,69 @@ pattern_direct = re.compile('^[a-z0-9]{1,}_[a-zA-Z0-9_]{1,}$', re.DOTALL)
 pattern_inverse = re.compile('^is_[a-z0-9]{1,}_[a-zA-Z0-9_]{1,}_of$', re.DOTALL)
 
 def namespace_split(uri):
+    '''same as `uri_split`, but instead of the base of the uri, returns the
+    registered `namespace` for this uri
+    
+    .. code-block:: python
+    
+        # prints (rdflib.URIRef('http://mynamespace/ns#'), 'some_property')
+        print util.namespace_split('http://mynamespace/ns#some_property')
+    
+    '''
     sp = '#' if uri.rfind('#') != -1 else '/'
     base, predicate = uri.rsplit(sp,1)
     return get_namespace('%s%s'%(base,sp))[1], predicate
 
 def uri_split(uri):
+    '''splits the `uri` into base path and remainder,
+    the base is everything that comes before the last *#*' or */* including it
+    
+    .. code-block:: python
+    
+        # prints ('NS1', 'some_property')
+        print util.uri_split('http://mynamespace/ns#some_property')
+        
+    '''
     sp = '#' if uri.rfind('#') != -1 else '/'
     base, predicate = uri.rsplit(sp,1)
     return get_namespace('%s%s'%(base,sp))[0], predicate
 
 def uri_to_classname(uri):
+    '''handy function to convert a `uri` to a Python valid `class name`
+    
+    .. code-block:: python
+    
+        # prints Ns1some_class, where Ns1 is the namespace (not registered, assigned automatically)
+        print util.uri_to_classname('http://mynamespace/ns#some_class')
+        
+    '''
     ns_key, predicate = uri_split(uri)
     return '%s%s'%(ns_key.title().replace('-','_'),predicate)
 
 def attr2rdf(attrname):
+    '''converts an `attribute name` in the form:
+    
+    .. code-block:: python
+    
+        # direct predicate
+        instance1.foaf_name
+        # inverse predicate
+        instance2.if_foaf_title_of
+            
+    to
+    
+    
+    .. code-block:: xml
+    
+        <!-- direct predicate -->
+        <http://xmlns.com/foaf/spec/#term_name>
+        <!-- inverse predicate -->
+        <http://xmlns.com/foaf/spec/#term_title>
+        
+    
+    the function returns two values, the `uri` representation and True if it's a
+    direct predicate or False if its an inverse predicate
+    '''
     def tordf(attrname):
         prefix, predicate = attrname.split('_',1)
         ns = get_namespace_url(prefix)
@@ -72,15 +121,45 @@ def attr2rdf(attrname):
     return None, None
 
 def rdf2attr(uri,direct):
+    '''this functions is the inverse of `attr2rdf`, returns the attribute name,
+    given the `uri` and wether it is `direct` or not
+    
+    .. code-block:: python
+    
+        #prints foaf_name
+        print rdf2attr('http://xmlns.com/foaf/spec/#term_name',True)
+        # prints if_foaf_title_of
+        print rdf2attr('http://xmlns.com/foaf/spec/#term_title',True)
+        
+    '''
     ns, predicate = uri_split(uri)
     attribute = '%s_%s'%(ns.lower(),predicate)
     return attribute if direct else 'is_%s_of'%attribute
 
 
 def is_attr_direct(attrname):
-    return True if pattern_direct.match(attrname) else False
+    '''True if it's a direct `attribute`
+    
+    .. code-block:: python
+    
+        # returns True
+        util.is_attr_direct('foaf_name')
+        # returns False
+        util.is_attr_direct('is_foaf_name_of')
+        
+    '''
+    return False if pattern_inverse.match(attrname) else True
     
 def uri_to_class(uri):
+    '''returns a `class object` from the supplied `uri`, used `uri_to_class` to
+    get a valid class name
+    
+    .. code-block:: python
+    
+        # prints Ns1some_class, where Ns1 is the namespace (not registered, assigned automatically)
+        print util.uri_to_class('http://mynamespace/ns#some_class').__name__
+        
+    '''
     return new.classobj(str(uri_to_classname(uri)),(),{'uri':uri})
 
 

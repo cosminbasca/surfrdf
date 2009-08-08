@@ -53,17 +53,25 @@ a = RDF['type']
 
 
 def query_SP(s,p,direct):
+    '''helper query builder method
+    constructs a `surf.query.Query` where the unknowns are `?v ?c`'''
     s, v = (s, '?v') if direct else ('?v', s)
     return Query.select().distinct('?v','?c').where(s,p,v).where('?v',a,'?c',optional=True)
 
 def query_S(s,direct):
+    '''helper query builder method
+    constructs a `surf.query.Query` where the unknowns are `?p ?v ?c`'''
     s, v = (s, '?v') if direct else ('?v', s)
     return Query.select().distinct('?p','?v','?c').where(s,'?p',v).where('?v',a,'?c',optional=True)
     
 def query_Ask(subject):
+    '''helper query builder method
+    constructs a `surf.query.Query` of type **ASK**, returned value is boolean'''
     return Query.ask((subject,'?p','?o'))
     
 def query_All(concept,limit=None,offset=None):
+    '''helper query builder method
+    constructs a `surf.query.Query` where the unknowns are `?s`'''
     query = Query.select().distinct('?s').where('?s',a,concept)
     if limit: query.limit(limit)
     if offset: query.offset(offset)
@@ -71,6 +79,8 @@ def query_All(concept,limit=None,offset=None):
 
 #Resource class level
 def query_P_S(c,p,direct):
+    '''helper query builder method
+    constructs a `surf.query.Query` where the unknowns are `?s ?c`'''
     query = Query.select().distinct('?s','?c')
     for i in range(len(p)):
         s, v = ('?s', '?v%d'%i) if direct else ('?v%d'%i, '?s')
@@ -88,6 +98,9 @@ def __literal(term):
     return '"%s"'%term
 
 def query_PO(c,direct,filter='',preds={}):
+    '''helper query builder method
+    constructs a `surf.query.Query` where the unknowns are `?s ?c`, with the possibility
+    to specify **SPARQL** `filters` as strings - follow the SPARQL filter syntax'''
     query = Query.select().distinct('?s','?c')
     i = 0 
     for p, v in preds.items():
@@ -100,6 +113,8 @@ def query_PO(c,direct,filter='',preds={}):
     return query
 
 def query_P_V(c,direct,p=[]):
+    '''helper query builder method
+    constructs a `surf.query.Query` where the unknowns are `?v ?c`'''
     query = Query.select().distinct('?v','?c')
     for i in range(len(p)):
         s, v= (c, '?v') if direct else ('?v', c)
@@ -108,12 +123,12 @@ def query_P_V(c,direct,p=[]):
     return q
     
 def query_Concept(subject):
+    '''helper query builder method
+    constructs a `surf.query.Query` where the unknowns are `?c`'''
     return Query.select().distinct('?c').where(subject,a,'?c') 
 
 class RDFQueryReader(RDFReader):
-    '''
-    super class for all surf Reader Plugins that wrap queriable stores
-    '''    
+    '''super class for all `surf Reader Plugins` that wrap queriable `stores`'''    
     #protected interface
     def _get(self,subject,attribute,direct):
         query = query_SP(subject, attribute, direct)
@@ -173,38 +188,44 @@ class RDFQueryReader(RDFReader):
     
     # to implement
     def _values(self,result,vkey='v',ckey='c'):
-        '''
-        returns a dictionary of the form {value : [concept,concept,...]}
-        result represents the query returned result
+        '''`result` represents the query returned result,
+        returns a dictionary of the form
+        
+        .. code-block:: python
+            
+            {value_1 : [concept_uri_1,concept_uri_2,]}
+            
         '''
         return {}
     
     def _predicacte_values(self,result,pkey='p',vkey='v',ckey='c'):
-        '''
+        '''`result` represents the query returned result
         returns a dictionary with predicates as keys, the values
         are the same as returned by the _values function
-        returns a dictionary of the form {value : [concept,concept,...]}
-        {predicate: {value : [concept,concept,...]},
-         predicate: {value : [concept,concept,...]},}
-        result represents the query returned result
+        returns a dictionary of the form
+        
+        .. code-block:: python
+        
+            {predicate_1: {value_1 : [concept_uri_1,concept_uri_2,]},
+             predicate_2: {value_2 : [concept_uri_2,concept_uri_3,]},
+            }
+        
         '''
         return {}
         
     def _ask(self,result):
-        '''
-        returns the boolean value of a ASK query
-        '''
+        '''returns the boolean `value` of a **ASK** query'''
         return False
     
     # execute
     def _execute(self,query):
+        '''to be implemeted by classes the inherit from `RDFQueryReader`, is
+        called internally by `execute`'''
         return None
 
     # public interface    
     def execute(self,query):
-        '''
-        execute a query of type surf.query.Query
-        '''
+        '''execute a `query` of type `surf.query.Query`'''
         q = query if type(q) is Query else None
         if q:
             return self._execute(q)

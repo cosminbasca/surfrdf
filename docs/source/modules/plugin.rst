@@ -1,7 +1,8 @@
 The :mod:`surf.plugin` Module
 -----------------------------
 
-Contents:
+Contents
+========
 
 .. toctree::
    :maxdepth: 2
@@ -11,8 +12,8 @@ Contents:
    /modules/plugin/writer
 
 
-Base Class
-==========
+The :mod:`surf.plugin.Plugin` Base Class
+========================================
 
 .. automodule:: surf.plugin
    :members:
