@@ -49,13 +49,13 @@ class TestResource(TestCase):
         assert type(method(str('Literal'))) is Literal and method(str('Literal')) == Literal('Literal')
         assert type(method(u'Literal')) is Literal and method(u'Literal') == Literal(u'Literal')
         # list
-        assert method(['Literal','en',None]) == Literal('Literal',language = 'en')
+        assert method(['Literal','en',None]) == Literal('Literal',lang = 'en')
         assert method(['Literal',None,ns.XSD['string']]) == Literal('Literal',datatype = ns.XSD['string'])
         # tuple
-        assert method(('Literal','en',None)) == Literal('Literal',language = 'en')
+        assert method(('Literal','en',None)) == Literal('Literal',lang = 'en')
         assert method(('Literal',None,ns.XSD['string'])) == Literal('Literal',datatype = ns.XSD['string'])
         # dict
-        assert method({'value':'Literal','language':'en'}) == Literal('Literal',language = 'en')
+        assert method({'value':'Literal','language':'en'}) == Literal('Literal',lang = 'en')
         assert method({'value':'Literal','datatype':ns.XSD['string']}) == Literal('Literal',datatype = ns.XSD['string'])
         # resource
         assert method(res) == res.subject
