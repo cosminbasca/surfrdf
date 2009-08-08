@@ -64,10 +64,6 @@ from rdflib.RDFS import RDFSNS as RRDFS
 __anonimous = 'NS'
 __anonimous_count = 0
 
-# defined in RDFLIB
-RDF = namespace.RDF
-RDFS = namespace.RDFS
-
 # others
 XMLNS = Namespace('http://www.w3.org/XML/1998/namespace')
 SKOS = Namespace('http://www.w3.org/2004/02/skos/core#')
