@@ -1,3 +1,4 @@
+setup.cfg
 setup.py
 sparql_protocol/__init__.py
 sparql_protocol/reader.py

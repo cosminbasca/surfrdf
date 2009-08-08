@@ -60,7 +60,7 @@ setup(
                       'rdf.plugins.parsers.rdfxml==0.9a1',
                       'rdf.plugins.serializers.n3==0.9a1',
                       'rdf.plugins.stores.iomemory==0.9a1',
-                      'rdf.plugins.stores.memory==0.9a1',
+                      #'rdf.plugins.stores.memory==0.9a1',
                       'simplejson==2.0.9',], #Used by setuptools to install the dependencies
       classifiers=[
         'Development Status :: 3 - Alpha',

@@ -1,3 +1,4 @@
+setup.cfg
 setup.py
 sesame2/__init__.py
 sesame2/allegro.py

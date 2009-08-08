@@ -1,3 +1,4 @@
+setup.cfg
 setup.py
 allegro_franz/__init__.py
 allegro_franz/reader.py

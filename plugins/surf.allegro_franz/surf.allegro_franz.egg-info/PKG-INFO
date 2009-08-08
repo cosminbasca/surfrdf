@@ -1,12 +1,17 @@
-Metadata-Version: 1.0
+Metadata-Version: 1.1
 Name: surf.allegro-franz
-Version: 0.2
-Summary: Built-in functions, exceptions, and other objects.
-
-Noteworthy: None is the `nil' object; Ellipsis represents `...' in slices.
-Home-page: UNKNOWN
+Version: 0.2-r38
+Summary: surf AllegroGraph plugin
+Home-page: http://code.google.com/p/surfrdf/
 Author: Cosmin Basca
-Author-email: UNKNOWN
-License: UNKNOWN
-Description: UNKNOWN
-Platform: UNKNOWN
+Author-email: cosmin.basca at google.com
+License: New BSD SOFTWARE
+Description: Allows the retrieval / persistence of surf resources from / to the AllegroGraph triple-store from Franz
+Keywords: python SPARQL RDF resource mapper
+Platform: any
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 2.5
+Requires: simplejson
