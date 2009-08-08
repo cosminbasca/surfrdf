@@ -35,21 +35,6 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-'''
-The `namespace` manager module of `surf`.
-The manager holds a dictionary of the form {short_hand_notation : namespace_uri,
-                                            ...}
-For performance reasons an inverted index is also kept
-
-Usage example
-=============
-
-.. code-block:: python
-    
-    from surf import *
-    
-    ns.register(my_namespace='http://mynamespace.com/')
-'''
 
 import sys
 
@@ -64,10 +49,9 @@ from rdflib.RDFS import RDFSNS as RRDFS
 __anonimous = 'NS'
 __anonimous_count = 0
 
-# others
 XMLNS = Namespace('http://www.w3.org/XML/1998/namespace')
 SKOS = Namespace('http://www.w3.org/2004/02/skos/core#')
-XSD = Namespace("http://www.w3.org/2001/XMLSchema#")            
+XSD = Namespace("http://www.w3.org/2001/XMLSchema#")
 OWL = Namespace('http://www.w3.org/2002/07/owl#')
 VS = Namespace('http://www.w3.org/2003/06/sw-vocab-status/ns#')
 WOT = Namespace('http://xmlns.com/wot/0.1/')
@@ -114,12 +98,10 @@ BIBO_EVENTS = Namespace('http://purl.org/ontology/bibo/events/')
 BIBO_STATUS = Namespace('http://purl.org/ontology/bibo/status/')
 FRESNEL = Namespace('http://www.w3.org/2004/09/fresnel#')
 DCTERMS = Namespace('http://purl.org/dc/terms/')
-# others
 DBPEDIA = Namespace('http://dbpedia.org/property/')
 YAGO = Namespace('http://dbpedia.org/class/yago/')
 LUBM = Namespace('http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#')
 DBLP = Namespace('http://www4.wiwiss.fu-berlin.de/dblp/terms.rdf#')
-# FRANZ
 FTI = Namespace('http://franz.com/ns/allegrograph/2.2/textindex/')
 
 # an internal inverted dict - for fast access 
@@ -137,8 +119,8 @@ def base(property):
     
     .. code-block:: python
     
-        # output: http://sometest.ns/ns#
-        print 'output: ',ns.base('http://sometest.ns/ns#symbol')
+        >>> print ns.base('http://sometest.ns/ns#symbol')
+        http://sometest.ns/ns#
         
     '''
     if '#' in property:
@@ -151,8 +133,8 @@ def symbol(property):
     
     .. code-block:: python
     
-        # output: symbol
-        print 'output: ',ns.symbol('http://sometest.ns/ns#symbol')
+        >>> print ns.symbol('http://sometest.ns/ns#symbol')
+        symbol
         
     '''
     if '#' in property:
@@ -165,9 +147,9 @@ def register(**namespaces):
     
     .. code-block:: python
     
-        ns.register(test='http://sometest.ns/ns#')
-        # true
-        assert ns.TEST == Namespace('http://sometest.ns/ns#')
+        >>> ns.register(test='http://sometest.ns/ns#')
+        >>> print ns.TEST 
+        http://sometest.ns/ns#
         
     '''
     ns_dict = sys.modules[__name__].__dict__
@@ -184,10 +166,9 @@ def get_namespace(base):
     
     .. code-block:: python
     
-        key, namespace = ns.get_namespace('http://sometest.ns/ns#')
-        # true
-        assert key == 'TEST'
-        assert namespace == Namespace('http://sometest.ns/ns#')
+        >>> key, namespace = ns.get_namespace('http://sometest.ns/ns#')
+        >>> print key, namespace
+        TEST, http://sometest.ns/ns#
         
     '''
     global __anonimous_count
@@ -208,9 +189,9 @@ def get_namespace_url(prefix):
     
     .. code-block:: python
     
-        url = ns.get_namespace_url('TEST')
-        # true
-        assert url == Namespace('http://sometest.ns/ns#')
+        >>> url = ns.get_namespace_url('TEST')
+        >>> print url 
+        http://sometest.ns/ns#
         
     '''
     ns_dict = sys.modules[__name__].__dict__
@@ -226,9 +207,10 @@ def get_prefix(uri):
     
     .. code-block:: python
     
-        name = ns.get_prefix(Namespace('http://sometest.ns/ns#'))
-        # true, if one registered the uri to the "test" prefix beforehand
-        assert name == 'TEST'
+        >>> name = ns.get_prefix(Namespace('http://sometest.ns/ns#'))
+        >>> # true, if one registered the uri to the "test" prefix beforehand
+        >>> print name 
+        TEST
         
     '''
     try:

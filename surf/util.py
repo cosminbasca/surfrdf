@@ -48,9 +48,9 @@ def namespace_split(uri):
     
     .. code-block:: python
     
-        # prints (rdflib.URIRef('http://mynamespace/ns#'), 'some_property')
-        print util.namespace_split('http://mynamespace/ns#some_property')
-    
+        >>> print util.namespace_split('http://mynamespace/ns#some_property')
+        (rdflib.URIRef('http://mynamespace/ns#'), 'some_property')
+        
     '''
     sp = '#' if uri.rfind('#') != -1 else '/'
     base, predicate = uri.rsplit(sp,1)
@@ -62,8 +62,8 @@ def uri_split(uri):
     
     .. code-block:: python
     
-        # prints ('NS1', 'some_property')
-        print util.uri_split('http://mynamespace/ns#some_property')
+        >>> print util.uri_split('http://mynamespace/ns#some_property')
+        ('NS1', 'some_property')
         
     '''
     sp = '#' if uri.rfind('#') != -1 else '/'
@@ -75,8 +75,9 @@ def uri_to_classname(uri):
     
     .. code-block:: python
     
-        # prints Ns1some_class, where Ns1 is the namespace (not registered, assigned automatically)
-        print util.uri_to_classname('http://mynamespace/ns#some_class')
+        >>> # prints Ns1some_class, where Ns1 is the namespace (not registered, assigned automatically)
+        >>> print util.uri_to_classname('http://mynamespace/ns#some_class')
+        Ns1some_class
         
     '''
     ns_key, predicate = uri_split(uri)
@@ -126,10 +127,10 @@ def rdf2attr(uri,direct):
     
     .. code-block:: python
     
-        #prints foaf_name
-        print rdf2attr('http://xmlns.com/foaf/spec/#term_name',True)
-        # prints if_foaf_title_of
-        print rdf2attr('http://xmlns.com/foaf/spec/#term_title',True)
+        >>> print rdf2attr('http://xmlns.com/foaf/spec/#term_name',True)
+        foaf_name
+        >>> print rdf2attr('http://xmlns.com/foaf/spec/#term_title',True)
+        if_foaf_title_of
         
     '''
     ns, predicate = uri_split(uri)
@@ -142,10 +143,10 @@ def is_attr_direct(attrname):
     
     .. code-block:: python
     
-        # returns True
-        util.is_attr_direct('foaf_name')
-        # returns False
-        util.is_attr_direct('is_foaf_name_of')
+        >>> util.is_attr_direct('foaf_name')
+        True
+        >>> util.is_attr_direct('is_foaf_name_of')
+        False
         
     '''
     return False if pattern_inverse.match(attrname) else True
@@ -156,8 +157,8 @@ def uri_to_class(uri):
     
     .. code-block:: python
     
-        # prints Ns1some_class, where Ns1 is the namespace (not registered, assigned automatically)
-        print util.uri_to_class('http://mynamespace/ns#some_class').__name__
+        >>> print util.uri_to_class('http://mynamespace/ns#some_class')
+        surf.util.Ns1some_class
         
     '''
     return new.classobj(str(uri_to_classname(uri)),(),{'uri':uri})
