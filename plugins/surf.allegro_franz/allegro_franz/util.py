@@ -35,49 +35,53 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-from franz.openrdf.model.value import URI as fURIRef
-from franz.openrdf.model.value import BNode as fBNode
-from franz.openrdf.model.literal import Literal as fLiteral
-
-# the rdf way
-#from rdf.term import URIRef, Literal, BNode
-# the rdflib 2.4.x way
-from rdflib.URIRef import URIRef
-from rdflib.BNode import BNode
-from rdflib.Literal import Literal
-
-'''
-helper functions that convert between rdflib concepts and sesame2 api concepts
-'''
-
-# TERMS
-def toRdfLib(term):
-    if type(term) is fURIRef:
-        return URIRef(term.getURI())
-    elif type(term) is fLiteral:
-        if term.getDatatype(): dtype = URIRef(term.getDatatype())
-        return Literal(term.getLabel(),language=term.getLanguage(),datatype=dtype)
-    elif type(term) is fBNode:
-        return BNode(term.getID())
-    elif type(term) in [list,tuple]:
-        return map(toRdfLib, term)
-    return term
-
-def toSesame(term,factory):
-    if type(term) is URIRef:
-        return factory.createURI(str(term))
-    elif type(term) is Literal:
-        return factory.createLiteral(str(term),datatype=term.datatype,language=term.language)
-    elif type(term) is BNode:
-        return factory.createBNode(str(term))
-    elif type(term) in [list, tuple]:
-        return map(lambda item: toSesame(item,factory), term)
-    return term
-
-
-# STATEMENTS
-def toStatement((s,p,o),factory,context=None):
-    return factory.createStatement(s,p,o,context)
+try:
+    from franz.openrdf.model.value import URI as fURIRef
+    from franz.openrdf.model.value import BNode as fBNode
+    from franz.openrdf.model.literal import Literal as fLiteral
     
-def toTuple(statement):
-    return (statement.getSubject(),statement.getPredicate(),statement.getObject(),statement.getContext())
+    # the rdf way
+    #from rdf.term import URIRef, Literal, BNode
+    # the rdflib 2.4.x way
+    from rdflib.URIRef import URIRef
+    from rdflib.BNode import BNode
+    from rdflib.Literal import Literal
+    
+    '''
+    helper functions that convert between rdflib concepts and sesame2 api concepts
+    '''
+    
+    # TERMS
+    def toRdfLib(term):
+        if type(term) is fURIRef:
+            return URIRef(term.getURI())
+        elif type(term) is fLiteral:
+            if term.getDatatype(): dtype = URIRef(term.getDatatype())
+            return Literal(term.getLabel(),language=term.getLanguage(),datatype=dtype)
+        elif type(term) is fBNode:
+            return BNode(term.getID())
+        elif type(term) in [list,tuple]:
+            return map(toRdfLib, term)
+        return term
+    
+    def toSesame(term,factory):
+        if type(term) is URIRef:
+            return factory.createURI(str(term))
+        elif type(term) is Literal:
+            return factory.createLiteral(str(term),datatype=term.datatype,language=term.language)
+        elif type(term) is BNode:
+            return factory.createBNode(str(term))
+        elif type(term) in [list, tuple]:
+            return map(lambda item: toSesame(item,factory), term)
+        return term
+    
+    
+    # STATEMENTS
+    def toStatement((s,p,o),factory,context=None):
+        return factory.createStatement(s,p,o,context)
+        
+    def toTuple(statement):
+        return (statement.getSubject(),statement.getPredicate(),statement.getObject(),statement.getContext())
+except:
+    pass
+    
