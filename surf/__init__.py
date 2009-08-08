@@ -36,6 +36,8 @@
 __author__ = 'Cosmin Basca'
 
 # make sure rdf has the MemoryIO plugin registered
+# not needed - use rdflib plugins instead
+'''
 import rdf.store
 import rdf.serializer
 import rdf.parser
@@ -44,7 +46,7 @@ if ('IOMemory',rdf.store.Store) not in _plugins:
     register('IOMemory',rdf.store.Store,'iomemory','IOMemory')
 if ('Memory',rdf.store.Store) not in _plugins:
     register('Memory',rdf.store.Store,'memory','Memory')
-
+'''
 
 from query import InvalidTypeQueryException, Query
 from resource import Resource, a
