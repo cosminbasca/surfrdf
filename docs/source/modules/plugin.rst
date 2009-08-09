@@ -18,3 +18,4 @@ The :mod:`surf.plugin.Plugin` Base Class
 .. automodule:: surf.plugin
    :members:
    :inherited-members:
+   :show-inheritance:

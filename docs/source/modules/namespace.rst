@@ -4,6 +4,7 @@ The :mod:`surf.namespace` Module
 .. automodule:: surf.namespace
    :members:
    :inherited-members:
+   :show-inheritance:
 
 Registered general purpose namespaces
 =====================================

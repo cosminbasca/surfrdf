@@ -4,6 +4,7 @@ The :mod:`surf.serializer` Module
 .. automodule:: surf.serializer
    :members:
    :inherited-members:
+   :show-inheritance:
 
 Serialization Example
 =====================

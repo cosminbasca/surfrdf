@@ -105,7 +105,8 @@ class Store(object):
         return False if self.log.level == logging.NOTSET else True
     
     def close(self):
-        '''close the `store`, both the `reader` and the `writer` plugins are closed'''
+        '''close the `store`, both the `reader` and the `writer` plugins are closed
+        see :func:`surf.plugin.writer.RDFWriter.close` and :func:`surf.plugin.reader.RDFReader.close` methods'''
         try:
             self.reader.close()
             self.log('reader closed successfully')
@@ -117,48 +118,41 @@ class Store(object):
         except Exception, e:
             self.log('error on closing the writer '+str(e))
             
-    def index_triples(self,**kwargs):
-        '''see :doc:`plugin/writer`, `index_triples` method'''
-        return self.writer.index_triples(**kwargs)
-        
-    def load_triples(self,**kwargs):
-        '''see :doc:`plugin/writer`, `load_triples` method'''
-        return self.writer.load_triples(**kwargs)
     #---------------------------------------------------------------------------
     # the reader interface
     #---------------------------------------------------------------------------
     
     def get(self,resource,attribute,direct):
-        '''see :doc:`plugin/reader`, `get` method'''
+        ''':func:`surf.plugin.reader.RDFReader.get` method'''
         return self.reader.get(resource,attribute,direct)
     
     # cRud    
     def load(self,resource,direct):
-        '''see :doc:`plugin/reader`, `load` method'''
+        ''':func:`surf.plugin.reader.RDFReader.load` method'''
         return self.reader.load(resource,direct)
         
     def is_present(self,resource):
-        '''see :doc:`plugin/reader`, `is_present` method'''
+        ''':func:`surf.plugin.reader.RDFReader.is_present` method'''
         return self.reader.is_present(resource)
         
     def all(self,concept,limit=None,offset=None):
-        '''see :doc:`plugin/reader`, `all` method'''
+        ''':func:`surf.plugin.reader.RDFReader.all` method'''
         return self.reader.all(concept,limit=limit,offset=offset)
         
     def concept(self,resource):
-        '''see :doc:`plugin/reader`, `concept` method'''
+        ''':func:`surf.plugin.reader.RDFReader.concept` method'''
         return self.reader.concept(resource)
         
     def instances_by_attribute(self,resource,attributes,direct):
-        '''see :doc:`plugin/reader`, `instances_by_attribute` method'''
+        ''':func:`surf.plugin.reader.RDFReader.instances_by_attribute` method'''
         return self.reader.instances_by_attribute(resource,attributes,direct)
         
     def instances(self,resource,direct,filter,predicates):
-        '''see :doc:`plugin/reader`, `instances` method'''
+        ''':func:`surf.plugin.reader.RDFReader.instances` method'''
         return self.reader.instances(resource,direct,filter,predicates)
         
     def instances_by_value(self,resource,direct,attributes):
-        '''see :doc:`plugin/reader`, `instances_by_value` method'''
+        ''':func:`surf.plugin.reader.RDFReader.instances_by_value` method'''
         return self.reader.instances_by_value(resource,direct,attributes)
     
     #---------------------------------------------------------------------------
@@ -166,13 +160,13 @@ class Store(object):
     #---------------------------------------------------------------------------
     
     def execute(self,query):
-        '''see :doc:`plugin/query_reader`, `execute` method'''
+        ''':func:`surf.plugin.reader.RDFQueryReader.execute` method'''
         if hasattr(self.reader,'execute') and type(query) is Query:
             return self.reader.execute(query)
         return None
     
     def execute_sparql(self,sparql_query):
-        '''see :doc:`plugin/query_reader`, `execute_sparql` method'''
+        ''':func:`surf.plugin.reader.RDFQueryReader.execute_sparql` method'''
         if hasattr(self.reader,'execute_sparql') and type(query) in [str,unicode]:
             return self.reader.execute_sparql(query)
         return None
@@ -182,38 +176,45 @@ class Store(object):
     #---------------------------------------------------------------------------
     
     def clear(self,context=None):
-        '''see :doc:`plugin/writer`, `clear` method'''
+        '''see :func:`surf.plugin.writer.RDFWriter.clear` method'''
         self.writer.clear(context=context)
     
     # Crud    
     def save(self,resource):
-        '''see :doc:`plugin/writer`, `save` method'''
+        '''see :func:`surf.plugin.writer.RDFWriter.save` method'''
         self.writer.save(resource)
     
     # crUd
     def update(self,resource):
-        '''see :doc:`plugin/writer`, `update` method'''
+        '''see :func:`surf.plugin.writer.RDFWriter.update` method'''
         self.writer.update(resource)
         
     # cruD
     def remove(self,resource):
-        '''see :doc:`plugin/writer`, `resource` method'''
+        '''see :func:`surf.plugin.writer.RDFWriter.remove` method'''
         self.writer.remove(resource)
         
     def size(self):
-        '''see :doc:`plugin/writer`, `size` method'''
+        '''see :func:`surf.plugin.writer.RDFWriter.size` method'''
         return self.writer.size()
         
     # triple level access methods
     def add_triple(self,s=None,p=None,o=None, context=None):
-        '''see :doc:`plugin/writer`, `add_triple` method'''
+        '''see :func:`surf.plugin.writer.RDFWriter.add_triple` method'''
         self.writer.add_triple(s=s,p=p,o=o,context=context)
     
     def set_triple(self,s=None,p=None,o=None, context=None):
-        '''see :doc:`plugin/writer`, `set_triple` method'''
+        '''see :func:`surf.plugin.writer.RDFWriter.set_triple` method'''
         self.writer.set_triple(s=s,p=p,o=o,context=context)
     
     def remove_triple(self,s=None,p=None,o=None, context=None):
-        '''see :doc:`plugin/writer`, `remove_triple` method'''
+        '''see :func:`surf.plugin.writer.RDFWriter.remove_triple` method'''
         self.writer.remove_triple(s=s,p=p,o=o,context=context)
     
+    def index_triples(self,**kwargs):
+        '''see :func:`surf.plugin.writer.RDFWriter.index_triples` method'''
+        return self.writer.index_triples(**kwargs)
+        
+    def load_triples(self,**kwargs):
+        '''see :func:`surf.plugin.writer.RDFWriter.load_triples` method'''
+        return self.writer.load_triples(**kwargs)
