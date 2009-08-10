@@ -41,6 +41,16 @@ Modules
    modules/store
    modules/util
    modules/plugin
+   
+The Plugins
+===========
+
+.. toctree::
+   :maxdepth: 2
+   
+   plugins/allegro_franz
+   plugins/sesame2
+   plugins/sparql_protocol
 
 Examples
 ========

@@ -3,11 +3,11 @@ The default SuRF Plugins
 
 by default surf supports the following plugins:
 
-1. AllegroGraph plugin
+- :doc:`plugins/allegro_franz` (AllegroGraph)
 
-2. SPARQL protocol plugin
+- :doc:`plugins/sparql_protocol` (SPARQL HTTP protocol)
 
-3. Sesame2 HTTP protocol plugin
+- :doc:`plugins/sesame2` (Sesame2 HTTP protocol)
 
 the plugins are installed in the following manner (they are available on **pypi**)
 
