@@ -131,8 +131,8 @@ class RDFReader(Plugin):
         '''returns all `uri's` that are `instances` of `concept` that have the specified `attributes`
         if `direct` is False, than the `subject` of the `resource` is considered
         the `object` of the query'''
-        con = concept.uri if hasattr(concept, 'uri') else concept
-        return self._instances_by_attribute(con,attributes,direct)
+        concept = resource.uri if hasattr(resource, 'uri') else resource
+        return self._instances_by_attribute(concept,attributes,direct)
         
     def instances(self,resource,direct,filter,predicates):
         '''returns all `uri's` that are `instances` of `concept` that have the
@@ -146,14 +146,14 @@ class RDFReader(Plugin):
             store.instances(resource,True,None,{'foaf_name':'John Doe'})
             
         '''
-        con = concept.uri if hasattr(concept, 'uri') else concept
-        return self._instances(con,direct,filter,predicates)
+        concept = resource.uri if hasattr(resource, 'uri') else resource
+        return self._instances(concept,direct,filter,predicates)
         
     def instances_by_value(self,resource,direct,attributes):
         '''returns all `uri's` that are `instances` of `concept` as values and
         that have the specified `attributes`
         if `direct` is False, than the `subject` of the `resource` is considered
         the `object` of the query'''
-        con = concept.uri if hasattr(concept, 'uri') else concept
-        return self._instances_by_value(con,direct,attributes)
+        concept = resource.uri if hasattr(resource, 'uri') else resource
+        return self._instances_by_value(concept,direct,attributes)
         

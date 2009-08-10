@@ -41,6 +41,8 @@ import pkg_resources
 from plugin.reader import RDFReader
 from plugin.writer import RDFWriter
 
+from query import Query
+
 __ENTRYPOINT_READER__ = 'surf.plugins.reader'
 __ENTRYPOINT_WRITER__ = 'surf.plugins.writer'
 

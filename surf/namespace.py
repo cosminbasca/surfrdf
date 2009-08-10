@@ -44,7 +44,7 @@ import sys
 from rdflib.Namespace import Namespace
 from rdflib.Namespace import Namespace as ClosedNamespace
 from rdflib.RDF import RDFNS as RDF
-from rdflib.RDFS import RDFSNS as RRDFS
+from rdflib.RDFS import RDFSNS as RDFS
 
 __anonimous = 'NS'
 __anonimous_count = 0

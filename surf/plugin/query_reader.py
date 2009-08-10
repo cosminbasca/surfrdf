@@ -120,7 +120,7 @@ def query_P_V(c,direct,p=[]):
         s, v= (c, '?v') if direct else ('?v', c)
         query.where(s,p[i],v)
     query.where('?v',a,'?c',optional=True)
-    return q
+    return query
     
 def query_Concept(subject):
     '''helper query builder method
@@ -226,7 +226,7 @@ class RDFQueryReader(RDFReader):
     # public interface    
     def execute(self,query):
         '''execute a `query` of type `surf.query.Query`'''
-        q = query if type(q) is Query else None
+        q = query if type(query) is Query else None
         if q:
             return self._execute(q)
         return None
