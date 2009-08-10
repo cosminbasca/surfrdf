@@ -354,10 +354,13 @@ class Resource(object):
     @classmethod
     def __get(cls,filter,*objects,**symbols):
         '''
-        for *internal* use only, the method retrieves `instances` of the `rdf:type`
-        as the resource class, that have triples that match the `attr_name:value` pair
-        specified using `**symbols`, the method also supports `filters`
+        
+        For *internal* use only! Retrieve `instances` of the `rdf:type` as 
+        the resource class, that have triples that match the `attr_name:value` 
+        pair specified using `**symbols`, the method also supports `filters`.
+        
         '''
+        
         predicates_d = {}
         predicates_d.update( [(util.attr2rdf(name)[0],symbols[name]) for name in symbols if util.is_attr_direct(name)])
         predicates_i = {}
@@ -366,9 +369,9 @@ class Resource(object):
         subjects = {}
         if len(symbols) > 0:
             if len(predicates_d) > 0:
-                subjects.update( cls.session[cls.store_key].instances(self,True,filter,predicates_d) )
+                subjects.update(cls.session[cls.store_key].instances(cls, True, filter, predicates_d))
             if len(predicates_i) > 0:
-                subjects.update( cls.session[cls.store_key].instances(self,False,filter,predicates_i) )
+                subjects.update(cls.session[cls.store_key].instances(cls, False, filter, predicates_i))
         
         #if len(objects) > 0:
         #    subjects.update(cls.store().o(True,cls.uri(),filter,objects))
@@ -382,10 +385,18 @@ class Resource(object):
         
     @classmethod
     def get_by(cls,*objects,**symbols):
+        ''' Retrieve all instances that match specified filters and class.
+        
+        Filters are specified as keyword arguments, argument names follow SuRF
+        naming convention (they take form `namespace_name`).
+        
+        Example::
+        
+            Person = session.get_class(surf.ns.FOAF['Person'])
+            johns = Person.get_by(foaf_name = u"John") 
+        
         '''
-        retrieves all `instances` that have attribute value pairs as specified by `**symbols`
-        and have `rdf:type` as the resource class
-        '''
+        
         return cls.__get(None,*objects,**symbols)
     
     @classmethod
