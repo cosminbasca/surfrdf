@@ -129,7 +129,7 @@ def rdf2attr(uri,direct):
     
         >>> print rdf2attr('http://xmlns.com/foaf/spec/#term_name',True)
         foaf_name
-        >>> print rdf2attr('http://xmlns.com/foaf/spec/#term_title',True)
+        >>> print rdf2attr('http://xmlns.com/foaf/spec/#term_title',False)
         if_foaf_title_of
         
     '''
