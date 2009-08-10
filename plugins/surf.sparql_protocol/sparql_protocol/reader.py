@@ -79,7 +79,7 @@ class ReaderPlugin(RDFQueryReader):
             if ckey in v: values[v[vkey]].append(v[ckey])
         return values
     
-    def _predicacte_values(self,result,pkey='p',vkey='v',ckey='c'):
+    def _predicate_values(self,result,pkey='p',vkey='v',ckey='c'):
         '''
         returns a dictionary with predicates as keys, the values
         are the same as returned by the _values function

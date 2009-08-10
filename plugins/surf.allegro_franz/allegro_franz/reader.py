@@ -100,7 +100,7 @@ try:
                 values[v].append(c)
             return values
         
-        def _predicacte_values(self,result,pkey='p',vkey='v',ckey='c'):
+        def _predicate_values(self,result,pkey='p',vkey='v',ckey='c'):
             '''
             returns a dictionary with predicates as keys, the values
             are the same as returned by the _values function

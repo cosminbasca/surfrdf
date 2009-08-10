@@ -138,7 +138,7 @@ class RDFQueryReader(RDFReader):
     def _load(self,subject,direct):
         query = query_S(subject, direct)
         result = self._execute(query)
-        return self.__predicacte_values(result)
+        return self.__predicate_values(result)
     
     def _is_present(self,subject):
         query = query_Ask(subject)
@@ -179,9 +179,9 @@ class RDFQueryReader(RDFReader):
             self.log.error('Error on values : '+str(e))
         return {}
     
-    def __predicacte_values(self,result,pkey='p',vkey='v',ckey='c'):
+    def __predicate_values(self,result,pkey='p',vkey='v',ckey='c'):
         try:
-            return self._predicacte_values(result,pkey=pkey,vkey=vkey,ckey=ckey)
+            return self._predicate_values(result,pkey=pkey,vkey=vkey,ckey=ckey)
         except Exception, e:
             self.log.error('Error on predicate values : '+str(e))
         return {}
@@ -198,7 +198,7 @@ class RDFQueryReader(RDFReader):
         '''
         return {}
     
-    def _predicacte_values(self,result,pkey='p',vkey='v',ckey='c'):
+    def _predicate_values(self,result,pkey='p',vkey='v',ckey='c'):
         '''`result` represents the query returned result
         returns a dictionary with predicates as keys, the values
         are the same as returned by the _values function
