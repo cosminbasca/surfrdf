@@ -13,6 +13,6 @@ the plugins are installed in the following manner (they are available on **pypi*
 
 ::
 
-    easy_install -U surf.allegro_franz
-    easy_install -U surf.sesame2
-    easy_install -U surf.sparql_protocol
+    >>> easy_install -U surf.allegro_franz
+    >>> easy_install -U surf.sesame2
+    >>> easy_install -U surf.sparql_protocol
