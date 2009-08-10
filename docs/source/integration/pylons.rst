@@ -41,6 +41,7 @@ The example is an adaptation of the following example
         surf.catalog    = repositories
         surf.repository = surf_blog
         surf.logging    = true
+        surf.clear      = false
         myblog.namespace= http://myblog.com/ns#
         ...
         
@@ -63,10 +64,14 @@ The example is an adaptation of the following example
                           catalog   = config['surf.catalog'],
                           repository= config['surf.repository'])
         
+        if config['surf.clear'] == 'true':
+            rdf_store.clear()
+        print 'SIZE of STORE : ',rdf_store.size()
+    
         # the surf session
         rdf_session = Session(rdf_store, {})
         rdf_session.enable_logging = True if config['surf.logging'] == 'true' else False
-        
+            
         # register the namespace
         ns.register(myblog=config['myblog.namespace'])
         
@@ -298,9 +303,9 @@ The example is an adaptation of the following example
         
             def blog_add_process(self):
                 # Create a new Blog object and populate it.
-                # we will use the title as the subject of the Blog
-                # one can use any id mechanism as a uri to make the post unique
-                newpost = model.Blog(ns.MYBLOG[request.params['title']])
+                # if you do not specify a subject, one will automatically be generated for you
+                # in the surf namespace
+                newpost = model.Blog()
                 newpost.dc_created = datetime.datetime.now()
                 newpost.sioc_content = request.params['content']
                 newpost.sioc_has_creator = request.params['author']

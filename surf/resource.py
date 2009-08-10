@@ -44,6 +44,7 @@ import util
 import serializer
 from weakref import WeakKeyDictionary
 from datetime import datetime, date, time
+from uuid import uuid4
 
 # the rdf way
 #from rdf.term import URIRef, Literal, BNode, RDF, RDFS, XSD
@@ -58,10 +59,12 @@ from rdflib.Literal import Literal
 from rdflib.RDF import RDFNS as RDF
 from rdflib.RDFS import RDFSNS as RRDFS
 
-
-__all__ = ['Resource', 'ResourceMeta']
-
 a = RDF['type']
+
+def unique_subject():
+    '''the function generates a unique subject in the `surf` namespace based on
+    the :func:`uuid.uuid4()` method'''
+    return SURF[str(uuid4())]
 
 '''
 the Resource
@@ -125,6 +128,7 @@ class ResourceMeta(type):
         value = None
         predicate, direct = util.attr2rdf(attr_name)
         if predicate:
+            
             instances = self.session[self.store_key].instances_by_value(self,direct,[predicate])
             value = self._lazy(instances)
             if value or (type(value) is list and len(value) > 0):
@@ -145,19 +149,20 @@ class Resource(object):
     __metaclass__ = ResourceMeta
     _instances = WeakKeyDictionary()
     
-    def __init__(self,subject,block_outo_load=False):
-        '''
-        initializes a Resource, with the `subject` (a URI - either a string or a URIRef),
+    def __init__(self,subject=None,block_outo_load=False):
+        '''initializes a Resource, with the `subject` (a URI - either a string or a URIRef),
+        if the `subject` is None than a unique subject will be generated using the
+        :func:`unique_subject` method
         `block_autoload` will prevent the resource from autoloading all rdf attributes associated
-        with the subject of the resource
-        '''
-        self.__subject = subject if type(subject) is URIRef else URIRef(subject)
+        with the subject of the resource'''
+        self.__subject = subject if subject else unique_subject()
+        self.__subject = self.__subject if type(self.__subject) is URIRef else URIRef(self.__subject)
         self.__dirty = False
         self._instances[self] = True
         self.__expired = False
-        self.rdf_direct = {}
-        self.rdf_direct[a] = [self.uri]
-        self.rdf_inverse = {}
+        self.__rdf_direct = {}
+        self.__rdf_direct[a] = [self.uri]
+        self.__rdf_inverse = {}
         self.__namespaces = {}
         if self.session:
             if not self.store_key: self.store_key = self.session.default_store_key
@@ -168,6 +173,15 @@ class Resource(object):
     
     namespaces = property(fget = lambda self: self.__namespaces)
     '''the namespaces'''
+    
+    dirty = property(fget = lambda self: self.__dirty)
+    '''reflects the `dirty` state of the resource'''
+    
+    rdf_direct = property(fget = lambda self: self.__rdf_direct)
+    '''direct predicates (`outgoing` predicates)'''
+    
+    rdf_inverse = property(fget = lambda self: self.__rdf_inverse)
+    '''inverse predicates (`incoming` predicates)'''
     
     def bind_namespaces(self,*namespaces):
         '''
@@ -204,13 +218,6 @@ class Resource(object):
             if i.subject == subject:
                 return i
         return None
-        
-    def is_dirty(self):
-        '''
-        True if the `resource` has been modified during runtime and not persisted,
-        False otherwise
-        '''
-        return self.__dirty
     
     def __val2rdf(self,value):
         '''
@@ -247,7 +254,7 @@ class Resource(object):
             value = value if type(value) in [list, tuple] else [value]
             value = map(lambda val: Literal(val,datatype=XSD['string']) if type(val) in [str,unicode] else val,value)
             
-            rdf_dict = self.rdf_direct if direct else self.rdf_inverse
+            rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
             rdf_dict[predicate] = []
             rdf_dict[predicate].extend([val.subject if hasattr(val,'subject') else val for val in value])
             self.__dirty = True
@@ -267,7 +274,7 @@ class Resource(object):
             value = self.__getattr__(attr_name)
             value = value if type(value) is list else [value]
             
-            rdf_dict = self.rdf_direct if direct else self.rdf_inverse
+            rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
             rdf_dict[predicate] = []
             self.__dirty = True
             
@@ -290,6 +297,7 @@ class Resource(object):
             value =  self._lazy(values)
             if value or (type(value) is list and len(value) > 0):
                 self.__setattr__(attr_name,value)
+                self.__dirty = False
             else:
                 value = None
         return value
@@ -314,7 +322,7 @@ class Resource(object):
         update(results_d,True)
         update(results_i,False)
         self.__dirty = False
-
+        
     @classmethod
     def get_by_attribute(cls,*attributes):
         '''
@@ -416,13 +424,13 @@ class Resource(object):
         graph = ConjunctiveGraph()
         self.bind_namespaces_to_graph(graph)
         graph.add((self.subject,RDF['type'],self.uri))
-        for predicate in self.rdf_direct:
-            for value in self.rdf_direct[predicate]:
+        for predicate in self.__rdf_direct:
+            for value in self.__rdf_direct[predicate]:
                 if type(value) in [URIRef, Literal, BNode]:
                     graph.add((self.subject,predicate,value))
         if not direct:
-            for predicate in self.rdf_inverse:
-                for value in self.rdf_inverse[predicate]:
+            for predicate in self.__rdf_inverse:
+                for value in self.__rdf_inverse[predicate]:
                     if type(value) in [URIRef, Literal, BNode]:
                         graph.add((value,predicate,self.subject))
         return graph
@@ -440,7 +448,7 @@ class Resource(object):
         '''
         self.session[self.store_key].save(self)
         self.__dirty = False
-    
+        
     def remove(self):
         '''
         remove the `resource` from the data `store`

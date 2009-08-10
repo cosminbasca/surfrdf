@@ -103,6 +103,7 @@ YAGO = Namespace('http://dbpedia.org/class/yago/')
 LUBM = Namespace('http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#')
 DBLP = Namespace('http://www4.wiwiss.fu-berlin.de/dblp/terms.rdf#')
 FTI = Namespace('http://franz.com/ns/allegrograph/2.2/textindex/')
+SURF = Namespace('http://code.google.com/p/surfrdf/')
 
 # an internal inverted dict - for fast access 
 __inverted_dict__ = {}

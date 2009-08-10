@@ -274,7 +274,11 @@ class Session(object):
     def commit(self):
         '''commits all the changes, updates all the `dirty` `resources`'''
         resources = Resource.instances()
+        print 'SESSION ------------------------------------'
+        print resources
+        print '--------------------------------------------'
         for resource in resources:
-            if resource.is_dirty():
+            print resource,'DIRTY > ',resource.dirty
+            if resource.dirty:
                 resource.update()
         

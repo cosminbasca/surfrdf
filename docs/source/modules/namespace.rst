@@ -394,5 +394,9 @@ describing the ontology / vocabulary
     Franz AllegroGraph, namespace for Free Text Indexing, used by AllegroGraph to
     specify predicates that can be used in SPARQL queries to perform free text indexing
 
+.. data:: SURF
 
-
+    http://code.google.com/p/surfrdf/
+    
+    The SuRF namespace is used internally by :mod:`surf` to generate unique subjects for
+    `resources` if a subject is not provided
