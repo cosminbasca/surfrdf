@@ -145,7 +145,7 @@ class Resource(object):
     def __init__(self,subject=None,block_outo_load=False):
         '''initializes a Resource, with the `subject` (a URI - either a string or a URIRef),
         if the `subject` is None than a unique subject will be generated using the
-        :func:`util.uuid_subject` method
+        :func:`surf.util.uuid_subject` method
         `block_autoload` will prevent the resource from autoloading all rdf attributes associated
         with the subject of the resource'''
         self.__subject = subject if subject else uuid_subject()
