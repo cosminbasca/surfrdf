@@ -41,10 +41,10 @@ from namespace import *
 from surf.query import Query
 from surf.store import Store
 import util
+from util import *
 import serializer
 from weakref import WeakKeyDictionary
 from datetime import datetime, date, time
-from uuid import uuid4
 
 # the rdf way
 #from rdf.term import URIRef, Literal, BNode, RDF, RDFS, XSD
@@ -61,14 +61,7 @@ from rdflib.RDFS import RDFSNS as RRDFS
 
 a = RDF['type']
 
-def unique_subject():
-    '''the function generates a unique subject in the `surf` namespace based on
-    the :func:`uuid.uuid4()` method'''
-    return SURF[str(uuid4())]
 
-'''
-the Resource
-'''
 class ResourceMeta(type):
     def __new__(meta,classname,bases,class_dict):
         ResourceClass = super(ResourceMeta,meta).__new__(meta,classname,bases,class_dict)
@@ -89,7 +82,7 @@ class ResourceMeta(type):
         '''
         if cls.session:
             uri = vals[0] if len(vals) > 0 else None
-            classes = map(util.uri_to_class,vals[1:]) if len(vals) > 1 else []
+            classes = map(uri_to_class,vals[1:]) if len(vals) > 1 else []
             return cls.session.map_instance(uri,subject,classes=classes,block_outo_load=True) if uri else subject
         else:
             return None
@@ -126,7 +119,7 @@ class ResourceMeta(type):
         '''
         #TODO: add persistence at metaclass level
         value = None
-        predicate, direct = util.attr2rdf(attr_name)
+        predicate, direct = attr2rdf(attr_name)
         if predicate:
             
             instances = self.session[self.store_key].instances_by_value(self,direct,[predicate])
@@ -152,10 +145,10 @@ class Resource(object):
     def __init__(self,subject=None,block_outo_load=False):
         '''initializes a Resource, with the `subject` (a URI - either a string or a URIRef),
         if the `subject` is None than a unique subject will be generated using the
-        :func:`unique_subject` method
+        :func:`util.uuid_subject` method
         `block_autoload` will prevent the resource from autoloading all rdf attributes associated
         with the subject of the resource'''
-        self.__subject = subject if subject else unique_subject()
+        self.__subject = subject if subject else uuid_subject()
         self.__subject = self.__subject if type(self.__subject) is URIRef else URIRef(self.__subject)
         self.__dirty = False
         self._instances[self] = True
@@ -249,7 +242,7 @@ class Resource(object):
         will be persisted if the `commit` `session` method is called)
         '''
         object.__setattr__(self,name,value)
-        predicate, direct = util.attr2rdf(name)
+        predicate, direct = attr2rdf(name)
         if predicate:
             value = value if type(value) in [list, tuple] else [value]
             value = map(lambda val: Literal(val,datatype=XSD['string']) if type(val) in [str,unicode] else val,value)
@@ -269,7 +262,7 @@ class Resource(object):
         note: this method sets the state of the resource to *dirty* (the `resource`
         will be persisted if the `commit` `session` method is called)
         '''
-        predicate, direct = util.attr2rdf(attr_name)
+        predicate, direct = attr2rdf(attr_name)
         if predicate:
             value = self.__getattr__(attr_name)
             value = value if type(value) is list else [value]
@@ -290,7 +283,7 @@ class Resource(object):
         this method has no impact on the *dirty* state of the object
         '''
         value = None
-        predicate, direct = util.attr2rdf(attr_name)
+        predicate, direct = attr2rdf(attr_name)
         if predicate:
             values = self.session[self.store_key].get(self,predicate,direct)
             # TODO: reuse already existing instances - CACHED
@@ -312,7 +305,7 @@ class Resource(object):
         '''
         def update(results,direct):
             for p,v in results.items():
-                attr = util.rdf2attr(p,direct)
+                attr = rdf2attr(p,direct)
                 value = self._lazy(v)
                 if value or (type(value) is list and len(value) > 0):
                     self.__setattr__(attr,value)
@@ -362,9 +355,9 @@ class Resource(object):
         '''
         
         predicates_d = {}
-        predicates_d.update( [(util.attr2rdf(name)[0],symbols[name]) for name in symbols if util.is_attr_direct(name)])
+        predicates_d.update( [(attr2rdf(name)[0],symbols[name]) for name in symbols if is_attr_direct(name)])
         predicates_i = {}
-        predicates_i.update( [(util.attr2rdf(name)[0],symbols[name]) for name in symbols if not util.is_attr_direct(name)])
+        predicates_i.update( [(attr2rdf(name)[0],symbols[name]) for name in symbols if not is_attr_direct(name)])
         
         subjects = {}
         if len(symbols) > 0:
@@ -514,11 +507,11 @@ class Resource(object):
             attr_name = None
             value = None
             if str(s) == str(self.subject):
-                attr_name = util.rdf2attr(p,True)
+                attr_name = rdf2attr(p,True)
                 #value = self.__lazy([o])
                 value = o
             elif str(o) == str(self.subject):
-                attr_name = util.rdf2attr(p,False)
+                attr_name = rdf2attr(p,False)
                 #value = self.__lazy([s])
                 value = s
                 
@@ -540,7 +533,7 @@ class Resource(object):
         returns the `namespace` of the currenlt Resources class type
         '''
         if cls.uri:
-            return util.namespace_split(cls.uri)[0]
+            return namespace_split(cls.uri)[0]
         return None
         
     @classmethod

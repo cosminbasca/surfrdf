@@ -38,6 +38,7 @@ __author__ = 'Cosmin Basca'
 from namespace import *
 import re
 import new
+from uuid import uuid4
 
 pattern_direct = re.compile('^[a-z0-9]{1,}_[a-zA-Z0-9_]{1,}$', re.DOTALL)
 pattern_inverse = re.compile('^is_[a-z0-9]{1,}_[a-zA-Z0-9_]{1,}_of$', re.DOTALL)
@@ -163,4 +164,15 @@ def uri_to_class(uri):
     '''
     return new.classobj(str(uri_to_classname(uri)),(),{'uri':uri})
 
-
+def uuid_subject(namespace=SURF):
+    '''the function generates a unique subject in the provided `namespace` based on
+    the :func:`uuid.uuid4()` method,
+    If `namespace` is not specified than the default `SURF` namespace is used
+    
+    .. code-block:: python
+    
+        >>>  print util.uuid_subject(ns.SIOC)
+        http://rdfs.org/sioc/ns#1b6ca1d5-41ed-4768-b86a-42185169faff
+        
+    '''
+    return namespace[str(uuid4())] if namespace else SURF[str(uuid4())]

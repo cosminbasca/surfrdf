@@ -98,7 +98,6 @@ try:
             for p in resource.rdf_direct:
                 self.__remove(s,p)
             for p, objs in resource.rdf_direct.items():
-                print p,objs
                 for o in objs:
                    self.__add(s,p,o)
         
@@ -121,11 +120,11 @@ try:
         
         # used by the sesame api
         def __add(self,s=None,p=None,o=None,context=None):
-            #self.log.info('ADD : '+str(s)+', '+str(p)+', '+str(o)+', '+str(context))
+            self.log.info('ADD TRIPLE: '+str(s)+', '+str(p)+', '+str(o)+', '+str(context))
             self.__con.addTriple(toSesame(s,self.__f), toSesame(p,self.__f), toSesame(o,self.__f),contexts = toSesame(context,self.__f))
             
         def __remove(self,s=None,p=None,o=None,context=None):
-            #self.log.info('REM : '+str(s)+', '+str(p)+', '+str(o)+', '+str(context))
+            self.log.info('REM TRIPLE: '+str(s)+', '+str(p)+', '+str(o)+', '+str(context))
             self.__con.removeTriples(toSesame(s,self.__f), toSesame(p,self.__f), toSesame(o,self.__f),contexts = toSesame(context,self.__f))
             
         def index_triples(self,**kwargs):
