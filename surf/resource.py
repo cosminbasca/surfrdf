@@ -560,15 +560,11 @@ class Resource(object):
         raise Exeption('not a knwon resource (no concept uri), cannot expose REST api')
         
     def __ne__(self, other):
-        '''
-        the inverse of `__eq__` (see documentation)
-        '''
+        '''the inverse of `__eq__` (see documentation)'''
         return not self.__eq__(other)
 
     def __eq__(self, other):
-        '''
-        returns True if the two `resources` have the same `subject` and are both
-        of type `Resource`, False otherwise
-        '''
+        '''returns True if the two `resources` have the same `subject` and are both
+        of type `Resource`, False otherwise'''
         return self.subject == other.subject if isinstance(other, Resource) else False
     

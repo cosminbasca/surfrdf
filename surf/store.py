@@ -169,7 +169,7 @@ class Store(object):
     
     def execute_sparql(self,sparql_query):
         ''':func:`surf.plugin.reader.RDFQueryReader.execute_sparql` method'''
-        if hasattr(self.reader,'execute_sparql') and type(query) in [str,unicode]:
+        if hasattr(self.reader,'execute_sparql') and type(sparql_query) in [str,unicode]:
             return self.reader.execute_sparql(query)
         return None
     
