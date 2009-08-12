@@ -141,14 +141,42 @@ try:
             boolQuery = self.__con.prepareBooleanQuery(QueryLanguage.SPARQL, q_string)
             return boolQuery.evaluate()
         
-        def execute_sparql(self,q_string):
+        def execute_sparql(self,q_string,format = 'JSON'):
             self.log.debug(q_string)
             tupleQuery = self.__con.prepareTupleQuery(QueryLanguage.SPARQL, q_string)
             tupleQuery.setIncludeInferred(self.inference)
-            return tupleQuery.evaluate()
+            results = tupleQuery.evaluate()
+            return self._results_to_json(results) if format == 'JSON' else results
         
         def close(self):
             self.__con.close()
+            
+        def _results_to_json(self,results):
+            bindings = results.getBindingNames()
+            r_dict = {}
+            r_dict['head'] = {'vars': bindings}
+            r_dict['results'] = {'bindings':[]}
+            for bindingSet in results:
+                json_binding = {}
+                for b in bindings:
+                    value = bindingSet.getValue(b)
+                    if type(value) is sv.URI:
+                        json_binding[b] = {'type':'uri', 'value': value.getURI()}
+                    elif type(value) is sv.BNode:
+                        json_binding[b] = {'type':'bnode', 'value': value.getID()}
+                    elif type(value) is sl.Literal:
+                        dtype = value.getDatatype() if value.getDatatype() else None
+                        lang = value.getLanguage() if value.getLanguage() else None
+                        lit_type = 'typed-literal' if dtype else 'literal'
+                        json_binding[b] = {'type':lit_type, 'value': value.getLabel()}
+                        if dtype:
+                            if type(dtype) in [str,unicode] and dtype.startswith('<') and dtype.endswith('>'):
+                                dtype = dtype.strip('<>')
+                            json_binding[b]['datatype'] = term.URIRef(dtype)
+                        if lang:
+                            json_binding[b]['xml:lang'] = lang   
+                r_dict['results']['bindings'].append(json_binding)
+            return r_dict
             
 except:
     print 'surf.plugin allegro_franz reader : franz libraries not installed'

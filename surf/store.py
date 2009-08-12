@@ -167,10 +167,10 @@ class Store(object):
             return self.reader.execute(query)
         return None
     
-    def execute_sparql(self,sparql_query):
+    def execute_sparql(self,sparql_query, format = 'JSON'):
         ''':func:`surf.plugin.reader.RDFQueryReader.execute_sparql` method'''
         if hasattr(self.reader,'execute_sparql') and type(sparql_query) in [str,unicode]:
-            return self.reader.execute_sparql(sparql_query)
+            return self.reader.execute_sparql(sparql_query, format = format)
         return None
     
     #---------------------------------------------------------------------------
