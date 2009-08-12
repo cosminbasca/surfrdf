@@ -41,6 +41,7 @@ Modules
    modules/store
    modules/util
    modules/plugin
+   modules/rest
    
 The Plugins
 ===========

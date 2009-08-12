@@ -310,9 +310,8 @@ The example is an adaptation of the following example
                 newpost.sioc_content = request.params['content']
                 newpost.sioc_has_creator = request.params['author']
                 newpost.dc_title = request.params['title']
-                # I didn't set ID because it will get an autoincrement value.
                 
-                # Attach the object to the session.
+                # commit the changes - the session tracks Resources automatically
                 model.rdf_session.commit()
         
                 # Redirect to the blog home page.

@@ -176,3 +176,17 @@ def uuid_subject(namespace=SURF):
         
     '''
     return namespace[str(uuid4())] if namespace else SURF[str(uuid4())]
+    
+DE_CAMEL_CASE_DEFAULT = 2**0
+DE_CAMEL_CASE_FORCE_LOWER_CASE = 2**1
+pattern = re.compile('([A-Z][A-Z][a-z])|([a-z][A-Z])')
+
+def de_camel_case(camel_case,delim=' ',method=DE_CAMEL_CASE_FORCE_LOWER_CASE):
+    '''Adds spaces to a camel case string.  Failure to space out string returns the original string.'''
+    if camel_case is None:
+        return None
+    normalize = lambda s:s
+    if (method == DE_CAMEL_CASE_FORCE_LOWER_CASE):
+        normalize = lambda s:s.lower()
+    
+    return normalize(pattern.sub(lambda m: m.group()[:1] + delim + m.group()[1:], camel_case))

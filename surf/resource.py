@@ -40,8 +40,8 @@ import new
 from namespace import *
 from surf.query import Query
 from surf.store import Store
-import util
 from util import *
+from rest import *
 import serializer
 from weakref import WeakKeyDictionary
 from datetime import datetime, date, time
@@ -412,7 +412,6 @@ class Resource(object):
             - **n3**
             - **xml**
             - **json** (internal serializer)
-        the following formats are supported only if a version of `rdflib` 2.4.2 or greater is installed:
             - **nt**
             - **turtle**
         '''
@@ -548,6 +547,17 @@ class Resource(object):
         store_k = store if store else cls.store_key
         store_k = store_k if store_k else cls.session.default_store_key
         return cls.session[store_k].concept(subject)
+        
+    @classmethod
+    def rest_api(cls, resources_namespace):
+        '''return a :class:`surf.rest.Rest` class responsible for exposing **REST** api
+        functions for integration into REST aware web frameworks
+        
+        note: the REST api was modeled according to the `pylons` model but it is generic
+        enough to eb used in other frameworks'''
+        if cls.session:
+            return Rest(resources_namespace, cls)
+        raise Exeption('not a knwon resource (no concept uri), cannot expose REST api')
         
     def __ne__(self, other):
         '''

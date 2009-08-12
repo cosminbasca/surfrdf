@@ -39,8 +39,10 @@ import new
 from query import Query
 from store import Store
 from resource import Resource, ResourceMeta
-import util
+from util import *
 from exceptions import TypeError
+from rest import Rest
+from urlparse import urlparse
 
 # the rdf way
 #from rdf.term import URIRef, BNode, Literal
@@ -215,6 +217,12 @@ class Session(object):
         elif type(uri) is ResourceMeta:
             return uri.uri
         else:
+            scheme, netloc, path, params, query, fragment = urlparse(uri)
+            if scheme and netloc and path:
+                pass
+            else:
+                attrname = de_camel_case(uri,'_')
+                uri, direct = attr2rdf(attrname)
             return URIRef(uri)
         
     def close(self):
@@ -239,14 +247,29 @@ class Session(object):
         uri = self.__uri(uri)
         if not uri:
             return None
-        name = util.uri_to_classname(uri)
+        name = uri_to_classname(uri)
         
         base_classes = [Resource]
         base_classes.extend(list(classes) if classes != None else [])
         return new.classobj(str(name), tuple(base_classes),{'uri':uri,'store_key':store})
         
     def get_class(self,uri,store=None,*classes):
-        '''same as `map_type`'''
+        '''see :func:`surf.session.Session.map_type`
+        the `uri` parameter can be any of the following:
+            
+            - a `URIRef`
+            
+            - a `Resource`
+            
+            - a `string` of the form
+                
+                - a URI
+                
+                - a Resource class name eg: `SiocPost`
+                
+                - a namespace_symbol type string eg: `sioc_post`
+                
+        '''
         return self.map_type(uri,store,*classes)
         
     def map_instance(self,uri,subject,store=None,classes = [],block_outo_load=False):
@@ -277,4 +300,5 @@ class Session(object):
         for resource in resources:
             if resource.dirty:
                 resource.update()
+                
         
