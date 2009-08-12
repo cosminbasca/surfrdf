@@ -221,7 +221,7 @@ class Session(object):
             if scheme and netloc and path:
                 pass
             else:
-                attrname = de_camel_case(uri,'_')
+                attrname = de_camel_case(uri,'_',DE_CAMEL_CASE_DEFAULT)
                 uri, direct = attr2rdf(attrname)
             return URIRef(uri)
         

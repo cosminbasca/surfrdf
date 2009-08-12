@@ -35,6 +35,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 from util import attr2rdf
+from rdflib.Namespace import Namespace
 
 # TODO lazy loading ... not implemented when setting the resource from the json_dict ...
 class Rest(object):
@@ -50,7 +51,7 @@ class Rest(object):
         the `resources_namespace` represents the URI that instances will be using as
         subjects'''
         self.__concept_class = concept_class
-        self.__namespace = resources_namespace
+        self.__namespace = resources_namespace if type(resources_namespace) is Namespace else Namespace(resources_namespace)
         
     # the REST methods    
     def index(self, offset = None, limit = None):
@@ -96,5 +97,10 @@ class Rest(object):
         instance = self.__concept_class(self.__namespace[id])
         instance.load()
         return instance
-        
+    
+    @classmethod
+    def resource(cls, session, resources_namespace, concept, id):
+        ns = resources_namespace if type(resources_namespace) is Namespace else Namespace(resources_namespace)
+        Concept = session.get_class(concept)
+        return Concept(ns[id])
         
