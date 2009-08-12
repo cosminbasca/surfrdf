@@ -38,6 +38,7 @@ __author__ = 'Cosmin Basca'
 from surf.plugin.query_reader import RDFQueryReader
 from util import toRdfLib, toSesame, toStatement, toTuple
 from surf.query_to_sparql import translate
+from rdflib.URIRef import URIRef
 
 try:
     from franz.openrdf.sail.allegrographserver import AllegroGraphServer
@@ -175,7 +176,7 @@ try:
                         if dtype:
                             if type(dtype) in [str,unicode] and dtype.startswith('<') and dtype.endswith('>'):
                                 dtype = dtype.strip('<>')
-                            json_binding[b]['datatype'] = term.URIRef(dtype)
+                            json_binding[b]['datatype'] = URIRef(dtype)
                         if lang:
                             json_binding[b]['xml:lang'] = lang   
                 r_dict['results']['bindings'].append(json_binding)
