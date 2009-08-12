@@ -133,19 +133,22 @@ try:
         def _execute(self,query):
             q_string = translate(query)
             if query.query_type == 'select':
-                return self.execute_sparql(q_string)
+                return self.__execute_sparql(q_string)
             elif query.query_type == 'ask':
-                return self.execute_ask(q_string)
+                return self.__execute_ask(q_string)
         
-        def execute_ask(self,q_string):
+        def __execute_ask(self,q_string):
             boolQuery = self.__con.prepareBooleanQuery(QueryLanguage.SPARQL, q_string)
             return boolQuery.evaluate()
         
-        def execute_sparql(self,q_string,format = 'JSON'):
+        def __execute_sparql(self,q_string):
             self.log.debug(q_string)
             tupleQuery = self.__con.prepareTupleQuery(QueryLanguage.SPARQL, q_string)
             tupleQuery.setIncludeInferred(self.inference)
-            results = tupleQuery.evaluate()
+            return tupleQuery.evaluate()
+             
+        def execute_sparql(self,q_string,format = 'JSON'):
+            results = self.__execute_sparql(q_string)
             return self._results_to_json(results) if format == 'JSON' else results
         
         def close(self):
