@@ -37,7 +37,7 @@ __author__ = 'Cosmin Basca'
 
 from surf.plugin.query_reader import RDFQueryReader
 from util import toRdfLib, toSesame, toStatement, toTuple
-from surf.query_to_sparql import translate
+from surf.query_to_sparql import SparqlTranslator
 from rdflib.URIRef import URIRef
 
 try:
@@ -132,7 +132,7 @@ try:
         
         # execute
         def _execute(self,query):
-            q_string = translate(query)
+            q_string = SparqlTranslator(query).translate()
             if query.query_type == 'select':
                 return self.__execute_sparql(q_string)
             elif query.query_type == 'ask':

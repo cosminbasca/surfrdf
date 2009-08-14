@@ -37,7 +37,7 @@ __author__ = 'Cosmin Basca'
 
 from surf.plugin.reader import RDFReader
 import logging
-from surf.query import Query
+from surf.query import Query, a, ask, select, Filter
 
 # the rdf way
 #from rdf.graph import ConjunctiveGraph
@@ -47,45 +47,39 @@ from rdflib.Graph import ConjunctiveGraph
 from rdflib.URIRef import URIRef
 from rdflib.BNode import BNode
 from rdflib.Literal import Literal
-from rdflib.RDF import RDFNS as RDF
-
-a = RDF['type']
 
 
 def query_SP(s,p,direct):
     '''helper query builder method
     constructs a `surf.query.Query` where the unknowns are `?v ?c`'''
     s, v = (s, '?v') if direct else ('?v', s)
-    return Query.select().distinct('?v','?c').where(s,p,v).where('?v',a,'?c',optional=True)
+    return select('?v','?c').distinct().where((s,p,v)).optional_group(('?v',a,'?c'))
 
 def query_S(s,direct):
     '''helper query builder method
     constructs a `surf.query.Query` where the unknowns are `?p ?v ?c`'''
     s, v = (s, '?v') if direct else ('?v', s)
-    return Query.select().distinct('?p','?v','?c').where(s,'?p',v).where('?v',a,'?c',optional=True)
+    return select('?p','?v','?c').distinct().where((s,'?p',v)).optional_group(('?v',a,'?c'))
     
 def query_Ask(subject):
     '''helper query builder method
     constructs a `surf.query.Query` of type **ASK**, returned value is boolean'''
-    return Query.ask((subject,'?p','?o'))
+    return ask().where((subject,'?p','?o'))
     
 def query_All(concept,limit=None,offset=None):
     '''helper query builder method
     constructs a `surf.query.Query` where the unknowns are `?s`'''
-    query = Query.select().distinct('?s').where('?s',a,concept)
-    if limit: query.limit(limit)
-    if offset: query.offset(offset)
-    return query
-
+    return select('?s').distinct().where(('?s',a,concept)).limit(limit).offset(offset)
+    
 #Resource class level
 def query_P_S(c,p,direct):
     '''helper query builder method
     constructs a `surf.query.Query` where the unknowns are `?s ?c`'''
-    query = Query.select().distinct('?s','?c')
+    query = select('?s','?c').distinct()
     for i in range(len(p)):
         s, v = ('?s', '?v%d'%i) if direct else ('?v%d'%i, '?s')
-        if type(p[i]) is URIRef: query.where(s,p[i],v)
-    query.where('?s',a,'?c',optional=True)
+        if type(p[i]) is URIRef: query.where((s,p[i],v))
+    query.optional_group(('?s',a,'?c'))
     return query
 
 def __literal(term):
@@ -101,31 +95,31 @@ def query_PO(c,direct,filter='',preds={}):
     '''helper query builder method
     constructs a `surf.query.Query` where the unknowns are `?s ?c`, with the possibility
     to specify **SPARQL** `filters` as strings - follow the SPARQL filter syntax'''
-    query = Query.select().distinct('?s','?c')
+    query = select('?s','?c').distinct()
     i = 0 
     for p, v in preds.items():
         s, v, f = ('?s', v, '') if direct else (v, '?s', '')
         if filter is 'regex':
             s, v, f = ('?s', '?v%d'%i, 'regex(?v%d,%s)'%(i,__literal(v))) if direct else (v, '?s', '')
-        query.where(s,p,v,filter=f)
-        i += 1    
-    query.where('?s',a,'?c',optional=True)
+        query.where((s,p,v)).filter(f)
+        i += 1
+    query.optional_group(('?s',a,'?c'))
     return query
 
 def query_P_V(c,direct,p=[]):
     '''helper query builder method
     constructs a `surf.query.Query` where the unknowns are `?v ?c`'''
-    query = Query.select().distinct('?v','?c')
+    query = select('?v','?c').distinct()
     for i in range(len(p)):
         s, v= (c, '?v') if direct else ('?v', c)
-        query.where(s,p[i],v)
-    query.where('?v',a,'?c',optional=True)
+        query.where((s,p[i],v))
+    query.optional_group(('?v',a,'?c'))
     return query
     
 def query_Concept(subject):
     '''helper query builder method
     constructs a `surf.query.Query` where the unknowns are `?c`'''
-    return Query.select().distinct('?c').where(subject,a,'?c') 
+    return select('?c').distinct().where((subject,a,'?c'))
 
 class RDFQueryReader(RDFReader):
     '''super class for all `surf Reader Plugins` that wrap queriable `stores`'''    

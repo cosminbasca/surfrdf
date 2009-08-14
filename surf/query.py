@@ -49,29 +49,47 @@ from rdflib.BNode import BNode
 from rdflib.Literal import Literal
 from rdflib.RDF import RDFNS as RDF
 from rdflib.RDFS import RDFSNS as RRDFS
+import logging
 
+a = RDF['type']
 
-'''
-abstract representation of a query, based on rdflib concepts, and basic python
-types
-'''
-class InvalidTypeQueryException(Exception):
-    '''
-    The invalid Query Type exception, is raised when the query type is different
-    from:
-        - select
-        - ask
-        - describe
-        - construct
-    '''
-    def __init__(self,message):
-        self.message = message
+SELECT      = 'select'
+ASK         = 'ask'
+CONSTRUCT   = 'construct'
+DESCRIBE    = 'describe'
+
+DISTINCT    = 'distinct'
+REDUCED     = 'reduced'
+
+UNION       = 'union'
+
+#the classes
+class Group(list):
+    pass
+
+class NamedGroup(Group):
+    def __init__(self,name = None):
+        Group.__init__(self)
+        if type(name) is [URIRef] or (type(name) in [str, union] and name.startswith('?')):
+            self.name = name
+        else:
+            raise ValueError('The names')
+
+class OptionalGroup(Group):
+    pass
+
+class Filter(unicode):        
+    @classmethod
+    def regex(cls,var,pattern,flag=None):
+        if type(var) in [str, unicode] and var.startswith('?'): pass
+        else: raise ValueError('not a filter variable')
+        if type(pattern) in [str, unicode]: pass
+        else: raise ValueError('regular expression')
+        if flag and type(flag) in [str, unicode] or not flag: pass
+        else: raise ValueError('not a filter flag')
         
-    def __str__(self):
-        return self.message
+        return Filter('regex(%s,"%s"%s)'%(var, pattern, ',"%s"'%flag if flag else ''))
 
-# SPARQL vriables are represented as strings that follow the sparql
-# variable definition: "?name" represents the SPARQL variable name
 class Query(object):
     '''
     The `Query` object is used by surf to construct queries in a programatic manner
@@ -81,128 +99,163 @@ class Query(object):
     
     the query methods can be chained.
     '''
-    __query_types__ = ['select','ask','describe','construct']
+    STATEMENT_TYPES     = [list, tuple, Group, NamedGroup, OptionalGroup, Filter]
+    AGGREGATE_FUCTIONS  = ['count']
+    TYPES               = [SELECT, ASK, CONSTRUCT, DESCRIBE]
     
-    @classmethod
-    def select(cls,*vars):
-        '''
-        Creates a **select** `query`
-        '''
-        q = cls('select')
-        q.select_clauses.extend(vars)
-        return q
+    def __init__(self, type, *vars):
+        if type not in Query.TYPES: 
+            raise ValueError('''The query is not of a supported type [%s], supported
+                             types are %s'''%(type, str(Query.TYPES)))
+        self._type      = type
+        self._modifier  = None
+        self._vars      = [var for var in vars if self._validate_variable(var)]
+        self._data      = []
+        self._limit     = None
+        self._offset    = None
+        self._order_by  = []
+        
+    query_type        = property(fget = lambda self: self._type)
+    query_modifier    = property(fget = lambda self: self._modifier)
+    query_vars        = property(fget = lambda self: self._vars)
+    query_data        = property(fget = lambda self: self._data)
+    query_limit       = property(fget = lambda self: self._limit)
+    query_offset      = property(fget = lambda self: self._offset)
+    query_order_by    = property(fget = lambda self: self._order_by)
+        
+    def _validate_variable(self, var):
+        if type(var) in [str, unicode]:
+            if not var.startswith('?'):
+                for aggregate in Query.AGGREGATE_FUCTIONS:
+                    if var.startswith(aggregate):
+                        return True
+                raise ValueError('''Not a variable : <%s>, check correct syntax ("?" or
+                                 supported aggregate %s)'''%(var,str(Query.AGGREGATE_FUCTIONS)))
+            return True
+        else:
+            raise ValueError('''Unknown variable type, all variables must either
+                             start with a "?" or be among the recognized aggregates :
+                             %s'''%Query.AGGREGATE_FUCTIONS)
     
-    @classmethod
-    def ask(cls,*patterns):
-        '''
-        Creates a **ask** `query`
-        '''
-        askq = cls('ask')
-        for pattern in patterns:
-            if type(pattern) in [list, tuple]:
-                if len(pattern) == 4:
-                    s,p,o,c = pattern
-                elif len(pattern) == 3:
-                    s,p,o = pattern
-                    c = None
-                else:
-                    continue
+    def _validate_statement(self, statement):
+        if type(statement) in Query.STATEMENT_TYPES:
+            if type(statement) in [list, tuple]:
+                try:
+                    s,p,o = statement
+                except:
+                    raise ValueError('''Statement of type [list, tuple] does not
+                                     have all the (s,p,o) members (the length of the
+                                     supplied arguemnt must be at least 3)''')
+                if type(s) in [URIRef, BNode] or \
+                    (type(s) in [str, unicode] and s.startswith('?')): pass
+                else: raise ValueError('The subject is not a valid variable type')
                 
-                if not c:
-                    c = '' # default graph
-                if c not in askq.ask_clauses:
-                    askq.ask_clauses[c] = []
-                askq.ask_clauses[c].append((s,p,o))
-        return askq
-    
-    @classmethod
-    def describe(cls):
-        '''
-        Creates a **describe** `query`
-        '''
-        return cls('describe')
-    
-    @classmethod
-    def construct(cls,*vars):
-        '''
-        Creates a **construct** `query`
-        '''
-        q = cls('construct')
-        q.select_clauses.extend(vars)
-        return q
-    
-    def __init__(self,q_type='select'):
-        '''
-        the `query` initialization.
-        `q_type` = the query type
-        '''
-        if q_type.lower() not in Query.__query_types__:
-            raise InvalidTypeQueryException('Unsupported Query type [%s]'%q_type)
+                if type(p) in [URIRef] or \
+                    (type(p) in [str, unicode] and p.startswith('?')): pass
+                else: raise ValueError('The predicate is not a valid variable type')
+                
+                if type(o) in [URIRef, BNode, Literal] or \
+                    (type(o) in [str, unicode] and o.startswith('?')): pass
+                else: raise ValueError('The object is not a valid variable type')
+                
+            return True
+        else:
+            raise ValueError('Statement type not in %s'%str(Query.STATEMENT_TYPES))
         
-        self.query_type = q_type.lower()
+    def distinct(self):
+        self._modifier = DISTINCT
+        return self
+    
+    def reduced(self):
+        self._modifier = REDUCED
+        return self
         
-        self.select_clauses = []
-        self.where_clauses = {'':[]} # '' = default graph
-        self.filter_clauses = {'':[]} # '' = default graph
-        self.offset_value = None
-        self.limit_value = None
-        self.order_by_clauses = []
-        self.distinct_clauses = []
-        self.ask_clauses = {'':[]}
-    
-    def where(self,s,p,o,c=None,optional=False,filter=''):
-        '''
-        a `where` clause, accepts the `subject`, `predicate`, `object` and `context`,
-        also `optional` specifies if the clause is optional and `filter` wether it
-        is accompanied by a `filter`, `filter` syntax must follow **SPARQL** syntax
-        '''
-        if not c:
-            c = '' # default graph
-        if c not in self.where_clauses:
-            self.where_clauses[c] = []
-        self.where_clauses[c].append((s,p,o,optional,filter))
+    def where(self,*statements):
+        self._data.extend([stmt for stmt in statements if self._validate_statement(stmt)])
         return self
     
-    def order_by(self,*vars):
-        '''
-        order by the specified variables (`vars`)
-        '''
-        self.order_by_clauses.extend(vars)
+    def optional_group(self,*statements):
+        g = OptionalGroup()
+        g.extend([stmt for stmt in statements if self._validate_statement(stmt)])
+        self._data.append(g)
         return self
     
-    def offset(self,value):
-        '''
-        the `offset` of the results
-        '''
-        self.offset_value = value
+    def group(self,*statements):
+        g = Group()
+        g.extend([stmt for stmt in statements if self._validate_statement(stmt)])
+        self._data.append(g)
         return self
     
-    def limit(self,value):
-        '''
-        the `limit` of the results
-        '''
-        self.limit_value = value
+    def named_group(self,name,*statements):
+        g = NamedGroup(name)
+        g.extend([stmt for stmt in statements if self._validate_statement(stmt)])
+        self._data.append(g)
         return self
     
-    def distinct(self,*vars):
-        '''
-        specify which variables (`vars`) are `distinct`
-        '''
-        self.distinct_clauses.extend(vars)
+    def sub_query(self,*queries):
+        self._data.extend([sq for sq in queries if type(sq) is Query])
         return self
     
-    def filter(self,filter_expression,c=None):
-        '''
-        takes valid **SPARQL** filter expressions passed in as strings, no checks are
-        performed for malformed expressions, the sparql processor against which the
-        query is exectued will signall the error.
-        '''
-        if not c:
-            c = '' # default graph
-        if c not in self.filter_clauses:
-            self.filter_clauses[c] = []
-        self.filter_clauses[c].append(filter_expression)
+    def filter(self,filter):
+        if not filter:
+            raise ValueError('the filter must be of type Filter, str or unicode following the syntax of the query language')
+        elif type(filter) in [str, unicode]:
+            filter = Filter(filter)
+        elif type(filter) is not Filter:
+            raise ValueError('the filter must be of type Filter, str or unicode following the syntax of the query language')
+        self._data.append(filter)
+    
+    def limit(self, limit):
+        if limit:
+            self._limit = limit
+        return self
+     
+    def offset(self, offset):
+        if offset:
+            self._offset = offset
         return self
     
-    def __str__(self):
+    def order_by(self, *vars):
+        self._order_by.extend([var for var in vars if type(var) in [str, unicode] and var.startswith('?')])
+        return self
+    
+# the query creators
+def select(*vars):
+    '''constructs a **SELECT** :class:`surf.query.Query`'''
+    return Query(SELECT, *vars)
+    
+def ask():
+    '''constructs a **ASK** :class:`surf.query.Query`'''
+    return Query(ASK)
+
+def construct(*vars):
+    '''constructs a **CONSTRUCT** :class:`surf.query.Query`'''
+    return Query(CONSTRUCT, *vars)
+
+def describe(*vars):
+    '''constructs a **DESCRIBE** :class:`surf.query.Query`'''
+    return Query(DESCRIBE, *vars)
+    
+class QueryTranslator(object):
+    '''The `QueryTranslator` class is responsible with the translation of the query
+    to the appropriate query language in use. One must extend the class and override the
+    :func:`surf.query.QueryTranslator.translate` method'''
+    def __init__(self, query):
+        self.__query = query
+        if not self.__query.query_type:
+            raise ValueError('No query type specified')
+    
+    def set_query(self,query):
+        if type(query) is Query:
+            self.__query = query
+        else:
+            raise ValueError('query object must be of Query type')
+    query = property(fget = lambda self: self.__query,
+                     fset = set_query)
+    '''the `query`, a :class:`surf.query.Query` instance'''
+    
+    def translate(self):
+        '''translates the `query` to the appropriate query language
+        
+        note: **must** be overriden by subclasses'''
         return ''

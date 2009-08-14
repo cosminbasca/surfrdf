@@ -39,6 +39,7 @@ from namespace import *
 import re
 import new
 from uuid import uuid4
+from urlparse import urlparse
 
 pattern_direct = re.compile('^[a-z0-9]{1,}_[a-zA-Z0-9_]{1,}$', re.DOTALL)
 pattern_inverse = re.compile('^is_[a-z0-9]{1,}_[a-zA-Z0-9_]{1,}_of$', re.DOTALL)
@@ -190,3 +191,11 @@ def de_camel_case(camel_case,delim=' ',method=DE_CAMEL_CASE_FORCE_LOWER_CASE):
         normalize = lambda s:s.lower()
     
     return normalize(pattern.sub(lambda m: m.group()[:1] + delim + m.group()[1:], camel_case))
+
+
+def is_uri(uri):
+    '''True if the specified string is a URI reference False otherwise'''
+    scheme, netloc, path, params, query, fragment = urlparse(uri)
+    if scheme and netloc and path:
+        return True
+    return False

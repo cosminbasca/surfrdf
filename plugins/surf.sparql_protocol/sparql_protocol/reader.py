@@ -37,7 +37,7 @@ __author__ = 'Cosmin Basca'
 
 
 from surf.plugin.query_reader import RDFQueryReader
-from surf.query_to_sparql import translate
+from surf.query_to_sparql import SparqlTranslator
 from SPARQLWrapper import SPARQLWrapper, JSON, XML, GET, POST
 from SPARQLWrapper.SPARQLExceptions import EndPointNotFound, QueryBadFormed, SPARQLWrapperException
 
@@ -107,7 +107,7 @@ class ReaderPlugin(RDFQueryReader):
     
     # execute
     def _execute(self,query):
-        q_string = translate(query)
+        q_string = SparqlTranslator(query).translate()
         try:
             self.log.debug(q_string)
             self.__sparql_wrapper.setQuery(q_string)

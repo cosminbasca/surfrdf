@@ -38,7 +38,7 @@ __author__ = 'Cosmin Basca'
 
 from surf.plugin.query_reader import RDFQueryReader
 from allegro import Allegro
-from surf.query_to_sparql import translate
+from surf.query_to_sparql import SparqlTranslator
 
 # the rdf way
 #from rdf.term import URIRef, BNode, Literal
@@ -114,7 +114,7 @@ class ReaderPlugin(RDFQueryReader):
     
     # execute
     def _execute(self,query):
-        q_string = translate(query)
+        q_string = SparqlTranslator(query).translate()
         try:
             self.log.debug(q_string)
             results = self.allegro.sparql_query(self.repository,q_string,infer=self.inference,format='sparql')
