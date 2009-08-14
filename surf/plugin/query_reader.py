@@ -139,7 +139,7 @@ class RDFQueryReader(RDFReader):
     '''super class for all `surf Reader Plugins` that wrap queriable `stores`'''    
     def __init__(self,*args,**kwargs):
         RDFReader.__init__(self,*args,**kwargs)
-        self.use_subqueries = kwargs.get('use_subqueries')
+        self.use_subqueries = kwargs.get('use_subqueries',False)
         if type(self.use_subqueries) in [str, tuple]:
             self.use_subqueries = True if self.use_subqueries.lower() == 'true' else False
         elif type(self.use_subqueries) is not bool:

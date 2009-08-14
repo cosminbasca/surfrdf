@@ -344,8 +344,7 @@ class Resource(object):
             return []
         
         store = cls.session[cls.store_key]
-        store_response = store.all(cls, limit = limit, offset = offset, 
-                                   full = full)
+        store_response = store.all(cls, limit = limit, offset = offset, full = full)
 
         results = []
         got_triples = len(store_response) and type(store_response[0]) == tuple
@@ -374,12 +373,9 @@ class Resource(object):
             results = []
             for subject in store_response:
                 instance = cls(subject)
-                if eager_load:
-                    instance.load()
-                
+                if full: instance.load()
                 results.append(instance)
-                
-
+            
         return results
         
     @classmethod
