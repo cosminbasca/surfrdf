@@ -127,7 +127,7 @@ class Query(object):
         if type(var) in [str, unicode]:
             if not var.startswith('?'):
                 for aggregate in Query.AGGREGATE_FUCTIONS:
-                    if var.startswith(aggregate):
+                    if var.lower().startswith(aggregate):
                         return True
                 raise ValueError('''Not a variable : <%s>, check correct syntax ("?" or
                                  supported aggregate %s)'''%(var,str(Query.AGGREGATE_FUCTIONS)))
