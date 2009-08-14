@@ -78,8 +78,7 @@ def query_AllRelated(concept, limit=None, offset=None):
     argument. Then, in main query, select all triples that have previously
     selected uris as subjects.  
     
-    """ 
-    
+    """
     inner_query = select('?s').distinct().where(('?s', a, concept))
     inner_query.limit(limit).offset(offset)
     
@@ -140,7 +139,11 @@ class RDFQueryReader(RDFReader):
     '''super class for all `surf Reader Plugins` that wrap queriable `stores`'''    
     def __init__(self,*args,**kwargs):
         RDFReader.__init__(self,*args,**kwargs)
-        self.use_subqueries = kwargs.get('use_subqueries') == "true" 
+        self.use_subqueries = kwargs.get('use_subqueries')
+        if type(self.use_subqueries) in [str, tuple]:
+            self.use_subqueries = True if self.use_subqueries.lower() == 'true' else False
+        elif type(self.use_subqueries) is not bool:
+            raise ValueError('The use_subqueries parameter must be a bool or a string set to "true" or "false"')
     
     #protected interface
     def _get(self,subject,attribute,direct):
