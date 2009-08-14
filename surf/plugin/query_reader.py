@@ -70,6 +70,21 @@ def query_All(concept,limit=None,offset=None):
     '''helper query builder method
     constructs a `surf.query.Query` where the unknowns are `?s`'''
     return select('?s').distinct().where(('?s',a,concept)).limit(limit).offset(offset)
+
+def query_AllRelated(concept, limit=None, offset=None):
+    """ Return Query that selects subjects and related triples. 
+        
+    First, in subquery, select resource uris that have type matching concept 
+    argument. Then, in main query, select all triples that have previously
+    selected uris as subjects.  
+    
+    """ 
+    
+    inner_query = select('?s').distinct().where(('?s', a, concept))
+    inner_query.limit(limit).offset(offset)
+    
+    query = select('?s', '?p', '?v').distinct()
+    return query.where(('?s', '?p', '?v')).sub_query(inner_query)
     
 #Resource class level
 def query_P_S(c,p,direct):
@@ -123,6 +138,10 @@ def query_Concept(subject):
 
 class RDFQueryReader(RDFReader):
     '''super class for all `surf Reader Plugins` that wrap queriable `stores`'''    
+    def __init__(self,*args,**kwargs):
+        RDFReader.__init__(self,*args,**kwargs)
+        self.use_subqueries = kwargs.get('use_subqueries') == "true" 
+    
     #protected interface
     def _get(self,subject,attribute,direct):
         query = query_SP(subject, attribute, direct)
@@ -139,10 +158,16 @@ class RDFQueryReader(RDFReader):
         result = self._execute(query)
         return self._ask(result)
     
-    def _all(self,concept,limit=None,offset=None):
-        query = query_All(concept, limit=limit, offset=offset)
-        result = self._execute(query)
-        return [result for result in self.__values(result,vkey='s')]
+    def _all(self, concept, limit = None, offset = None, 
+             full = False):
+        if full and self.use_subqueries:
+            query = query_AllRelated(concept, limit=limit, offset=offset)            
+            result = self._execute(query)
+            return self.__triples(result)
+        else:
+            query = query_All(concept, limit=limit, offset=offset)
+            result = self._execute(query)
+            return self.__values(result, vkey="s").keys()
     
     def _concept(self,subject):
         query = query_Concept(subject)
@@ -156,9 +181,9 @@ class RDFQueryReader(RDFReader):
         return self.__values(result)
         
     def _instances(self,concept,direct,filter,predicates):
-        query = query_PO(concept,direct,filte=filte,preds=predicates)
+        query = query_PO(concept,direct,filter=filter,preds=predicates)
         result = self._execute(query)
-        return self.__values(result)
+        return self.__values(result, vkey = 's')
         
     def _instances_by_value(self,concept,direct,attributes):
         query = query_P_V(concept,direct,p=attributes)
@@ -178,6 +203,13 @@ class RDFQueryReader(RDFReader):
             return self._predicate_values(result,pkey=pkey,vkey=vkey,ckey=ckey)
         except Exception, e:
             self.log.error('Error on predicate values : '+str(e))
+        return {}
+
+    def __triples(self, result, skey = "s", pkey = 'p', vkey = 'v'):
+        try:
+            return self._triples(result, skey = skey, pkey = pkey, vkey = vkey)
+        except Exception, e:
+            self.log.error('Error on triples : ' + str(e))
         return {}
     
     # to implement
@@ -205,6 +237,17 @@ class RDFQueryReader(RDFReader):
             }
         
         '''
+
+        return {}
+
+    def _triples(self, result, skey="s", pkey = "p", vkey = "v"):
+        """ Return triples (subject, predicate, value).
+        
+        Return list of tuples, each tuple is quad: 
+        (subject, predicate, value, class)
+
+        """
+        
         return {}
         
     def _ask(self,result):

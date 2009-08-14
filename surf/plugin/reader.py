@@ -69,7 +69,8 @@ class RDFReader(Plugin):
         directly by `is_present`'''
         return False
     
-    def _all(self,concept,limit=None,offset=None):
+    def _all(self, concept, limit = None, offset = None, 
+             full = False):
         '''to be implemented by classes that inherit `RDFReader`, is called
         directly by `all`'''
         return []
@@ -116,10 +117,12 @@ class RDFReader(Plugin):
         subj = resource.subject if hasattr(resource, 'subject') else resource
         return self._is_present(subj)
         
-    def all(self,concept,limit=None,offset=None):
+    def all(self, concept, limit = None, offset = None, 
+            full = False):
         '''returns all `uri's` that are `instances` of `concept` within [`limit`,`limit`+`offset`]'''
         con = concept.uri if hasattr(concept, 'uri') else concept
-        return self._all(con,limit=limit,offset=offset)
+        return self._all(con, limit = limit, offset = offset, 
+                         full = full)
         
     def concept(self,resource):
         '''returns the `concept` URI of the following `resource`,

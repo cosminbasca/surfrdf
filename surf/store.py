@@ -137,9 +137,12 @@ class Store(object):
         ''':func:`surf.plugin.reader.RDFReader.is_present` method'''
         return self.reader.is_present(resource)
         
-    def all(self,concept,limit=None,offset=None):
+    def all(self, concept, limit = None, offset = None, 
+            full = False):
         ''':func:`surf.plugin.reader.RDFReader.all` method'''
-        return self.reader.all(concept,limit=limit,offset=offset)
+        
+        return self.reader.all(concept, limit = limit, offset = offset,
+                               full = full)
         
     def concept(self,resource):
         ''':func:`surf.plugin.reader.RDFReader.concept` method'''

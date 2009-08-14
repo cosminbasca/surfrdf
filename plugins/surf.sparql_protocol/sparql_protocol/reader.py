@@ -98,6 +98,15 @@ class ReaderPlugin(RDFQueryReader):
             if v[vkey] not in pvalues[p]: pvalues[p][v[vkey]] = []
             if ckey in v: pvalues[p][v[vkey]].append(v[ckey])
         return pvalues
+    
+    def _triples(self, result, skey = "s", pkey = 'p', vkey = 'v'):
+        """ Return triples (subject, predicate, value). """
+
+        results = []
+        for match in result['results']['bindings']:
+            results.append((match[skey], match[pkey], match[vkey]))
+        
+        return results    
         
     def _ask(self,result):
         '''
@@ -127,9 +136,8 @@ class ReaderPlugin(RDFQueryReader):
         pass
     
     def _toRdflib(self,results):
-        """
-        converts the result dict to rdfLib types
-        """
+        """Convert the result dict to rdfLib types."""
+        
         if results:
             if results.has_key('results'):
                 for i in range(len(results['results']['bindings'])):

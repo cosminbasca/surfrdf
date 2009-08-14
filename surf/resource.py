@@ -332,17 +332,55 @@ class Resource(object):
         return instances if len(instances) > 0 else []
         
     @classmethod
-    def all(cls,offset=None,limit=None):
-        '''
-        retrieves all (or just a limited number from the specified offset) `instances`
-        that are of the `rdf:type` as the resource class
-        '''
-        if hasattr(cls,'uri'):
-            subjects = [] if cls == Resource else cls.session[cls.store_key].all(cls,limit=limit,offset=offset)
-            if subjects:
-                return [cls(subject) for subject in subjects]
+    def all(cls, offset = None, limit = None, full = False):
+        """Retrieve all or limited number of `instances`.
+        
+        Retrieve all (or just a limited number from the specified offset) 
+        `instances` that are of the `rdf:type` as the resource class.
+        
+        """
+        
+        if not hasattr(cls,'uri') or cls == Resource:
             return []
-        return []
+        
+        store = cls.session[cls.store_key]
+        store_response = store.all(cls, limit = limit, offset = offset, 
+                                   full = full)
+
+        results = []
+        got_triples = len(store_response) and type(store_response[0]) == tuple
+        if got_triples:
+            # Group by subjects
+            instances = {}
+            for subject, predicate, value in store_response:
+                instance = instances.setdefault(subject, {})
+                attribute = rdf2attr(predicate, True)
+                current_values = instance.setdefault(attribute, [])
+                current_values.append(value)
+                
+            for subject, attrs_values in instances.items():
+                obj = cls(subject)
+                for attribute, value_list in attrs_values.items():
+                    if len(value_list) == 1:
+                        value_list = value_list[0]
+                    setattr(obj, attribute, value_list)
+                
+                results.append(obj) 
+                
+        else:
+            # We only got list of subjects, 
+            # if caller has specified eager_load=True, we'll have to do that
+            # with seperate queries.
+            results = []
+            for subject in store_response:
+                instance = cls(subject)
+                if eager_load:
+                    instance.load()
+                
+                results.append(instance)
+                
+
+        return results
         
     @classmethod
     def __get(cls,filter,*objects,**symbols):
