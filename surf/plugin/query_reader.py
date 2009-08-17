@@ -115,7 +115,10 @@ def query_PO(c,direct,filter='',preds={}):
         s, v, f = ('?s', v, '') if direct else (v, '?s', '')
         if filter is 'regex':
             s, v, f = ('?s', '?v%d'%i, 'regex(?v%d,%s)'%(i,__literal(v))) if direct else (v, '?s', '')
-        query.where((s,p,v)).filter(f)
+        query.where((s,p,v))
+        if filter:
+            query.filter(f)
+            
         i += 1
     query.optional_group(('?s',a,'?c'))
     return query
