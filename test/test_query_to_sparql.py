@@ -1,0 +1,67 @@
+""" Module for SPARQL generation tests. """
+
+import re 
+from unittest import TestCase
+
+from surf.query import select
+from surf.query_to_sparql import SparqlTranslator 
+
+def canonical(sparql_string):
+    """ Strip extra whitespace, convert to lowercase.
+    
+    This can be used to compare generated SPARQL queries and ignore whitespace,
+    capitalization differences.
+    
+    """
+    
+    result = sparql_string.strip().lower()
+    result = re.sub("\s\s+", " ", result)
+    replacements = [ (" distinct where", " where"), # empty DISTINCT clause
+                     ("{ ", "{"),                   # whitespace after {
+                     (" }", "}"),                   # whitespace before }
+                     (" .", "."),                   # whitespace before dot
+                    ]
+    
+    for s1, s2 in replacements:
+        result = result.replace(s1, s2)
+
+    return result
+    
+
+class TestQueryToSparql(TestCase):
+    """ Tests for query_to_sparql module. """
+    
+    def test_simple(self):
+        """ Try to produce a simple "SELECT ... WHERE ..." query.  """
+        
+        expected = canonical("SELECT ?s ?p ?o WHERE { ?s ?p ?o }")
+        query = select("?s", "?p", "?o").where(("?s", "?p", "?o"))
+        result = canonical(SparqlTranslator(query).translate())
+        
+        self.assertEqual(expected, result)
+        
+        
+    def test_subquery(self):
+        """ Try to produce query that contains subquery in WHERE clause. """
+        
+        expected = canonical("""
+            SELECT ?s ?p ?o 
+            WHERE { 
+                ?s ?p ?o. 
+                { SELECT ?s WHERE { ?s ?a ?b } LIMIT 3 }
+            }
+        """)
+        
+        subquery = select("?s").where(("?s", "?a", "?b")).limit(3)
+        
+        query = select("?s", "?p", "?o").where(("?s", "?p", "?o"), subquery)
+        result = canonical(SparqlTranslator(query).translate())
+        
+        self.assertEqual(expected, result)
+        
+        
+        
+        
+         
+        
+        

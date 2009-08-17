@@ -83,7 +83,7 @@ def query_AllRelated(concept, limit=None, offset=None):
     inner_query.limit(limit).offset(offset)
     
     query = select('?s', '?p', '?v').distinct()
-    return query.where(('?s', '?p', '?v')).sub_query(inner_query)
+    return query.where(('?s', '?p', '?v')).where(inner_query)
     
 #Resource class level
 def query_P_S(c,p,direct):

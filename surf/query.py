@@ -99,7 +99,8 @@ class Query(object):
     
     the query methods can be chained.
     '''
-    STATEMENT_TYPES     = [list, tuple, Group, NamedGroup, OptionalGroup, Filter]
+    STATEMENT_TYPES     = [list, tuple, Group, NamedGroup, OptionalGroup, 
+                           Filter] # + Query, but cannot reference it here.
     AGGREGATE_FUCTIONS  = ['count']
     TYPES               = [SELECT, ASK, CONSTRUCT, DESCRIBE]
     
@@ -138,7 +139,7 @@ class Query(object):
                              %s'''%Query.AGGREGATE_FUCTIONS)
     
     def _validate_statement(self, statement):
-        if type(statement) in Query.STATEMENT_TYPES:
+        if type(statement) in Query.STATEMENT_TYPES or isinstance(statement, Query):
             if type(statement) in [list, tuple]:
                 try:
                     s,p,o = statement
@@ -190,10 +191,6 @@ class Query(object):
         g = NamedGroup(name)
         g.extend([stmt for stmt in statements if self._validate_statement(stmt)])
         self._data.append(g)
-        return self
-    
-    def sub_query(self,*queries):
-        self._data.extend([sq for sq in queries if type(sq) is Query])
         return self
     
     def filter(self,filter):
