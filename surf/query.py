@@ -68,9 +68,10 @@ class Group(list):
     pass
 
 class NamedGroup(Group):
+    
     def __init__(self,name = None):
         Group.__init__(self)
-        if type(name) is [URIRef] or (type(name) in [str, union] and name.startswith('?')):
+        if type(name) is [URIRef] or (type(name) in [str, unicode] and name.startswith('?')):
             self.name = name
         else:
             raise ValueError('The names')
@@ -91,14 +92,20 @@ class Filter(unicode):
         return Filter('regex(%s,"%s"%s)'%(var, pattern, ',"%s"'%flag if flag else ''))
 
 class Query(object):
-    '''
-    The `Query` object is used by surf to construct queries in a programatic manner
-    The class supports the major SPARQL query types: *select*,*ask*,*describe*,*construct*
-    Although it follows the SPARQL format the query can be translated to other Query
-    formats such as **PROLOG**, for now though only *SPARQL* is supported.
+    """
+    The `Query` object is used by SuRF to construct queries in a programatic 
+    manner. The class supports the major SPARQL query types: *select*, *ask*, 
+    *describe*, *construct*. Although it follows the SPARQL format the query 
+    can be translated to other Query formats such as PROLOG, for now 
+    though only SPARQL is supported.
     
-    the query methods can be chained.
-    '''
+    Query objects should not be instatiated directly, instead use module-level
+    :func:`ask`, :func:`construct`, :func:`describe`, :func:`select` functions.  
+    
+    Query methods can be chained.
+   
+    """
+    
     STATEMENT_TYPES     = [list, tuple, Group, NamedGroup, OptionalGroup, 
                            Filter] # + Query, but cannot reference it here.
     AGGREGATE_FUCTIONS  = ['count']
@@ -164,18 +171,42 @@ class Query(object):
             raise ValueError('Statement type not in %s'%str(Query.STATEMENT_TYPES))
         
     def distinct(self):
+        """ Add *DISTINCT* modifier. """
+        
         self._modifier = DISTINCT
         return self
     
     def reduced(self):
+        """ Add *REDUCED* modifier. """
+
         self._modifier = REDUCED
         return self
         
     def where(self,*statements):
+        """ Add graph pattern(s) to *WHERE* clause.
+                
+        `where()` accepts multiple arguments. Each argument represents a
+        a graph pattern and will be added to default group graph pattern.
+        Each argument can be `tuple`, `list`, :class:`Query`, 
+        :class:`NamedGroup`, :class:`OptionalGroup`. 
+         
+        Example: 
+        
+        >>> query = select("?s").where(("?s", a, surf.ns.FOAF["person"]))
+        
+        """ 
+        
         self._data.extend([stmt for stmt in statements if self._validate_statement(stmt)])
         return self
     
     def optional_group(self,*statements):
+        """ Add optional group graph pattern to *WHERE* clause. 
+        
+        `optional_group()` accepts multiple arguments, similarly 
+        to :meth:`where()`.
+        
+        """
+         
         g = OptionalGroup()
         g.extend([stmt for stmt in statements if self._validate_statement(stmt)])
         self._data.append(g)
@@ -188,12 +219,37 @@ class Query(object):
         return self
     
     def named_group(self,name,*statements):
+        """ Add ``GROUP ?name { ... }`` construct to *WHERE* clause. 
+        
+        ``name`` is the variable name that will be bound to graph IRI.
+        
+        ``*statements`` is one or more graph patterns. 
+        
+        Example:
+        
+        >>> import surf
+        >>> from surf.query import a, select
+        >>> from surf.query_to_sparql import SparqlTranslator
+        >>> query = select("?s", "?src").named_group("?src", ("?s", a, surf.ns.FOAF['Person']))
+        >>> SparqlTranslator(query).translate()
+        SELECT  ?s ?src WHERE {  GRAPH ?src {  ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person>  }  }   
+        
+        """
+
         g = NamedGroup(name)
         g.extend([stmt for stmt in statements if self._validate_statement(stmt)])
         self._data.append(g)
         return self
     
-    def filter(self,filter):
+    def filter(self, filter):
+        """ Add FILTER construct to query WHERE clause. 
+        
+        Arguments:
+        
+        filter -- either `string`/`unicode` or `Filter` object.
+        
+        """
+        
         if not filter:
             raise ValueError('the filter must be of type Filter, str or unicode following the syntax of the query language')
         elif type(filter) in [str, unicode]:
@@ -203,16 +259,22 @@ class Query(object):
         self._data.append(filter)
     
     def limit(self, limit):
+        """ Add *LIMIT* modifier to query. """
+        
         if limit:
             self._limit = limit
         return self
      
     def offset(self, offset):
+        """ Add *OFFSET* modifier to query. """
+
         if offset:
             self._offset = offset
         return self
     
     def order_by(self, *vars):
+        """ Add *ORDER_BY* modifier to query. """
+
         self._order_by.extend([var for var in vars if type(var) in [str, unicode] and var.startswith('?')])
         return self
     
@@ -236,7 +298,7 @@ def describe(*vars):
 class QueryTranslator(object):
     '''The `QueryTranslator` class is responsible with the translation of the query
     to the appropriate query language in use. One must extend the class and override the
-    :func:`surf.query.QueryTranslator.translate` method'''
+    :meth:`surf.query.QueryTranslator.translate` method'''
     def __init__(self, query):
         self.__query = query
         if not self.__query.query_type:
