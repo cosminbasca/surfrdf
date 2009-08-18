@@ -303,18 +303,19 @@ class Resource(object):
             
         note: this method resets the *dirty* state of the object
         '''
-        def update(results,direct):
-            for p,v in results.items():
-                attr = rdf2attr(p,direct)
-                value = self._lazy(v)
-                if value or (type(value) is list and len(value) > 0):
-                    self.__setattr__(attr,value)
-                
         results_d = self.session[self.store_key].load(self,True)
         results_i = self.session[self.store_key].load(self,False)
-        update(results_d,True)
-        update(results_i,False)
+        self.__set_predicate_values(results_d,True)
+        self.__set_predicate_values(results_i,False)
         self.__dirty = False
+        
+    def __set_predicate_values(self,results,direct):
+        for p,v in results.items():
+            attr = rdf2attr(p,direct)
+            value = self._lazy(v)
+            if value or (type(value) is list and len(value) > 0):
+                self.__setattr__(attr,value)
+    
         
     @classmethod
     def get_by_attribute(cls,*attributes):
@@ -351,11 +352,7 @@ class Resource(object):
             results = []
             for subject, attrs_values in instances.items():
                 obj = cls(subject)
-                for p,v in attrs_values.items():
-                    attr = rdf2attr(p,direct)
-                    value = self._lazy(v)
-                    if value or (type(value) is list and len(value) > 0):
-                        setattr(obj,attr,value)
+                obj.__set_predicate_values(attrs_values,direct)
                 results.append(obj) 
         else:
             results = []
