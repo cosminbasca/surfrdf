@@ -155,31 +155,6 @@ class Query(object):
             raise ValueError('''Unknown variable type, all variables must either
                              start with a "?" or be among the recognized aggregates :
                              %s'''%Query.AGGREGATE_FUCTIONS)
-    
-    def _validate_statement(self, statement):
-        if type(statement) in Query.STATEMENT_TYPES or isinstance(statement, Query):
-            if type(statement) in [list, tuple]:
-                try:
-                    s,p,o = statement
-                except:
-                    raise ValueError('''Statement of type [list, tuple] does not
-                                     have all the (s,p,o) members (the length of the
-                                     supplied arguemnt must be at least 3)''')
-                if type(s) in [URIRef, BNode] or \
-                    (type(s) in [str, unicode] and s.startswith('?')): pass
-                else: raise ValueError('The subject is not a valid variable type')
-                
-                if type(p) in [URIRef] or \
-                    (type(p) in [str, unicode] and p.startswith('?')): pass
-                else: raise ValueError('The predicate is not a valid variable type')
-                
-                if type(o) in [URIRef, BNode, Literal] or \
-                    (type(o) in [str, unicode] and o.startswith('?')): pass
-                else: raise ValueError('The object is not a valid variable type')
-                
-            return True
-        else:
-            raise ValueError('Statement type not in %s'%str(Query.STATEMENT_TYPES))
         
     def distinct(self):
         """ Add *DISTINCT* modifier. """
@@ -207,7 +182,7 @@ class Query(object):
         
         """ 
         
-        self._data.extend([stmt for stmt in statements if self._validate_statement(stmt)])
+        self._data.extend([stmt for stmt in statements if validate_statement(stmt)])
         return self
     
     def optional_group(self,*statements):
@@ -219,13 +194,13 @@ class Query(object):
         """
          
         g = OptionalGroup()
-        g.extend([stmt for stmt in statements if self._validate_statement(stmt)])
+        g.extend([stmt for stmt in statements if validate_statement(stmt)])
         self._data.append(g)
         return self
     
     def group(self,*statements):
         g = Group()
-        g.extend([stmt for stmt in statements if self._validate_statement(stmt)])
+        g.extend([stmt for stmt in statements if validate_statement(stmt)])
         self._data.append(g)
         return self
     
@@ -248,7 +223,7 @@ class Query(object):
         """
 
         g = NamedGroup(name)
-        g.extend([stmt for stmt in statements if self._validate_statement(stmt)])
+        g.extend([stmt for stmt in statements if validate_statement(stmt)])
         self._data.append(g)
         return self
     
@@ -290,6 +265,31 @@ class Query(object):
         self._order_by.extend([var for var in vars if type(var) in [str, unicode] and var.startswith('?')])
         return self
     
+def validate_statement(statement):
+    if type(statement) in Query.STATEMENT_TYPES or isinstance(statement, Query):
+        if type(statement) in [list, tuple]:
+            try:
+                s,p,o = statement
+            except:
+                raise ValueError('''Statement of type [list, tuple] does not
+                                 have all the (s,p,o) members (the length of the
+                                 supplied arguemnt must be at least 3)''')
+            if type(s) in [URIRef, BNode] or \
+                (type(s) in [str, unicode] and s.startswith('?')): pass
+            else: raise ValueError('The subject is not a valid variable type')
+            
+            if type(p) in [URIRef] or \
+                (type(p) in [str, unicode] and p.startswith('?')): pass
+            else: raise ValueError('The predicate is not a valid variable type')
+            
+            if type(o) in [URIRef, BNode, Literal] or \
+                (type(o) in [str, unicode] and o.startswith('?')): pass
+            else: raise ValueError('The object is not a valid variable type')
+            
+        return True
+    else:
+        raise ValueError('Statement type not in %s'%str(Query.STATEMENT_TYPES))
+    
 def optional_group(*statements):
     """ Add optional group graph pattern to *WHERE* clause. 
     
@@ -299,12 +299,12 @@ def optional_group(*statements):
     """
      
     g = OptionalGroup()
-    g.extend([stmt for stmt in statements if self._validate_statement(stmt)])
+    g.extend([stmt for stmt in statements if validate_statement(stmt)])
     return g
 
 def group(*statements):
     g = Group()
-    g.extend([stmt for stmt in statements if self._validate_statement(stmt)])
+    g.extend([stmt for stmt in statements if validate_statement(stmt)])
     return g
 
 def named_group(name,*statements):
@@ -326,7 +326,7 @@ def named_group(name,*statements):
     """
 
     g = NamedGroup(name)
-    g.extend([stmt for stmt in statements if self._validate_statement(stmt)])
+    g.extend([stmt for stmt in statements if validate_statement(stmt)])
     return g
     
 # the query creators
