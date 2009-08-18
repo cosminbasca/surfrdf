@@ -346,7 +346,7 @@ class Resource(object):
         store = cls.session[cls.store_key]
         store_response = store.all(cls, limit = limit, offset = offset, full = full)
 
-        if store.use_subqueries:
+        if store.use_subqueries and full:
             direct = True # TODO: must implement for indirect as well
             results = []
             for subject, attrs_values in instances.items():
