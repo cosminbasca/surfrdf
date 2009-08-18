@@ -177,7 +177,7 @@ class RDFQueryReader(RDFReader):
     def _instances_by_value(self,concept,direct,attributes):
         query = query_P_V(concept,direct,p=attributes)
         result = self._execute(query)
-        return self.convert(result, 's', 'c')
+        return self.convert(result, 'v', 'c')
     
     # to implement
     def _ask(self,result):
