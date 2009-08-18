@@ -310,6 +310,9 @@ class Resource(object):
         self.__dirty = False
         
     def __set_predicate_values(self,results,direct):
+        ''' set the prediate - value(s) to the resource using lazy loading,
+        `results` is a dict under the form:
+        {'predicate':{'value':[concept,concept],...},...}'''
         for p,v in results.items():
             attr = rdf2attr(p,direct)
             value = self._lazy(v)
