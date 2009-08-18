@@ -37,7 +37,7 @@ __author__ = 'Cosmin Basca'
 
 from surf.plugin.reader import RDFReader
 import logging
-from surf.query import Query, a, ask, select, Filter
+from surf.query import Query, a, ask, select, Filter, optional_group
 
 # the rdf way
 #from rdf.graph import ConjunctiveGraph
@@ -77,11 +77,14 @@ def query_AllRelated(concept, limit=None, offset=None):
     First, in subquery, select resource uris that have type matching concept 
     argument. Then, in main query, select all triples that have previously
     selected uris as subjects.  '''
-    inner_query = select('?s').distinct().where(('?s', a, concept))
+    inner_query = select('?s').where(('?s', a, concept))
     inner_query.limit(limit).offset(offset)
     
     query = select('?s', '?p', '?v', '?c').distinct()
-    return query.where(('?s', '?p', '?v')).optional_group(('?v',a,'?c')).where(inner_query)
+    query.group(('?s', '?p', '?v'), optional_group(('?v',a,'?c')))
+    query.where(inner_query)
+    
+    return query
     
 #Resource class level
 def query_P_S(c,p,direct):
@@ -172,7 +175,7 @@ class RDFQueryReader(RDFReader):
     def _instances(self,concept,direct,filter,predicates):
         query = query_PO(concept,direct,filter=filter,preds=predicates)
         result = self._execute(query)
-        return self.convert(result, 's')
+        return self.convert(result, 's', 'c')
         
     def _instances_by_value(self,concept,direct,attributes):
         query = query_P_V(concept,direct,p=attributes)

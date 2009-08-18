@@ -353,7 +353,7 @@ class Resource(object):
         if store.use_subqueries and full:
             direct = True # TODO: must implement for indirect as well
             results = []
-            for subject, attrs_values in instances.items():
+            for subject, attrs_values in store_response.items():
                 obj = cls(subject)
                 obj.__set_predicate_values(attrs_values,direct)
                 results.append(obj) 
