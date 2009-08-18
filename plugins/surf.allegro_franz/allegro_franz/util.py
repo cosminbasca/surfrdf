@@ -56,12 +56,17 @@ try:
         if type(term) is fURIRef:
             return URIRef(term.getURI())
         elif type(term) is fLiteral:
-            if term.getDatatype():
-                dtype = term.getDatatype()
-                if dtype.startswith('<') and dtype.endswith('>'):
-                    dtype.strip('<>')
-                    dtype = URIRef(dtype)
-            return Literal(term.getLabel(),lang=term.getLanguage(),datatype=dtype)
+            try:
+                if term.getDatatype():
+                    dtype = term.getDatatype().getURI()
+                    if dtype.startswith('<') and dtype.endswith('>'):
+                        dtype = dtype.strip('<>')
+                        dtype = URIRef(dtype)
+                    else:
+                        dtype = URIRef(dtype)
+                return Literal(term.getLabel(),lang=term.getLanguage(),datatype=dtype)
+            except Exception, e:
+                print e
         elif type(term) is fBNode:
             return BNode(term.getID())
         elif type(term) in [list,tuple]:
