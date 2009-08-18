@@ -73,7 +73,9 @@ class Session(object):
     type factory for surf, the resources will walk the graph in a lazy manner based
     on the session that they are bound to (the last created session)'''
     
-    def __init__(self,default_store=None,mapping={},auto_persist=False,auto_load=False,use_cached=False,cache_expire=DEFAULT_RESOURCE_EXPIRE_TIME):
+    # TODO: add cache
+    ''',use_cached=False,cache_expire=DEFAULT_RESOURCE_EXPIRE_TIME'''
+    def __init__(self,default_store=None,mapping={},auto_persist=False,auto_load=False):
         '''creates a new `session` object that handles the creation of types and
         instances, also the session binds itself to the `Resource` objects to allow
         the Resources to access the data `store` and perform `lazy loading` of results
@@ -87,8 +89,8 @@ class Session(object):
         
         self.__auto_persist = auto_persist
         self.__auto_load = auto_load
-        self.__use_cached = use_cached
-        self.__cache_expire = cache_expire
+        #self.__use_cached = use_cached
+        #self.__cache_expire = cache_expire
         self.__stores = {}
         
         if default_store:
@@ -163,8 +165,8 @@ class Session(object):
                               fset = set_enable_logging)
     '''toggles `loggins` on or off'''
     
-    
-    def set_use_cached(self,val):
+    # TODO: add caching ... need strategies
+    '''def set_use_cached(self,val):
         self.__use_cached = val if type(val) is bool else False
     use_cached = property(fget = lambda self: self.__use_cached,
                                  fset = set_use_cached)
@@ -175,7 +177,7 @@ class Session(object):
             self.__cache_expire = DEFAULT_RESOURCE_EXPIRE_TIME
     cache_expire = property(fget = lambda self: self.__cache_expire,
                                  fset = set_cache_expire)
-    
+    '''
     def get_default_store_key(self):
         '''getter function for the `default_store_key` property, do not use,
         use the `default_store_key` property instead'''
