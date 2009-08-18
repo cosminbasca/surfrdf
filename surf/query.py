@@ -290,6 +290,45 @@ class Query(object):
         self._order_by.extend([var for var in vars if type(var) in [str, unicode] and var.startswith('?')])
         return self
     
+def optional_group(*statements):
+    """ Add optional group graph pattern to *WHERE* clause. 
+    
+    `optional_group()` accepts multiple arguments, similarly 
+    to :meth:`where()`.
+    
+    """
+     
+    g = OptionalGroup()
+    g.extend([stmt for stmt in statements if self._validate_statement(stmt)])
+    return g
+
+def group(*statements):
+    g = Group()
+    g.extend([stmt for stmt in statements if self._validate_statement(stmt)])
+    return g
+
+def named_group(name,*statements):
+    """ Add ``GROUP ?name { ... }`` construct to *WHERE* clause. 
+    
+    ``name`` is the variable name that will be bound to graph IRI.
+    
+    ``*statements`` is one or more graph patterns. 
+    
+    Example:
+    
+    >>> import surf
+    >>> from surf.query import a, select
+    >>> from surf.query_to_sparql import SparqlTranslator
+    >>> query = select("?s", "?src").named_group("?src", ("?s", a, surf.ns.FOAF['Person']))
+    >>> SparqlTranslator(query).translate()
+    SELECT  ?s ?src WHERE {  GRAPH ?src {  ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person>  }  }   
+    
+    """
+
+    g = NamedGroup(name)
+    g.extend([stmt for stmt in statements if self._validate_statement(stmt)])
+    return g
+    
 # the query creators
 def select(*vars):
     '''constructs a **SELECT** :class:`surf.query.Query`'''
