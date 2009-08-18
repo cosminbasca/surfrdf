@@ -346,36 +346,24 @@ class Resource(object):
         store = cls.session[cls.store_key]
         store_response = store.all(cls, limit = limit, offset = offset, full = full)
 
-        results = []
-        got_triples = len(store_response) and type(store_response[0]) == tuple
-        if got_triples:
-            # Group by subjects
-            instances = {}
-            for subject, predicate, value in store_response:
-                instance = instances.setdefault(subject, {})
-                attribute = rdf2attr(predicate, True)
-                current_values = instance.setdefault(attribute, [])
-                current_values.append(value)
-                
+        if store.use_subqueries:
+            direct = True # TODO: must implement for indirect as well
+            results = []
             for subject, attrs_values in instances.items():
                 obj = cls(subject)
-                for attribute, value_list in attrs_values.items():
-                    if len(value_list) == 1:
-                        value_list = value_list[0]
-                    setattr(obj, attribute, value_list)
-                
+                for p,v in attrs_values.items():
+                    attr = rdf2attr(p,direct)
+                    value = self._lazy(v)
+                    if value or (type(value) is list and len(value) > 0):
+                        setattr(obj,attr,value)
                 results.append(obj) 
-                
         else:
-            # We only got list of subjects, 
-            # if caller has specified eager_load=True, we'll have to do that
-            # with seperate queries.
             results = []
             for subject in store_response:
                 instance = cls(subject)
                 if full: instance.load()
                 results.append(instance)
-            
+        
         return results
         
     @classmethod

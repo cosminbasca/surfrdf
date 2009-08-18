@@ -124,12 +124,19 @@ class Query(object):
         self._order_by  = []
         
     query_type        = property(fget = lambda self: self._type)
+    '''the query `type` can be: *SELECT*, *ASK*, *DESCRIBE*or *CONSTRUCT*'''
     query_modifier    = property(fget = lambda self: self._modifier)
+    '''the query `modifier` can be: *DISTINCT*, *REDUCED*, or `None`'''
     query_vars        = property(fget = lambda self: self._vars)
+    '''the query `variables` to return as the resultset'''
     query_data        = property(fget = lambda self: self._data)
+    '''the query `data`, internal structure representing the contents of the *WHERE* clause'''
     query_limit       = property(fget = lambda self: self._limit)
+    '''the query `limit`, can be a number or None'''
     query_offset      = property(fget = lambda self: self._offset)
+    '''the query `offset`, can be a number or None'''
     query_order_by    = property(fget = lambda self: self._order_by)
+    '''the query `order by` variables'''
         
     def _validate_variable(self, var):
         if type(var) in [str, unicode]:

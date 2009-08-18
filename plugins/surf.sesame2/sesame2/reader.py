@@ -72,39 +72,8 @@ class ReaderPlugin(RDFQueryReader):
     
     allegro             = property(lambda self: self.__allegro)
     
-    def _values(self,result,vkey='v',ckey='c'):
-        '''
-        returns a dictionary of the form {value : [concept,concept,...]}
-        result represents the query returned result
-        '''
-        results = result
-        values = {}
-        if not results:
-            return values
-        for v in results:
-            if v[vkey] not in values: values[v[vkey]] = []
-            if ckey in v: values[v[vkey]].append(v[ckey])
-        return values
-    
-    def _predicate_values(self,result,pkey='p',vkey='v',ckey='c'):
-        '''
-        returns a dictionary with predicates as keys, the values
-        are the same as returned by the _values function
-        returns a dictionary of the form {value : [concept,concept,...]}
-        {predicate: {value : [concept,concept,...]},
-         predicate: {value : [concept,concept,...]},}
-        result represents the query returned result
-        '''
-        results = result
-        pvalues = {}
-        if not results:
-            return pvalues
-        for v in results:
-            p = v[pkey]
-            if p not in pvalues: pvalues[p] = {}
-            if v[vkey] not in pvalues[p]: pvalues[p][v[vkey]] = []
-            if ckey in v: pvalues[p][v[vkey]].append(v[ckey])
-        return pvalues
+    def _to_table(self,result):
+        return result
         
     def _ask(self,result):
         '''
@@ -119,7 +88,6 @@ class ReaderPlugin(RDFQueryReader):
             self.log.debug(q_string)
             results = self.allegro.sparql_query(self.repository,q_string,infer=self.inference,format='sparql')
             return results
-            #return self._toRdflib(results)
         except Exception, e: 
             self.log.error('Exception on query : \n'+str(e))
         return None

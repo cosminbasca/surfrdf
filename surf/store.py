@@ -106,6 +106,9 @@ class Store(object):
         '''True if `logging` is enabled, False otherwise'''
         return False if self.log.level == logging.NOTSET else True
     
+    use_subqueries = property(fget = lambda self: self.reader.use_subqueries if hasattr(self.reader,'use_subqueries') else False)
+    '''True if the `reader` plugin is using sub queries, False otherwise'''
+    
     def close(self):
         '''close the `store`, both the `reader` and the `writer` plugins are closed
         see :func:`surf.plugin.writer.RDFWriter.close` and :func:`surf.plugin.reader.RDFReader.close` methods'''

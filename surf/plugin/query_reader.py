@@ -72,18 +72,16 @@ def query_All(concept,limit=None,offset=None):
     return select('?s').distinct().where(('?s',a,concept)).limit(limit).offset(offset)
 
 def query_AllRelated(concept, limit=None, offset=None):
-    """ Return Query that selects subjects and related triples. 
+    ''' Return Query that selects subjects and related triples. 
         
     First, in subquery, select resource uris that have type matching concept 
     argument. Then, in main query, select all triples that have previously
-    selected uris as subjects.  
-    
-    """
+    selected uris as subjects.  '''
     inner_query = select('?s').distinct().where(('?s', a, concept))
     inner_query.limit(limit).offset(offset)
     
-    query = select('?s', '?p', '?v').distinct()
-    return query.where(('?s', '?p', '?v')).where(inner_query)
+    query = select('?s', '?p', '?v', '?c').distinct()
+    return query.where(('?s', '?p', '?v')).optional_group(('?v',a,'?c')).where(inner_query)
     
 #Resource class level
 def query_P_S(c,p,direct):
@@ -152,110 +150,49 @@ class RDFQueryReader(RDFReader):
     def _get(self,subject,attribute,direct):
         query = query_SP(subject, attribute, direct)
         result = self._execute(query)
-        return self.__values(result)
+        return self.convert(result,'v','c')
     
     def _load(self,subject,direct):
         query = query_S(subject, direct)
         result = self._execute(query)
-        return self.__predicate_values(result)
+        return self.convert(result,'p','v','c')
     
     def _is_present(self,subject):
         query = query_Ask(subject)
         result = self._execute(query)
         return self._ask(result)
     
-    def _all(self, concept, limit = None, offset = None, 
-             full = False):
+    def _all(self, concept, limit = None, offset = None, full = False):
         if full and self.use_subqueries:
             query = query_AllRelated(concept, limit=limit, offset=offset)            
             result = self._execute(query)
-            return self.__triples(result)
+            return self.convert(result,'s','p','v','c')
         else:
             query = query_All(concept, limit=limit, offset=offset)
             result = self._execute(query)
-            return self.__values(result, vkey="s").keys()
+            return self.convert(result,'s')
     
     def _concept(self,subject):
         query = query_Concept(subject)
         result = self._execute(query)
-        cval = self.__values(result,vkey='c',ckey=None)
-        return cval.keys()[0] if len(cval) > 0 else None
+        return self.convert(result,'c')
         
     def _instances_by_attribute(self,concept,attributes,direct):
         query = query_P_S(concept,attributes,direct)
         result = self._execute(query)
-        return self.__values(result)
+        return self.convert(result, 's', 'c')
         
     def _instances(self,concept,direct,filter,predicates):
         query = query_PO(concept,direct,filter=filter,preds=predicates)
         result = self._execute(query)
-        return self.__values(result, vkey = 's')
+        return self.convert(result, 's')
         
     def _instances_by_value(self,concept,direct,attributes):
         query = query_P_V(concept,direct,p=attributes)
         result = self._execute(query)
-        return self.__values(result)
-    
-    # wrapper for error handling
-    def __values(self,result,vkey='v',ckey='c'):
-        try:
-            return self._values(result,vkey=vkey,ckey=ckey)
-        except Exception, e:
-            self.log.error('Error on values : '+str(e))
-        return {}
-    
-    def __predicate_values(self,result,pkey='p',vkey='v',ckey='c'):
-        try:
-            return self._predicate_values(result,pkey=pkey,vkey=vkey,ckey=ckey)
-        except Exception, e:
-            self.log.error('Error on predicate values : '+str(e))
-        return {}
-
-    def __triples(self, result, skey = "s", pkey = 'p', vkey = 'v'):
-        try:
-            return self._triples(result, skey = skey, pkey = pkey, vkey = vkey)
-        except Exception, e:
-            self.log.error('Error on triples : ' + str(e))
-        return {}
+        return self.convert(result, 's', 'c')
     
     # to implement
-    def _values(self,result,vkey='v',ckey='c'):
-        '''`result` represents the query returned result,
-        returns a dictionary of the form
-        
-        .. code-block:: python
-            
-            {value_1 : [concept_uri_1,concept_uri_2,]}
-            
-        '''
-        return {}
-    
-    def _predicate_values(self,result,pkey='p',vkey='v',ckey='c'):
-        '''`result` represents the query returned result
-        returns a dictionary with predicates as keys, the values
-        are the same as returned by the _values function
-        returns a dictionary of the form
-        
-        .. code-block:: python
-        
-            {predicate_1: {value_1 : [concept_uri_1,concept_uri_2,]},
-             predicate_2: {value_2 : [concept_uri_2,concept_uri_3,]},
-            }
-        
-        '''
-
-        return {}
-
-    def _triples(self, result, skey="s", pkey = "p", vkey = "v"):
-        """ Return triples (subject, predicate, value).
-        
-        Return list of tuples, each tuple is quad: 
-        (subject, predicate, value, class)
-
-        """
-        
-        return {}
-        
     def _ask(self,result):
         '''returns the boolean `value` of a **ASK** query'''
         return False
@@ -266,6 +203,31 @@ class RDFQueryReader(RDFReader):
         called internally by `execute`'''
         return None
 
+    def _to_table(self,result):
+        return []
+    
+    def __convert(self,query_result,*keys):
+        results_table = self._to_table(query_result)
+        
+        if len(keys) == 1:
+            return [row[keys[0]] for row in results_table]
+        
+        last = len(keys)-2
+        results = {}
+        for row in results_table:
+            data = results
+            for i in range(len(keys)-1):
+                v = row[keys[i]]
+                if i < last:
+                    if v not in data:
+                        data[v] = {}
+                    data = data[v]
+                elif i == last:
+                    if v not in data:
+                        data[v] = []
+                    data[v].append(row[keys[i+1]])
+        return results
+
     # public interface    
     def execute(self,query):
         '''execute a `query` of type `surf.query.Query`'''
@@ -273,3 +235,12 @@ class RDFQueryReader(RDFReader):
         if q:
             return self._execute(q)
         return None
+    
+    def convert(self, query_result, * keys):
+        '''converts the results from the query to a multilevel dictionary, used
+        by the :class:`surf.resource.Resource` class'''
+        try:
+            return self.__convert(query_result, *keys)
+        except Exception, e:
+            self.log.error('Error on Convert : ' + str(e))
+        return []

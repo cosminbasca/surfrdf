@@ -84,45 +84,17 @@ try:
         allegro_catalog     = property(lambda self: self.__allegro_catalog)
         allegro_repository  = property(lambda self: self.__allegro_repository)
         
-        def _values(self,result,vkey='v',ckey='c'):
-            '''
-            returns a dictionary of the form {value : [concept,concept,...]}
-            result represents the query returned result
-            '''
-            values = {}
+        def _to_table(self,result):
+            table = []
             bindings = result.getBindingNames()
             for bindingSet in result:
-                v = toRdfLib(bindingSet[vkey])
-                try:
-                    c = toRdfLib(bindingSet[ckey])
-                except:
-                    c = None
-                if v not in values: values[v] = []
-                values[v].append(c)
-            return values
-        
-        def _predicate_values(self,result,pkey='p',vkey='v',ckey='c'):
-            '''
-            returns a dictionary with predicates as keys, the values
-            are the same as returned by the _values function
-            returns a dictionary of the form {value : [concept,concept,...]}
-            {predicate: {value : [concept,concept,...]},
-             predicate: {value : [concept,concept,...]},}
-            result represents the query returned result
-            '''
-            pvalues = {}
-            bindings = result.getBindingNames()
-            for bindingSet in result:
-                p = toRdfLib(bindingSet[pkey])
-                v = toRdfLib(bindingSet[vkey])
-                try:
-                    c = toRdfLib(bindingSet[ckey])
-                except:
-                    c = None
-                if p not in pvalues: pvalues[p] = {}
-                if v not in pvalues[p]: pvalues[p][v] = []
-                pvalues[p][v].append(c)
-            return pvalues
+                row = {}
+                for key in bindings:
+                    try:    v = toRdfLib(bindingSet[key])
+                    except: v = None
+                    row[key] = v
+                table.append(row)
+            return table
             
         def _ask(self,result):
             '''
