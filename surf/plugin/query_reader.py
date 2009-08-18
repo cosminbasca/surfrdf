@@ -94,15 +94,6 @@ def query_P_S(c,p,direct):
     query.optional_group(('?s',a,'?c'))
     return query
 
-def __literal(term):
-    #TODO - this is sparql specific, it needs to be pushed to the query, the query object
-    # must handle this by supporting a better unified model between the filters and the query
-    if type(term) is Literal:
-        return '"%s"@%s'%(term,term.language)
-    elif type(term) in [list,tuple]:
-        return '"%s"@%s'%(term[0],term[1])
-    return '"%s"'%term
-
 def query_PO(c,direct,filter='',preds={}):
     '''helper query builder method
     constructs a `surf.query.Query` where the unknowns are `?s ?c`, with the possibility
@@ -110,13 +101,9 @@ def query_PO(c,direct,filter='',preds={}):
     query = select('?s','?c').distinct()
     i = 0 
     for p, v in preds.items():
-        s, v, f = ('?s', v, '') if direct else (v, '?s', '')
-        if filter is 'regex':
-            s, v, f = ('?s', '?v%d'%i, 'regex(?v%d,%s)'%(i,__literal(v))) if direct else (v, '?s', '')
-        query.where((s,p,v))
-        if filter:
-            query.filter(f)
-            
+        f = Filter.regex('?v%d'%(i),v) if filter == 'regex' and direct else None
+        s, v = ('?s', v) if direct else (v, '?s')
+        query.where((s,p,v)).filter(f)
         i += 1
     query.optional_group(('?s',a,'?c'))
     return query

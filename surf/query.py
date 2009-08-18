@@ -79,13 +79,17 @@ class NamedGroup(Group):
 class OptionalGroup(Group):
     pass
 
-class Filter(unicode):        
+class Filter(unicode):
     @classmethod
     def regex(cls,var,pattern,flag=None):
         if type(var) in [str, unicode] and var.startswith('?'): pass
         else: raise ValueError('not a filter variable')
-        if type(pattern) in [str, unicode]: pass
-        else: raise ValueError('regular expression')
+        
+        if type(pattern) in [str, unicode]:     pass
+        elif type(pattern) is Literal:          pattern = '"%s"@%s'%(pattern,pattern.language)
+        elif type(pattern) in [list, tuple]:    pattern = '"%s"@%s'%(pattern[0],pattern[1])
+        else:                                   raise ValueError('regular expression')
+        
         if flag and type(flag) in [str, unicode] or not flag: pass
         else: raise ValueError('not a filter flag')
         
@@ -253,17 +257,18 @@ class Query(object):
         
         Arguments:
         
-        filter -- either `string`/`unicode` or `Filter` object.
+        filter -- either `string`/`unicode` or `Filter` object., None no filter is appended
         
         """
         
         if not filter:
-            raise ValueError('the filter must be of type Filter, str or unicode following the syntax of the query language')
+            return self
         elif type(filter) in [str, unicode]:
             filter = Filter(filter)
         elif type(filter) is not Filter:
             raise ValueError('the filter must be of type Filter, str or unicode following the syntax of the query language')
         self._data.append(filter)
+        return self
     
     def limit(self, limit):
         """ Add *LIMIT* modifier to query. """
