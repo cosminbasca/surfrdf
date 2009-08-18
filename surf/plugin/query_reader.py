@@ -212,7 +212,7 @@ class RDFQueryReader(RDFReader):
                 elif i == last:
                     if v not in data:
                         data[v] = []
-                    data[v].append(row[keys[i+1]])
+                    data[v].append(row.get(keys[i+1]))
         return results
 
     # public interface    
