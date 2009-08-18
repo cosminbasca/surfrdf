@@ -56,7 +56,11 @@ try:
         if type(term) is fURIRef:
             return URIRef(term.getURI())
         elif type(term) is fLiteral:
-            if term.getDatatype(): dtype = URIRef(term.getDatatype())[1:-1]
+            if term.getDatatype():
+                dtype = term.getDatatype()
+                if dtype.startswith('<') and dtype.endswith('>'):
+                    dtype.strip('<>')
+                    dtype = URIRef(dtype)
             return Literal(term.getLabel(),lang=term.getLanguage(),datatype=dtype)
         elif type(term) is fBNode:
             return BNode(term.getID())
