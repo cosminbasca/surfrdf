@@ -3,6 +3,8 @@
 import re 
 from unittest import TestCase
 
+from rdflib.URIRef import URIRef
+
 from surf.query import select
 from surf.query_to_sparql import SparqlTranslator 
 
@@ -58,6 +60,26 @@ class TestQueryToSparql(TestCase):
         result = canonical(SparqlTranslator(query).translate())
         
         self.assertEqual(expected, result)
+        
+        
+    def test_from(self):
+        """ Try to produce query that contains FROM clauses. """
+        
+        expected = canonical("""
+            SELECT ?s ?p ?o
+            FROM <http://uri1>
+            FROM <http://uri2> 
+            WHERE { 
+                ?s ?p ?o 
+            }
+        """)
+        
+        query = select("?s", "?p", "?o").where(("?s", "?p", "?o"))
+        query.from_("http://uri1", URIRef("http://uri2"))
+        result = canonical(SparqlTranslator(query).translate())
+        
+        self.assertEqual(expected, result)
+        
         
         
         

@@ -64,12 +64,14 @@ class SparqlTranslator(QueryTranslator):
             return self._translate_ask(self.query)
             
     def _translate_select(self,query):
-        rep = 'SELECT %(modifier)s %(vars)s WHERE { %(where)s } %(limit)s %(offset)s %(order_by)s'
+
+        rep = 'SELECT %(modifier)s %(vars)s %(from_)s WHERE { %(where)s } %(limit)s %(offset)s %(order_by)s'
         modifier    = query.query_modifier.upper() if query.query_modifier else ''
         limit       = ' LIMIT %d '%(query.query_limit) if query.query_limit else ''
         offset      = ' OFFSET %d '%(query.query_offset) if query.query_offset else ''
         where       = '. '.join([self._statement(stmt) for stmt in self.query.query_data])
         vars        = ' '.join([var for var in query.query_vars])
+        from_        = ' '.join([ "FROM <%s>" % uri for uri in query.query_from])
         if len(self.query.query_order_by) > 0:
             order_by= ' ORDER BY %s'%(' '.join([var for var in self.query.query_order_by]))
         else:
@@ -77,10 +79,11 @@ class SparqlTranslator(QueryTranslator):
         
         return rep%({'modifier'     : modifier,
                      'vars'         : vars,
+                     'from_'        : from_,
                      'where'        : where,
                      'limit'        : limit,
                      'offset'       : offset,
-                     'order_by'     : order_by})
+                     'order_by'     : order_by,})
 
     def _translate_ask(self,query):
         rep = 'ASK { %(where)s }'

@@ -122,6 +122,7 @@ class Query(object):
         self._type      = type
         self._modifier  = None
         self._vars      = [var for var in vars if self._validate_variable(var)]
+        self._from      = []
         self._data      = []
         self._limit     = None
         self._offset    = None
@@ -133,6 +134,8 @@ class Query(object):
     '''the query `modifier` can be: *DISTINCT*, *REDUCED*, or `None`'''
     query_vars        = property(fget = lambda self: self._vars)
     '''the query `variables` to return as the resultset'''
+    query_from        = property(fget = lambda self: self._from)
+    '''list of URIs that will go into query FROM clauses'''
     query_data        = property(fget = lambda self: self._data)
     '''the query `data`, internal structure representing the contents of the *WHERE* clause'''
     query_limit       = property(fget = lambda self: self._limit)
@@ -166,6 +169,16 @@ class Query(object):
         """ Add *REDUCED* modifier. """
 
         self._modifier = REDUCED
+        return self
+
+    def from_(self, *uris):
+        """ Add graph URI(s) that will go in separate *FROM* clause. 
+        
+        Each argument can be either `string` or :class:`URIRef`.
+        
+        """
+
+        self._from += uris
         return self
         
     def where(self,*statements):
@@ -228,11 +241,11 @@ class Query(object):
         return self
     
     def filter(self, filter):
-        """ Add FILTER construct to query WHERE clause. 
+        """ Add *FILTER* construct to query *WHERE* clause. 
         
-        Arguments:
-        
-        filter -- either `string`/`unicode` or `Filter` object., None no filter is appended
+        ``filter`` must be either `string`/`unicode` or 
+        :class:`Filter` object, if it is `None` then no filter 
+        is appended.
         
         """
         
@@ -291,10 +304,12 @@ def validate_statement(statement):
         raise ValueError('Statement type not in %s'%str(Query.STATEMENT_TYPES))
     
 def optional_group(*statements):
-    """ Add optional group graph pattern to *WHERE* clause. 
+    """ Return optional group graph pattern. 
+    
+    Returned object can be used as argument in :meth:`Query.where` method.
     
     `optional_group()` accepts multiple arguments, similarly 
-    to :meth:`where()`.
+    to :meth:`Query.where()`.
     
     """
      
@@ -308,18 +323,18 @@ def group(*statements):
     return g
 
 def named_group(name,*statements):
-    """ Add ``GROUP ?name { ... }`` construct to *WHERE* clause. 
+    """ Return named group graph pattern. 
     
-    ``name`` is the variable name that will be bound to graph IRI.
+    Returned object can be used as argument in :meth:`Query.where` method.
     
     ``*statements`` is one or more graph patterns. 
     
     Example:
     
     >>> import surf
-    >>> from surf.query import a, select
+    >>> from surf.query import a, select, named_group
     >>> from surf.query_to_sparql import SparqlTranslator
-    >>> query = select("?s", "?src").named_group("?src", ("?s", a, surf.ns.FOAF['Person']))
+    >>> query = select("?s", "?src").where(named_group("?src", ("?s", a, surf.ns.FOAF['Person'])))
     >>> SparqlTranslator(query).translate()
     SELECT  ?s ?src WHERE {  GRAPH ?src {  ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person>  }  }   
     
@@ -331,19 +346,31 @@ def named_group(name,*statements):
     
 # the query creators
 def select(*vars):
-    '''constructs a **SELECT** :class:`surf.query.Query`'''
+    """ Construct and return :class:`Query` object of type **SELECT** 
+    
+    ``*vars`` are variables to be selected.
+    
+    Example:
+    
+    >>> query = select("?s", "?p", "?o") 
+    
+    """
+    
     return Query(SELECT, *vars)
     
 def ask():
-    '''constructs a **ASK** :class:`surf.query.Query`'''
+    """ Construct and return :class:`Query` object of type **ASK** """ 
+
     return Query(ASK)
 
 def construct(*vars):
-    '''constructs a **CONSTRUCT** :class:`surf.query.Query`'''
+    """ Construct and return :class:`Query` object of type **CONSTRUCT** """ 
+
     return Query(CONSTRUCT, *vars)
 
 def describe(*vars):
-    '''constructs a **DESCRIBE** :class:`surf.query.Query`'''
+    """ Construct and return :class:`Query` object of type **DESCRIBE** """ 
+
     return Query(DESCRIBE, *vars)
     
 class QueryTranslator(object):
