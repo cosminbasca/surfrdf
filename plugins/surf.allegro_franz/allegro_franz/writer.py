@@ -38,6 +38,7 @@ __author__ = 'Cosmin Basca'
 
 from surf.plugin.writer import RDFWriter
 from util import toRdfLib, toSesame, toStatement, toTuple
+from reader import ReaderPlugin
 
 try:
     from franz.openrdf.sail.allegrographserver import AllegroGraphServer
@@ -55,14 +56,23 @@ try:
     
     print 'surf.plugin allegro_franz writer : franz libraries installed'
     class WriterPlugin(RDFWriter):
-        def __init__(self,*args,**kwargs):
-                RDFWriter.__init__(self,*args,**kwargs)
+        def __init__(self,reader,*args,**kwargs):
+            RDFWriter.__init__(self,reader,*args,**kwargs)
+            if isinstance(self.reader, ReaderPlugin):
+                self.__server       = self.reader.server
+                self.__port         = self.reader.port
+                self.__catalog      = self.reader.catalog
+                self.__repository   = self.reader.repository
                 
+                self.__allegro_server       = self.reader.allegro_server
+                self.__allegro_catalog      = self.reader.allegro_catalog
+                self.__allegro_repository   = self.reader.allegro_repository
+                
+            else:
                 self.__server       = kwargs['server'] if 'server' in kwargs else 'localhost'
                 self.__port         = kwargs['port'] if 'port' in kwargs else 6789
                 self.__catalog      = kwargs['catalog'] if 'catalog' in kwargs else None
                 self.__repository   = kwargs['repository'] if 'repository' in kwargs else None
-                self.__infer        = kwargs['infer'] if 'infer' in kwargs else False
                 
                 if not self.__catalog or not self.__repository:
                     raise Exception('Must specify the <catalog> and the <repository> arguments')
@@ -72,9 +82,9 @@ try:
                 self.__allegro_repository   = self.__allegro_catalog.getRepository(self.__repository, Repository.ACCESS )
                 self.__allegro_repository.initialize()
                 
-                self.__con = self.allegro_repository.getConnection()
-                self.__f = self.allegro_repository.getValueFactory()
-        
+            self.__con  = self.__allegro_repository.getConnection()
+            self.__f    = self.__allegro_repository.getValueFactory()
+            
         results_format      = property(lambda self: 'json')
         server              = property(lambda self: self.__server)
         port                = property(lambda self: self.__port)
@@ -146,14 +156,6 @@ try:
             self.__con.addFile(file,base=base,format=format,context=toSesame(context,self.__f),serverSide=server_side)
             return True
             
-        def add_file(self,file,base=None,format='nt',context=None,server_side=False):
-            '''
-            load files into the triple-store
-            this method is kept for backward compatibility only
-            '''
-            format = RDFFormat.NTRIPLES if format is 'nt' else RDFFormat.RDFXML
-            self.__con.addFile(file,base=base,format=format,context=toSesame(context,self.__f),serverSide=server_side)
-        
         def _clear(self,context=None):
             '''
             clears the triple-store

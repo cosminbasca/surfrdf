@@ -88,7 +88,7 @@ class Store(object):
             
         if writer:
             if writer in __writers__:
-                self.writer = __writers__[writer](*args,**kwargs)
+                self.writer = __writers__[writer](self.reader,*args,**kwargs)
             else:
                 raise PluginNotFoundException('The <%s> WRITER plugin was not found'%(reader))
         else:

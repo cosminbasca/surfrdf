@@ -57,22 +57,22 @@ try:
     print 'surf.plugin allegro_franz reader : franz libraries installed'
     class ReaderPlugin(RDFQueryReader):
         def __init__(self,*args,**kwargs):
-                RDFQueryReader.__init__(self,*args,**kwargs)
-                
-                self.__server       = kwargs['server'] if 'server' in kwargs else 'localhost'
-                self.__port         = kwargs['port'] if 'port' in kwargs else 6789
-                self.__catalog      = kwargs['catalog'] if 'catalog' in kwargs else None
-                self.__repository   = kwargs['repository'] if 'repository' in kwargs else None
-                
-                if not self.__catalog or not self.__repository:
-                    raise Exception('Must specify the <catalog> and the <repository> arguments')
-                
-                self.__allegro_server       = AllegroGraphServer(self.__server, port=self.__port)
-                self.__allegro_catalog      = self.__allegro_server.openCatalog(self.__catalog)
-                self.__allegro_repository   = self.__allegro_catalog.getRepository(self.__repository, Repository.ACCESS )
-                self.__allegro_repository.initialize()
-                
-                self.__con = self.allegro_repository.getConnection()
+            RDFQueryReader.__init__(self,*args,**kwargs)
+            
+            self.__server       = kwargs['server'] if 'server' in kwargs else 'localhost'
+            self.__port         = kwargs['port'] if 'port' in kwargs else 6789
+            self.__catalog      = kwargs['catalog'] if 'catalog' in kwargs else None
+            self.__repository   = kwargs['repository'] if 'repository' in kwargs else None
+            
+            if not self.__catalog or not self.__repository:
+                raise Exception('Must specify the <catalog> and the <repository> arguments')
+            
+            self.__allegro_server       = AllegroGraphServer(self.__server, port=self.__port)
+            self.__allegro_catalog      = self.__allegro_server.openCatalog(self.__catalog)
+            self.__allegro_repository   = self.__allegro_catalog.getRepository(self.__repository, Repository.ACCESS )
+            self.__allegro_repository.initialize()
+            
+            self.__con = self.allegro_repository.getConnection()
         
         results_format      = property(lambda self: 'json')
         server              = property(lambda self: self.__server)

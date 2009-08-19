@@ -62,14 +62,12 @@ class ReaderPlugin(RDFQueryReader):
             raise Exception('No <repository> argument supplyed.')
         opened = self.allegro.open_repository(self.repository)
         self.log.info('ALLEGRO Repo opened : '+str(opened))
-        print 'SIZE ',self.__allegro.size(self.repository)
         
     server              = property(lambda self: self.__server)
     port                = property(lambda self: self.__port)
     root_path           = property(lambda self: self.__root_path)
     repository_path     = property(lambda self: self.__repository_path)
     repository          = property(lambda self: self.__repository)
-    
     allegro             = property(lambda self: self.__allegro)
     
     def _to_table(self,result):

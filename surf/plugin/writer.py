@@ -36,6 +36,7 @@
 __author__ = 'Cosmin Basca'
 
 from surf.plugin import Plugin
+from surf.plugin.reader import RDFReader
 import logging
 from surf.query import Query
 
@@ -57,6 +58,15 @@ class RDFWriter(Plugin):
     '''
     super class for all surf Writer Plugins
     '''
+    def __init__(self,reader, *args, **kwargs):
+        Plugin.__init__(self, *args, **kwargs)
+        if isinstance(reader,RDFReader):
+            self.__reader = reader
+        else:
+            raise ValueError('The reader plugin must be of type RDFReader not %s'%(str(type(reader))))
+
+    reader = property(fget = lambda self: self.__reader)
+    
     #protected interface
     def _clear(self,context=None):
         pass

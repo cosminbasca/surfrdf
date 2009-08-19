@@ -45,29 +45,40 @@ from allegro import Allegro
 from rdflib.URIRef import URIRef
 from rdflib.BNode import BNode
 from rdflib.Literal import Literal
+from reader import ReaderPlugin
 
 class WriterPlugin(RDFWriter):
-    def __init__(self,*args,**kwargs):
-        RDFWriter.__init__(self,*args,**kwargs)
-        self.__server           = kwargs['server'] if 'server' in kwargs else 'localhost'
-        self.__port             = kwargs['port'] if 'port' in kwargs else 5678
-        self.__root_path        = kwargs['root_path'] if 'root_path' in kwargs else '/sesame'
-        self.__repository_path  = kwargs['repository_path'] if 'repository_path' in kwargs else ''
-        self.__repository       = kwargs['repository'] if 'repository' in kwargs else None
+    def __init__(self,reader,*args,**kwargs):
+        RDFWriter.__init__(self,reader,*args,**kwargs)
+        if isinstance(self.reader, ReaderPlugin):
+            self.__server           = self.reader.server
+            self.__port             = self.reader.port
+            self.__root_path        = self.reader.root_path
+            self.__repository_path  = self.reader.repository_path
+            self.__repository       = self.reader.repository
+            self.__allegro          = self.reader.allegro
+            
+        else:
+            self.__server           = kwargs['server'] if 'server' in kwargs else 'localhost'
+            self.__port             = kwargs['port'] if 'port' in kwargs else 6789
+            self.__root_path        = kwargs['root_path'] if 'root_path' in kwargs else '/sesame'
+            self.__repository_path  = kwargs['repository_path'] if 'repository_path' in kwargs else ''
+            self.__repository       = kwargs['repository'] if 'repository' in kwargs else None
+            
+            self.log.info('INIT : '+str(self.server)+','+str(self.port)+','+str(self.root_path)+','+str(self.repository_path))
+            self.__allegro          = Allegro(self.server,self.port,self.root_path,self.repository_path)
+            if not self.repository:
+                raise Exception('No <repository> argument supplyed.')
+            opened = self.allegro.open_repository(self.repository)
+            self.log.info('ALLEGRO Repo opened : '+str(opened))
         
-        self.__allegro = Allegro(self.server,self.port,self.root_path,self.repository_path)
-        if not self.repository:
-            raise Exception('No <repository> argument supplyed.')
-        self.allegro.open_repository(self.repository)
-    
-    server          = property(lambda self: self.__server)
-    port            = property(lambda self: self.__port)
-    root_path       = property(lambda self: self.__root_path)
-    repository_path = property(lambda self: self.__repository_path)
-    repository      = property(lambda self: self.__repository)
-    
-    allegro         = property(lambda self: self.__allegro)
-    
+    server              = property(lambda self: self.__server)
+    port                = property(lambda self: self.__port)
+    root_path           = property(lambda self: self.__root_path)
+    repository_path     = property(lambda self: self.__repository_path)
+    repository          = property(lambda self: self.__repository)
+    allegro             = property(lambda self: self.__allegro)
+        
     def _save(self,resource):
         s = resource.subject
         self.__allegro.remove_statements(self.__repository,s=s.n3())
