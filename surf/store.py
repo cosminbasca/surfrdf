@@ -92,7 +92,7 @@ class Store(object):
             else:
                 raise PluginNotFoundException('The <%s> WRITER plugin was not found'%(reader))
         else:
-            self.writer = RDFWriter(*args,**kwargs)
+            self.writer = RDFWriter(self.reader, *args, **kwargs)
         self.log.info('store initialized')
      
     def enable_logging(self,enable):
