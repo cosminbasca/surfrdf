@@ -229,6 +229,8 @@ class Resource(object):
             if val:
                 return Literal(val,lang=language,datatype=datatype)
             return value
+        elif type(value) is ResourceMeta:
+            return value.uri
         elif hasattr(value,'subject'):
             return value.subject
         return value
@@ -245,7 +247,7 @@ class Resource(object):
         predicate, direct = attr2rdf(name)
         if predicate:
             value = value if type(value) in [list, tuple] else [value]
-            value = map(lambda val: Literal(val,datatype=XSD['string']) if type(val) in [str,unicode] else val,value)
+            value = map(self.__val2rdf,value)
             
             rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
             rdf_dict[predicate] = []
