@@ -150,6 +150,7 @@ class RDFReader(Plugin):
             
         '''
         concept = resource.uri if hasattr(resource, 'uri') else resource
+        #TODO: make sure uri's are passed further
         return self._instances(concept,direct,filter,predicates)
         
     def instances_by_value(self,resource,direct,attributes):

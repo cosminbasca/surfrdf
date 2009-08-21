@@ -101,7 +101,7 @@ def query_PO(c,direct,filter='',preds={}):
     '''helper query builder method
     constructs a `surf.query.Query` where the unknowns are `?s ?c`, with the possibility
     to specify **SPARQL** `filters` as strings - follow the SPARQL filter syntax'''
-    query = select('?s','?c').distinct()
+    query = select('?s','?c').distinct().where(('?s',a,c))
     i = 0 
     for p, v in preds.items():
         f = Filter.regex('?v%d'%(i),v) if filter == 'regex' and direct else None
