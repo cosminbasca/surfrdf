@@ -74,23 +74,26 @@ class ReaderPlugin(RDFQueryReader):
         '''
         return result
     
-    # execute
-    def _execute(self,query):
-        q_string = SparqlTranslator(query).translate()
+    def execute_sparql(self, q_string, format = 'JSON'):
         try:
             self.log.debug(q_string)
             self.__sparql_wrapper.setQuery(q_string)
             results = self.__sparql_wrapper.query().convert()
             return self._toRdflib(results)
         except EndPointNotFound, notfound: 
-            self.log.error('SPARQL ENDPOINT not found : \n'+str(notfound))
+            self.log.error('SPARQL ENDPOINT not found : \n' + str(notfound))
         except QueryBadFormed, badquery:
-            self.log.error('SPARQL EXCEPTION ON QUERY (BAD FORMAT): \n '+str(badquery))
+            self.log.error('SPARQL EXCEPTION ON QUERY (BAD FORMAT): \n ' + str(badquery))
         except SPARQLWrapperException, sparqlwrapper:
-            self.log.error('SPARQL WRAPPER Exception \n'+str(sparqlwrapper))
+            self.log.error('SPARQL WRAPPER Exception \n' + str(sparqlwrapper))
         except Exception, e:
-            self.log.error('Exception while querying'+str(e))
-        return None
+            self.log.error('Exception while querying' + str(e))
+        return None    
+    
+    # execute
+    def _execute(self,query):
+        q_string = SparqlTranslator(query).translate()
+        return self.execute_sparql(q_string)
     
     def close(self):
         pass
