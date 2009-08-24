@@ -107,8 +107,8 @@ class ReaderPlugin(RDFQueryReader):
                     json_item = results['results']['bindings'][i]
                     rdf_item = {}
                     for key in json_item:
-                        type = json_item.get('type')
-                        value = json_item.get('value')
+                        type = json_item[key].get('type')
+                        value = json_item[key].get('value')
                         rdfType = None
                         if type == 'uri': rdfType = URIRef(value)
                         elif type == 'literal':
