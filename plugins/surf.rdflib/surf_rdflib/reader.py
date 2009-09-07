@@ -63,8 +63,9 @@ class ReaderPlugin(RDFQueryReader):
             return dict([ (vars[i],row[i]) for i in range(len(row)) ])
         return [ row_to_dict(row) for row in result ]
     
-    def _ask(self,result):
-        return result.askAnswer
+    def _ask(self, result):
+        # askAnswer is list with boolean values, we want first value. 
+        return result.askAnswer[0]
     
     # execute
     def _execute(self,query):
