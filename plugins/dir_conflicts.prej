@@ -1,0 +1,38 @@
+Trying to change property 'svn:ignore' from 'build
+dist
+*.bat
+*.pyc
+*.egg
+.pypirc
+' to 'build
+dist
+*.bat
+*.pyc
+*.egg
+.pypirc
+',
+but property has been locally changed from 'build
+dist
+*.bat
+*.pyc
+*.egg
+.pypirc
+' to '*.pyc
+build
+dist
+docs
+*.egg-info
+*.html
+*.bat
+*.sh
+*.kpf
+.pypirc
+*.egg
+profile
+profile.py
+surf.profile
+.noserc
+logo
+examples
+surf.rdflib
+'.

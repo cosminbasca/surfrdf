@@ -9,3 +9,5 @@ surf.sparql_protocol.egg-info/dependency_links.txt
 surf.sparql_protocol.egg-info/entry_points.txt
 surf.sparql_protocol.egg-info/requires.txt
 surf.sparql_protocol.egg-info/top_level.txt
+test/__init__.py
+test/test_sparql_protocol.py

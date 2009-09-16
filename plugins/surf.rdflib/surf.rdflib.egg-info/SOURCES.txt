@@ -1,3 +1,4 @@
+.pypirc
 setup.cfg
 setup.py
 surf.rdflib.egg-info/PKG-INFO
@@ -9,3 +10,5 @@ surf.rdflib.egg-info/top_level.txt
 surf_rdflib/__init__.py
 surf_rdflib/reader.py
 surf_rdflib/writer.py
+test/__init__.py
+test/test_rdflib.py

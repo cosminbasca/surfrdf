@@ -372,27 +372,3 @@ def describe(*vars):
     """ Construct and return :class:`Query` object of type **DESCRIBE** """ 
 
     return Query(DESCRIBE, *vars)
-    
-class QueryTranslator(object):
-    '''The `QueryTranslator` class is responsible with the translation of the query
-    to the appropriate query language in use. One must extend the class and override the
-    :meth:`surf.query.QueryTranslator.translate` method'''
-    def __init__(self, query):
-        self.__query = query
-        if not self.__query.query_type:
-            raise ValueError('No query type specified')
-    
-    def set_query(self,query):
-        if type(query) is Query:
-            self.__query = query
-        else:
-            raise ValueError('query object must be of Query type')
-    query = property(fget = lambda self: self.__query,
-                     fset = set_query)
-    '''the `query`, a :class:`surf.query.Query` instance'''
-    
-    def translate(self):
-        '''translates the `query` to the appropriate query language
-        
-        note: **must** be overriden by subclasses'''
-        return ''

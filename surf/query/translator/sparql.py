@@ -50,8 +50,8 @@ from rdflib.Literal import Literal
 from rdflib.RDF import RDFNS as RDF
 from rdflib.RDFS import RDFSNS as RRDFS
 
-
-from surf.query import Query, QueryTranslator, SELECT, ASK, DESCRIBE, CONSTRUCT, Group, NamedGroup, OptionalGroup, Filter
+from surf.query.translator import QueryTranslator 
+from surf.query import Query, SELECT, ASK, DESCRIBE, CONSTRUCT, Group, NamedGroup, OptionalGroup, Filter
 from surf.util import is_uri
 
 class SparqlTranslator(QueryTranslator):
