@@ -70,6 +70,6 @@ setup(
                       'sparqlwrapper==1.3.0',],
     entry_points={
     'surf.plugins.reader': 'sparql_protocol = sparql_protocol.reader:ReaderPlugin',
-    #'surf.plugins.writer': 'sparql_protocol = sparql_protocol.writer:WriterPlugin',
+    'surf.plugins.writer': 'sparql_protocol = sparql_protocol.writer:WriterPlugin',
     }
 )

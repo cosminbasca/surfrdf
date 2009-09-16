@@ -5,7 +5,7 @@ from unittest import TestCase
 
 from rdflib.URIRef import URIRef
 
-from surf.query.update import insert, delete
+from surf.query.update import insert, delete, clear
 from surf.query.translator.sparul import SparulTranslator 
 
 def canonical(sparql_string):
@@ -79,7 +79,16 @@ class TestSparulTranslator(TestCase):
         result = canonical(SparulTranslator(query).translate())
         self.assertEqual(expected, result)
         
-
+    def test_clear(self):
+        """ CLEAR GRAPH """
+        
+        expected = canonical("""
+            CLEAR GRAPH <a>
+        """)        
+        
+        query = clear().graph(URIRef("a"))
+        result = canonical(SparulTranslator(query).translate())
+        self.assertEqual(expected, result)
 
         
         

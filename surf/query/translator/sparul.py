@@ -42,19 +42,10 @@ __author__ = 'Cosmin Basca'
 #from rdf.term import URIRef, Literal, BNode, RDF, RDFS
 #from rdf.namespace import Namespace
 # the rdflib 2.4.x way
-from rdflib.Namespace import Namespace
-from rdflib.Graph import Graph, ConjunctiveGraph
-from rdflib.URIRef import URIRef
-from rdflib.BNode import BNode
-from rdflib.Literal import Literal
-from rdflib.RDF import RDFNS as RDF
-from rdflib.RDFS import RDFSNS as RRDFS
-
 
 from surf.query.translator.sparql import SparqlTranslator
-from surf.query import Group, NamedGroup, OptionalGroup, Filter
-from surf.query.update import QueryUpdate, LOAD, CLEAR, INSERT, INSERT_DATA, DELETE, DELETE_DATA
-from surf.util import is_uri
+from surf.query.update import LOAD, CLEAR, INSERT, INSERT_DATA, DELETE, DELETE_DATA
+
 
 class SparulTranslator(SparqlTranslator):
     '''translates a query to SPARQL Update,
@@ -84,7 +75,7 @@ class SparulTranslator(SparqlTranslator):
     
     def _translate_clear(self,query):
         rep = 'CLEAR %(graph)s'
-        graph = 'GRAPH %s'%(query.query_clear_uri) if query.query_clear_uri else ''
+        graph = 'GRAPH <%s>' % query.query_clear_uri if query.query_clear_uri else ''
         return rep%({'graph':graph})
     
     def _translate_insert(self,query):
