@@ -38,7 +38,7 @@ __author__ = 'Cosmin Basca'
 
 from surf.plugin.query_reader import RDFQueryReader
 from allegro import Allegro
-from surf.query_to_sparql import SparqlTranslator
+from surf.query.translator.sparql import SparqlTranslator
 
 # the rdf way
 #from rdf.term import URIRef, BNode, Literal
