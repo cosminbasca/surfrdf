@@ -6,7 +6,7 @@ from unittest import TestCase
 from rdflib.URIRef import URIRef
 
 from surf.query import select
-from surf.query_to_sparql import SparqlTranslator 
+from surf.query.translator.sparql import SparqlTranslator 
 
 def canonical(sparql_string):
     """ Strip extra whitespace, convert to lowercase.
@@ -24,14 +24,14 @@ def canonical(sparql_string):
                      (" .", "."),                   # whitespace before dot
                     ]
     
-    for s1, s2 in replacements:
-        result = result.replace(s1, s2)
+    for str1, str2 in replacements:
+        result = result.replace(str1, str2)
 
     return result
     
 
-class TestQueryToSparql(TestCase):
-    """ Tests for query_to_sparql module. """
+class TestSparqlTranslator(TestCase):
+    """ Test SparqlTranslator class. """
     
     def test_simple(self):
         """ Try to produce a simple "SELECT ... WHERE ..." query.  """

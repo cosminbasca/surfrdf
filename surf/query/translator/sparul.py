@@ -90,10 +90,14 @@ class SparulTranslator(SparqlTranslator):
     def _translate_insert(self,query):
         rep = 'INSERT %(data)s %(into)s %(template)s %(where)s'
         data            = 'DATA' if query.query_type == INSERT_DATA else ''
-        into            = 'INTO %s'%(','.join(query.query_into_uri)) if len(query.query_into_uri) > 0 else ''
+        into            = ' '.join([ "INTO <%s>" % uri for uri in query.query_into_uri])
         template        = '{ %s }'%('. '.join([self._statement(stmt) for stmt in self.query.query_template]))
         where_pattern   = '. '.join([self._statement(stmt) for stmt in self.query.query_data])
-        where           = 'WHERE { %s }'%(where_pattern) if query.query_type == INSERT else ''
+        
+        where = ""
+        if query.query_type == INSERT and where_pattern:
+            where       = "WHERE { %s }" % (where_pattern)
+         
         return rep%({'data'     :data,
                      'into'     :into,
                      'template' :template,
@@ -102,7 +106,8 @@ class SparulTranslator(SparqlTranslator):
     def _translate_delete(self,query):
         rep = 'DELETE %(data)s %(from_)s %(template)s %(where)s'
         data            = 'DATA' if query.query_type == DELETE_DATA else ''
-        from_           = 'FROM %s'%(','.join(query.query_into_uri)) if len(query.query_into_uri) > 0 else ''
+
+        from_        = ' '.join([ "FROM <%s>" % uri for uri in query.query_from_uri])
         template        = '{ %s }'%('. '.join([self._statement(stmt) for stmt in self.query.query_template]))
         where_pattern   = '. '.join([self._statement(stmt) for stmt in self.query.query_data])
         where           = 'WHERE { %s }'%(where_pattern) if query.query_type == DELETE else ''

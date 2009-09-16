@@ -44,14 +44,8 @@ from surf.query import Query, Group, NamedGroup, Filter, OptionalGroup, validate
 from surf.util import is_uri
 
 # the rdflib 2.4.x way
-from rdflib.Namespace import Namespace
-from rdflib.Graph import Graph, ConjunctiveGraph
 from rdflib.URIRef import URIRef
-from rdflib.BNode import BNode
-from rdflib.Literal import Literal
 from rdflib.RDF import RDFNS as RDF
-from rdflib.RDFS import RDFSNS as RRDFS
-import logging
 
 a = RDF['type']
 
@@ -69,8 +63,7 @@ CREATE  = 'CREATE'
 DROP    = 'DROP'
 
 class QueryUpdate(Query):
-    """
-    """
+    """ Update query. """
     
     STATEMENT_TYPES     = list(Query.STATEMENT_TYPES)
     TYPES               =  list(Query.TYPES)
@@ -116,7 +109,7 @@ class QueryUpdate(Query):
     def where(self,*statements):
         if self.query_type in [INSERT_DATA, DELETE_DATA]:
             raise ValueError('The specified <%s> query type does not support the WHERE clause'%(self.query_type))
-        return self.where(self,*statements)
+        return Query.where(self, *statements)
     
     def load(self,remote_uri):
         if self.query_type not in [LOAD]:

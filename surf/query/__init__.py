@@ -116,7 +116,7 @@ class Query(object):
     TYPES               = [SELECT, ASK, CONSTRUCT, DESCRIBE]
     
     def __init__(self, type, *vars):
-        if type not in Query.TYPES: 
+        if type not in self.TYPES: 
             raise ValueError('''The query is not of a supported type [%s], supported
                              types are %s'''%(type, str(Query.TYPES)))
         self._type      = type
