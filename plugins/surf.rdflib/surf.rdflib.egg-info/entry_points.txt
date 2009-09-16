@@ -1,6 +1,0 @@
-[surf.plugins.reader]
-rdflib = surf_rdflib.reader:ReaderPlugin
-
-[surf.plugins.writer]
-rdflib = surf_rdflib.writer:WriterPlugin
-
