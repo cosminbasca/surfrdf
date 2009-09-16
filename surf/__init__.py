@@ -48,7 +48,8 @@ if ('Memory',rdf.store.Store) not in _plugins:
     register('Memory',rdf.store.Store,'memory','Memory')
 '''
 
-from query import Query, select, ask, describe, construct, QueryTranslator, OptionalGroup, Group, NamedGroup, Filter
+from surf.query import Query, select, ask, describe, construct, OptionalGroup, Group, NamedGroup, Filter
+
 from resource import Resource, a
 import namespace as ns
 from store import Store, PluginNotFoundException

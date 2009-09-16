@@ -37,7 +37,7 @@ __author__ = 'Cosmin Basca'
 
 
 from surf.plugin.query_reader import RDFQueryReader
-from surf.query_to_sparql import SparqlTranslator
+from surf.query.translator.sparql import SparqlTranslator
 from SPARQLWrapper import SPARQLWrapper, JSON, XML, GET, POST
 from SPARQLWrapper.SPARQLExceptions import EndPointNotFound, QueryBadFormed, SPARQLWrapperException
 
@@ -72,7 +72,8 @@ class ReaderPlugin(RDFQueryReader):
         '''
         returns the boolean value of a ASK query
         '''
-        return result
+
+        return result.get("boolean")
     
     def execute_sparql(self, q_string, format = 'JSON'):
         try:
