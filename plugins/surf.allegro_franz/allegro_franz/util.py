@@ -92,5 +92,15 @@ try:
     def toTuple(statement):
         return (statement.getSubject(),statement.getPredicate(),statement.getObject(),statement.getContext())
 except:
-    pass
+    def toRdfLib(term):
+        pass
+
+    def toSesame(term, factory):
+        pass
+
+    def toStatements((s,p,o),factory,context = None):
+        pass
+
+    def toTuple(statement):
+        pass 
     
