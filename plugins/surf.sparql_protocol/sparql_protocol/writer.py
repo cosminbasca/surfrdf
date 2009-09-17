@@ -46,18 +46,18 @@ from surf.query.update import insert, delete, clear
 
 class WriterPlugin(RDFWriter):
     def __init__(self,reader,*args,**kwargs):
-            RDFWriter.__init__(self,reader,*args,**kwargs)
-            if isinstance(self.reader, ReaderPlugin):
-                self.__endpoint         = self.reader.endpoint
-                self.__default_graph    = self.reader.default_graph
-            else:
-                self.__endpoint         = kwargs['endpoint'] if 'endpoint' in kwargs else None
-                self.__default_graph    = kwargs['default_graph'] if 'default_graph' in kwargs else None
-                
-            self.__results_format   = JSON
+        RDFWriter.__init__(self,reader,*args,**kwargs)
+        if isinstance(self.reader, ReaderPlugin):
+            self.__endpoint         = self.reader.endpoint
+            self.__default_graph    = self.reader.default_graph
+        else:
+            self.__endpoint         = kwargs['endpoint'] if 'endpoint' in kwargs else None
+            self.__default_graph    = kwargs['default_graph'] if 'default_graph' in kwargs else None
             
-            print "endpoint: %s" % self.__endpoint
-            self.__sparql_wrapper   = SPARQLWrapper(self.__endpoint, self.__results_format,defaultGraph=self.__default_graph)
+        self.__results_format   = JSON
+        
+        print "endpoint: %s" % self.__endpoint
+        self.__sparql_wrapper   = SPARQLWrapper(self.__endpoint, self.__results_format,defaultGraph=self.__default_graph)
                 
     endpoint        = property(lambda self: self.__endpoint)
     default_graph   = property(lambda self: self.__default_graph)
@@ -65,17 +65,21 @@ class WriterPlugin(RDFWriter):
     def _save(self, resource):
         s = resource.subject
         self.__remove(s)
-        for p, objs in resource.rdf_direct.items():
-            for o in objs:
-               self.__add(s,p,o)
+        
+        def statement_generator():
+            for p, objs in resource.rdf_direct.items():
+                for o in objs:
+                    yield (s, p, o)
+            
+        self.__add_many(statement_generator())
     
     def _update(self, resource):
         s = resource.subject
         for p in resource.rdf_direct:
-            self.__remove(s,p)
+            self.__remove(s, p)
         for p, objs in resource.rdf_direct.items():
             for o in objs:
-               self.__add(s,p,o)
+                self.__add(s, p, o)
     
     def _remove(self, resource, inverse = False):
         self.__remove(s=resource.subject)
@@ -97,9 +101,9 @@ class WriterPlugin(RDFWriter):
     
     def _remove_triple(self,s=None,p=None,o=None,context = None):
         self.__remove(s,p,o,context)
-    
-    def __add(self,s=None,p=None,o=None,context=None):
-        self.log.debug("ADD: %s, %s, %s, %s " % (s, p, o, context))
+
+    def __add_many(self, triples, context = None):
+        self.log.debug("ADD several triples")
         
         query = insert()
 
@@ -107,13 +111,14 @@ class WriterPlugin(RDFWriter):
         if graph:
             query.into(graph)
         
-        query.template((s, p, o))
+        for s, p, o in triples:
+            query.template((s, p, o))
         
         try:
             query_str = SparulTranslator(query).translate()
             self.log.debug(query_str)
             self.__sparql_wrapper.setQuery(query_str)
-            result = self.__sparql_wrapper.query().convert()
+            self.__sparql_wrapper.query().convert()
             return True
         except EndPointNotFound, notfound: 
             self.log.error('SPARQL ENDPOINT not found : \n' + str(notfound))
@@ -125,6 +130,10 @@ class WriterPlugin(RDFWriter):
             self.log.error('Exception while querying' + str(e))
 
         return None
+
+    
+    def __add(self,s, p, o, context = None):
+        return self.__add_many([(s, p, o)], context)
         
     def __remove(self,s=None,p=None,o=None,context=None):
         self.log.debug('REM : %s, %s, %s, %s' % (s, p, o, context))

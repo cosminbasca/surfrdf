@@ -55,9 +55,12 @@ class TestSparulTranslator(TestCase):
     def test_insert_data_into(self):
         """ INSERT DATA INTO ... { ... } """
         
-        expected = canonical("INSERT DATA INTO <g> { <a>  <b> <c> }")
-        statement = URIRef("a"), URIRef("b"), URIRef("c")
-        query = insert(data = True).into(URIRef("g")).template(statement)
+        expected = canonical("INSERT DATA INTO <g> { <a>  <b> <c>. <a> <b> <d> }")
+        st1 = URIRef("a"), URIRef("b"), URIRef("c")
+        st2 = URIRef("a"), URIRef("b"), URIRef("d")
+        query = insert(data = True).into(URIRef("g"))
+        query.template(st1, st2)
+        
         result = canonical(SparulTranslator(query).translate())
         self.assertEqual(expected, result)
 

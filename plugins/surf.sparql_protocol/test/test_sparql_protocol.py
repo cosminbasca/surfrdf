@@ -33,10 +33,11 @@ class TestSparqlProtocol(TestCase):
         """ Test that saving SuRF resource works.  """
         
         # Save
-        store, session = self._get_store_session()
+        _, session = self._get_store_session()
         Person = session.get_class(surf.ns.FOAF + "Person")
         john = session.get_resource("http://john", Person)
         john.foaf_name = "John"
+        john.foaf_surname = "Smith"
         john.save()
                               
         # Read from different session.
@@ -44,13 +45,15 @@ class TestSparqlProtocol(TestCase):
         Person = session.get_class(surf.ns.FOAF + "Person")
         john = session.get_resource("http://john", Person)
         self.assertEquals(john.foaf_name, "John")
+        self.assertEquals(john.foaf_surname, "Smith")
         
         # Remove and try to read again.
         john.remove()
-        store, session = self._get_store_session()
+        _, session = self._get_store_session()
         Person = session.get_class(surf.ns.FOAF + "Person")
         john = session.get_resource("http://john", Person)
         self.assertEquals(john.foaf_name, None)
+        self.assertEquals(john.foaf_surname, None)
         
         
     def test_ask(self):
