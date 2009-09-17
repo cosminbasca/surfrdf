@@ -46,7 +46,7 @@ from setuptools import setup
 
 setup(
     name='surf.sesame2',
-    version='0.2',
+    version='0.2.1',
     description='surf Sesame2 HTTP plugin',
     long_description = 'Allows the retrieval / persistence of surf resources via the Sesame2 HTTP API',
     license = 'New BSD SOFTWARE', 

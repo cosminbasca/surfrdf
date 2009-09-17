@@ -46,7 +46,7 @@ from setuptools import setup
 
 setup(
     name='surf.rdflib',
-    version='0.2',
+    version='0.3.1',
     description='surf RDFlib wrapper plugin',
     long_description = 'Allows the retrieval / persistence of surf resources from / to RDFlib supported persistent stores',
     license = 'New BSD SOFTWARE', 

@@ -46,7 +46,7 @@ from setuptools import setup
 
 setup(
     name='surf.sparql_protocol',
-    version='0.2',
+    version='0.3.1',
     description='surf SPARQL protocol plugin',
     long_description = 'provides access to SPARQL protocol endpoints',
     license = 'New BSD SOFTWARE', 
