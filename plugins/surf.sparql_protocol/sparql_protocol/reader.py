@@ -38,7 +38,7 @@ __author__ = 'Cosmin Basca'
 
 from surf.plugin.query_reader import RDFQueryReader
 from surf.query.translator.sparql import SparqlTranslator
-from SPARQLWrapper import SPARQLWrapper, JSON, XML, GET, POST
+from SPARQLWrapper import SPARQLWrapper, jsonlayer, JSON
 from SPARQLWrapper.SPARQLExceptions import EndPointNotFound, QueryBadFormed, SPARQLWrapperException
 
 # the rdf way
@@ -60,6 +60,14 @@ class ReaderPlugin(RDFQueryReader):
         #if self.__results_format not in [JSON, XML]:
         #    raise UnsupportedResultType('Result of type %s is unsupported'%self.__results_format)
         self.__sparql_wrapper   = SPARQLWrapper(self.__endpoint, self.__results_format,defaultGraph=self.__default_graph)
+
+        # Try to use cjson
+        try: 
+            import cjson
+            jsonlayer.use("cjson")
+            self.log.info("using cjson")
+        except:
+            self.log.warning("cjson not available, falling back on slower simplejson")
         
     endpoint        = property(lambda self: self.__endpoint)
     default_graph   = property(lambda self: self.__default_graph)
