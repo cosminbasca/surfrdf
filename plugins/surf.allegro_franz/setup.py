@@ -46,7 +46,7 @@ from setuptools import setup
 
 setup(
     name='surf.allegro_franz',
-    version='0.2.1',
+    version='0.2.2',
     description='surf AllegroGraph plugin',
     long_description = 'Allows the retrieval / persistence of surf resources from / to the AllegroGraph triple-store from Franz',
     license = 'New BSD SOFTWARE', 
