@@ -98,7 +98,7 @@ except:
     def toSesame(term, factory):
         pass
 
-    def toStatements((s,p,o),factory,context = None):
+    def toStatement((s,p,o),factory,context = None):
         pass
 
     def toTuple(statement):
