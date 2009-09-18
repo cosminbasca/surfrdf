@@ -187,8 +187,8 @@ try:
         def close(self):
             self.__con.close()
             
-except:
-    print 'surf.plugin allegro_franz writer : franz libraries not installed'
+except ImportError, e:
+    print 'surf.plugin allegro_franz writer : franz libraries not installed ',e
     class WriterPlugin(RDFWriter):
         pass
     

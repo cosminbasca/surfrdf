@@ -154,7 +154,7 @@ try:
                 r_dict['results']['bindings'].append(json_binding)
             return r_dict
             
-except:
-    print 'surf.plugin allegro_franz reader : franz libraries not installed'
+except ImportError, e:
+    print 'surf.plugin allegro_franz reader : franz libraries not installed', e
     class ReaderPlugin(RDFQueryReader):
         pass

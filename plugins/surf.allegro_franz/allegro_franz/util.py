@@ -91,7 +91,8 @@ try:
         
     def toTuple(statement):
         return (statement.getSubject(),statement.getPredicate(),statement.getObject(),statement.getContext())
-except:
+except ImportError, e:
+    print 'franz libraries not installed ',e
     def toRdfLib(term):
         pass
 
