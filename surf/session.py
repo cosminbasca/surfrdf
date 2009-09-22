@@ -36,7 +36,8 @@
 __author__ = 'Cosmin Basca'
 
 from store import Store
-from resource import Resource, ResourceMeta
+from resource import Resource
+from resource.meta import ResourceMeta
 from util import *
 
 # the rdf way

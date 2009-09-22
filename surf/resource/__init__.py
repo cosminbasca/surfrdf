@@ -37,12 +37,13 @@ __author__ = 'Cosmin Basca'
 
 import re
 import new
-from namespace import *
+from surf.namespace import *
 from surf.query import Query
 from surf.store import Store
-from util import *
-from rest import *
-import serializer
+from surf.resource.meta import ResourceMeta
+from surf.util import *
+from surf.rest import *
+from surf.serializer import to_json
 from weakref import WeakKeyDictionary
 from datetime import datetime, date, time
 
@@ -61,76 +62,6 @@ from rdflib.RDFS import RDFSNS as RRDFS
 
 a = RDF['type']
 
-
-class ResourceMeta(type):
-    def __new__(meta, classname, bases, class_dict):
-        ResourceClass = super(ResourceMeta,meta).__new__(meta,classname,bases,class_dict)
-        if 'uri' not in class_dict:
-            ResourceClass.uri = None
-        ResourceClass._instance = meta._instance
-        ResourceClass._lazy = meta._lazy
-        return ResourceClass
-    
-    def __init__(self,*args,**kwargs):
-        pass
-    
-    @classmethod
-    def _instance(cls,subject,vals):
-        '''
-        creates an instance from the `subject` and it's associated `concept` (`vals`) uri's
-        only the first `concept` uri is considered for inheritance
-        '''
-        if cls.session:
-            uri = vals[0] if len(vals) > 0 else None
-            classes = map(uri_to_class,vals[1:]) if len(vals) > 1 else []
-            return cls.session.map_instance(uri,subject,classes=classes,block_outo_load=True) if uri else subject
-        else:
-            return None
-    
-    @classmethod
-    def _lazy(cls,value):
-        '''
-        does `lazy` instantiation of rdf predicates
-        value is a dictionary {val:[concept,concept,...]},
-        returns a instance of `Resource`
-        '''        
-        attr_value = []
-        for r in value:
-            inst = r
-            if isinstance(value[r], Resource) :
-                inst = value[r]
-            elif type(r) is URIRef:
-                inst = cls._instance(r, value[r])
-            attr_value.append(inst)
-        
-        if len(attr_value) == 0:
-            return None
-        elif len(attr_value) == 1:
-            return attr_value[0]
-        return attr_value
-    
-    def __getattr__(self,attr_name):
-        '''
-        finds `instances` of the current Class that extends `Resource`,
-        the `instances` are selected from the values of the specified predicate (`attr_name`)
-        
-        for now these are not persisted in the `Resource` class - next time the method
-        is called the instances are retrieved from the `store` again.
-        '''
-        #TODO: add persistence at metaclass level
-        value = None
-        predicate, direct = attr2rdf(attr_name)
-        if predicate:
-            
-            instances = self.session[self.store_key].instances_by_value(self,direct,[predicate])
-            value = self._lazy(instances)
-            if value or (type(value) is list and len(value) > 0):
-                pass
-            else:
-                value = None
-        return value
-    
-#TODO: add context to resource --- resources reside in different contexts
 class Resource(object):
     '''
     The Resource class, represents the transparent proxy object that exposes sets of
@@ -217,7 +148,7 @@ class Resource(object):
                 return i
         return None
     
-    def __val2rdf(self,value):
+    def value_to_rdf(self,value):
         '''
         for **internal** use, converts the value to an RDFLib compatible type if appropriate
         '''
@@ -239,7 +170,8 @@ class Resource(object):
         elif hasattr(value,'subject'):
             return value.subject
         return value
-        
+    
+    #TODO: add the auto_persist feature...
     def __setattr__(self,name,value):
         '''
         the `set` method - responsible for *caching* the `value` to the coresponding
@@ -248,19 +180,29 @@ class Resource(object):
         note: this method sets the state of the resource to *dirty* (the `resource`
         will be persisted if the `commit` `session` method is called)
         '''
-        object.__setattr__(self,name,value)
         predicate, direct = attr2rdf(name)
         if predicate:
-            value = value if type(value) in [list, tuple] else [value]
-            value = map(self.__val2rdf,value)
+            if type(value) is ResourceValue:
+                pass
+            elif type(value) in [list, tuple]:
+                value = ResourceValue(value, self, predicate, direct)
+            else:
+                value = [value]
+                value = map(self.value_to_rdf,value)
             
             rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
             rdf_dict[predicate] = []
             rdf_dict[predicate].extend([val.subject if hasattr(val,'subject') else val for val in value])
             self.__dirty = True
+        object.__setattr__(self,name,value)
+        
+    def value_set_item(self,key, value, predicate, direct):
+        item_value = self.value_to_rdf(value)
+        rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
+        rdf_dict[predicate][key] = item_value.subject if hasattr(item_value,'subject') else item_value
+        self.__dirty = True
             
-            #TODO: add the auto_persist feature...
-            
+    #TODO: add the auto_persist feature...
     def __delattr__(self,attr_name):
         '''
         the `del` method - responsible for deleting the attribute of the object given
@@ -271,17 +213,18 @@ class Resource(object):
         '''
         predicate, direct = attr2rdf(attr_name)
         if predicate:
-            value = self.__getattr__(attr_name)
-            value = value if type(value) is list else [value]
-            
+            #value = self.__getattr__(attr_name)
             rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
             rdf_dict[predicate] = []
             self.__dirty = True
-            
-            #TODO: add the auto_persist feature...
-            
         object.__delattr__(self,attr_name)
     
+    def value_del_item(key, predicate, direct):
+        rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
+        del rdf_dict[predicate][key]
+        self.__dirty = True
+    
+    # TODO: reuse already existing instances - CACHED
     def __getattr__(self,attr_name):
         '''
         the `get` method - responsible for retrieving and caching using `__setattr__`
@@ -289,18 +232,19 @@ class Resource(object):
         
         this method has no impact on the *dirty* state of the object
         '''
-        value = None
+        attr_value = None
         predicate, direct = attr2rdf(attr_name)
         if predicate:
             values = self.session[self.store_key].get(self, predicate, direct)
-            # TODO: reuse already existing instances - CACHED
-            value =  self._lazy(values)
-            if value or (type(value) is list and len(value) > 0):
-                self.__setattr__(attr_name,value)
-                self.__dirty = False
-            else:
-                value = None
-        return value
+            surf_values = self._lazy(values)
+            if len(surf_values) == 0:
+                raise ValueError('the specified attribute <%s> does not exist for the current resource <%s>'%(attr_name,self.subject))
+            attr_value = ResourceValue(surf_values, self, predicate, direct)
+            self.__setattr__(attr_name,attr_value)
+            self.__dirty = False
+        else:
+            raise ValueError('not a predicate: %s'%(attr_name))
+        return attr_value
 
     def load(self):
         '''
@@ -451,7 +395,7 @@ class Resource(object):
         '''
         graph = self.graph(direct=direct)
         if format == 'json':
-            return serializer.to_json(graph)
+            return to_json(graph)
         return graph.serialize(format=format)
         
     def graph(self,direct=True):
@@ -601,4 +545,37 @@ class Resource(object):
         '''returns True if the two `resources` have the same `subject` and are both
         of type `Resource`, False otherwise'''
         return self.subject == other.subject if isinstance(other, Resource) else False
+    
+
+
+class ResourceValue(list):
+    def __init__(self,sequence,resource,predicate,direct):
+        list.__init__(self,sequence)
+        self.resource = resource
+        self.predicate = predicate
+        self.direct = direct
+
+    def get_one(self):
+        if len(self) == 1:
+            return self[0]
+        else:
+            raise Exception('list has more elements than one')
+    one = property(fget = get_one)
+    
+    def get_first(self):
+        if len(self) > 0:
+            return self[0]
+        else:
+            raise Exception('list must have at least one element')
+    first = property(fget = get_first)
+    
+    def __setitem__(self, key, value):
+        self.resource.value_set_item(key, value, self.predicate, self.direct)
+        list.__setitem__(self, key, value)
+        
+    def __delitem__(self, key):
+        self.resource.value_del_item(key, self.predicate, self.direct)
+        list.__delitem__(self, key)
+    
+    # implement the other list methods 
     
