@@ -71,7 +71,7 @@ class NamedGroup(Group):
     
     def __init__(self,name = None):
         Group.__init__(self)
-        if type(name) is [URIRef] or (type(name) in [str, unicode] and name.startswith('?')):
+        if isinstance(name, URIRef) or (type(name) in [str, unicode] and name.startswith('?')):
             self.name = name
         else:
             raise ValueError('The names')

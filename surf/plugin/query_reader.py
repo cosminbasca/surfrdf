@@ -36,42 +36,56 @@
 __author__ = 'Cosmin Basca'
 
 from surf.plugin.reader import RDFReader
-import logging
-from surf.query import Query, a, ask, select, Filter, optional_group
+from surf.query import Query, a, ask, select, Filter, optional_group, named_group
 
-# the rdf way
-#from rdf.graph import ConjunctiveGraph
-#from rdf.term import URIRef, BNode, Literal, RDF
-# the rdflib 2.4.x way
-from rdflib.Graph import ConjunctiveGraph
 from rdflib.URIRef import URIRef
-from rdflib.BNode import BNode
-from rdflib.Literal import Literal
 
-
-def query_SP(s,p,direct):
+def query_SP(s, p, direct, context):
     '''helper query builder method
     constructs a `surf.query.Query` where the unknowns are `?v ?c`'''
     s, v = (s, '?v') if direct else ('?v', s)
-    return select('?v','?c').distinct().where((s,p,v)).optional_group(('?v',a,'?c'))
+    # from_(context) !
+    query = select('?v','?c').distinct().where((s,p,v)).optional_group(('?v',a,'?c'))
+    if context:
+        query.from_(context)
+        
+    return query 
 
-def query_S(s,direct):
+def query_S(s, direct, context):
     '''helper query builder method
     constructs a `surf.query.Query` where the unknowns are `?p ?v ?c`'''
+
     s, v = (s, '?v') if direct else ('?v', s)
-    return select('?p','?v','?c').distinct().where((s,'?p',v)).optional_group(('?v',a,'?c'))
+    query = select('?p','?v','?c').distinct().where((s,'?p',v)).optional_group(('?v',a,'?c')) 
+    if context:
+        query.from_(context)
+
+    return query
     
-def query_Ask(subject):
+def query_Ask(subject, context):
     '''helper query builder method
     constructs a `surf.query.Query` of type **ASK**, returned value is boolean'''
-    return ask().where((subject,'?p','?o'))
     
-def query_All(concept,limit=None,offset=None):
+    query = ask()
+    if context:
+        pattern = named_group(context, (subject, '?p', '?o'))
+        query.where(pattern)
+    else:
+        query.where((subject, '?p', '?o'))
+
+    return query
+    
+def query_All(concept, limit = None, offset = None, context = None):
     '''helper query builder method
     constructs a `surf.query.Query` where the unknowns are `?s`'''
-    return select('?s').distinct().where(('?s',a,concept)).limit(limit).offset(offset)
+    
+    query = select('?s').distinct().where(('?s',a,concept)).limit(limit).offset(offset)
+    if context:
+        query.from_(context)
+    
+    return query 
 
-def query_AllRelated(concept, limit=None, offset=None):
+def query_AllRelated(concept, limit = None, offset = None, context = None):
     ''' Return Query that selects subjects and related triples. 
         
     First, in subquery, select resource uris that have type matching concept 
@@ -84,24 +98,36 @@ def query_AllRelated(concept, limit=None, offset=None):
     query.group(('?s', '?p', '?v'), optional_group(('?v',a,'?c')))
     query.where(inner_query)
     
+    if context:
+        query.from_(context)
+    
     return query
     
 #Resource class level
-def query_P_S(c,p,direct):
+def query_P_S(c, p, direct, context):
     '''helper query builder method
     constructs a `surf.query.Query` where the unknowns are `?s ?c`'''
+    
     query = select('?s','?c').distinct()
+    if context:
+        query.from_(context)
+    
     for i in range(len(p)):
         s, v = ('?s', '?v%d'%i) if direct else ('?v%d'%i, '?s')
         if type(p[i]) is URIRef: query.where((s,p[i],v))
     query.optional_group(('?s',a,'?c'))
+    
     return query
 
-def query_PO(c,direct,filter='',preds={}):
+def query_PO(c, direct, filter = '', preds = {}, context = None):
     '''helper query builder method
     constructs a `surf.query.Query` where the unknowns are `?s ?c`, with the possibility
     to specify **SPARQL** `filters` as strings - follow the SPARQL filter syntax'''
+
     query = select('?s','?c').distinct().where(('?s',a,c))
+    if context:
+        query.from_(context)
+    
     i = 0 
     for p, v in preds.items():
         f = Filter.regex('?v%d'%(i),v) if filter == 'regex' and direct else None
@@ -137,28 +163,34 @@ class RDFQueryReader(RDFReader):
             raise ValueError('The use_subqueries parameter must be a bool or a string set to "true" or "false"')
     
     #protected interface
-    def _get(self,subject,attribute,direct):
-        query = query_SP(subject, attribute, direct)
+    def _get(self, subject, attribute, direct, context):
+        query = query_SP(subject, attribute, direct, context)
         result = self._execute(query)
         return self.convert(result,'v','c')
     
-    def _load(self,subject,direct):
-        query = query_S(subject, direct)
+    def _load(self, subject, direct, context):
+        query = query_S(subject, direct, context)
         result = self._execute(query)
         return self.convert(result,'p','v','c')
     
-    def _is_present(self,subject):
-        query = query_Ask(subject)
+    def _is_present(self, subject, context):
+        query = query_Ask(subject, context)
         result = self._execute(query)
         return self._ask(result)
     
-    def _all(self, concept, limit = None, offset = None, full = False):
+    def _all(self, concept, limit = None, offset = None, full = False,
+             context = None):
+        
         if full and self.use_subqueries:
-            query = query_AllRelated(concept, limit=limit, offset=offset)            
+            query = query_AllRelated(concept, limit = limit, offset = offset,
+                                     context = context)
+                        
             result = self._execute(query)
             return self.convert(result,'s','p','v','c')
         else:
-            query = query_All(concept, limit=limit, offset=offset)
+            query = query_All(concept, limit = limit, offset = offset, 
+                              context = context)
+            
             result = self._execute(query)
             return self.convert(result,'s')
     
@@ -167,13 +199,15 @@ class RDFQueryReader(RDFReader):
         result = self._execute(query)
         return self.convert(result,'c')
         
-    def _instances_by_attribute(self,concept,attributes,direct):
-        query = query_P_S(concept,attributes,direct)
+    def _instances_by_attribute(self, concept, attributes, direct, context):
+        query = query_P_S(concept, attributes, direct, context)
         result = self._execute(query)
         return self.convert(result, 's', 'c')
         
-    def _instances(self,concept,direct,filter,predicates):
-        query = query_PO(concept,direct,filter=filter,preds=predicates)
+    def _instances(self, concept, direct, filter, predicates, context):
+        query = query_PO(concept, direct, filter = filter, preds = predicates,
+                         context = context)
+        
         result = self._execute(query)
         return self.convert(result, 's', 'c')
         

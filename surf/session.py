@@ -35,28 +35,22 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-import new
-from query import Query
 from store import Store
 from resource import Resource, ResourceMeta
 from util import *
-from exceptions import TypeError
-from rest import Rest
-from urlparse import urlparse
 
 # the rdf way
-#from rdf.term import URIRef, BNode, Literal
+#from rdf.term import URIRef
 # the rdflib 2.4.x way
 from rdflib.URIRef import URIRef
-from rdflib.BNode import BNode
-from rdflib.Literal import Literal
+
 
 
 '''
 TODO:
     come to a resolution regarding the metaclass conflict
     for now classes that extend the Resource must have no metaclasses of their own
-    q: is it a good ideea the generate a sublclass of all meta?
+    q: is it a good idea the generate a sublclass of all meta?
     or should the only meta to be used be ResourceMeta ?
     what are the implications ?
     
@@ -75,7 +69,8 @@ class Session(object):
     
     # TODO: add cache
     ''',use_cached=False,cache_expire=DEFAULT_RESOURCE_EXPIRE_TIME'''
-    def __init__(self,default_store=None,mapping={},auto_persist=False,auto_load=False):
+    def __init__(self, default_store = None, mapping = {}, 
+                 auto_persist = False, auto_load = False):
         '''creates a new `session` object that handles the creation of types and
         instances, also the session binds itself to the `Resource` objects to allow
         the Resources to access the data `store` and perform `lazy loading` of results
@@ -238,9 +233,10 @@ class Session(object):
         setattr(ResourceMeta,'session',None)
         # expire resources (stop timers)
         
-    def map_type(self,uri,store=None,*classes):
+    def map_type(self, uri, store = None, *classes):
         '''creates a `class` based on the `uri` given, also will add the `classes`
         to the inheritance list'''
+        
         store = self.default_store_key if not store else store
         
         uri = self.__uri(uri)
@@ -250,9 +246,11 @@ class Session(object):
         
         base_classes = [Resource]
         base_classes.extend(list(classes) if classes != None else [])
-        return new.classobj(str(name), tuple(base_classes),{'uri':uri,'store_key':store})
+        return new.classobj(str(name), tuple(base_classes),
+                            {'uri' : uri, 
+                             'store_key' : store})
         
-    def get_class(self,uri,store=None,*classes):
+    def get_class(self, uri, store = None, context = None, *classes):
         '''see :func:`surf.session.Session.map_type`
         the `uri` parameter can be any of the following:
             
@@ -271,19 +269,38 @@ class Session(object):
         '''
         return self.map_type(uri,store,*classes)
         
-    def map_instance(self,uri,subject,store=None,classes = [],block_outo_load=False):
-        '''creates a `instance` of the `class` specified by `uri` and `classes` to be
-        inherited, see `map_type` for more information'''
+    def map_instance(self, uri, subject, store = None, classes = [],
+                     block_outo_load = False, context = None):
+        """Create a `instance` of the `class` specified by `uri` and `classes` 
+        to be inherited, see `map_type` for more information. """
+
         subject = subject if type(subject) is URIRef else URIRef(str(subject))
-        return self.map_type(uri,store,*classes)(subject,block_outo_load=block_outo_load)
+
+        if not store:
+            store = self.default_store_key
         
-    def get_resource(self,subject,uri=None,store=None,graph=None,block_outo_load=False,*classes):
+        if context:
+            context = URIRef(str(context))
+        else:
+            context = self[store].default_context
+
+        Concept = self.map_type(uri, store, *classes) 
+        return Concept(subject, block_outo_load = block_outo_load,
+                       context = context)
+        
+    def get_resource(self, subject, uri = None, store = None, graph = None,
+                     block_outo_load = False, context = None, *classes):
         '''same as `map_type` but `sets` the resource from the `graph`'''
+        
         subject = subject if type(subject) is URIRef else URIRef(str(subject))
         uri = uri if uri else Resource.concept(subject)
-        resource = self.map_instance(uri,subject,store,block_outo_load=block_outo_load,*classes)
+        resource = self.map_instance(uri, subject, store, classes, 
+                                     block_outo_load = block_outo_load, 
+                                     context = context)
+        
         if graph:
             resource.set(graph)
+        
         return resource
         
     def load_resource(self,uri,subject,store=None,data=None,file=None,location=None,format=None,*classes):

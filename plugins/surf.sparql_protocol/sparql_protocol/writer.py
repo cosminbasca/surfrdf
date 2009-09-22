@@ -49,29 +49,26 @@ class WriterPlugin(RDFWriter):
         RDFWriter.__init__(self,reader,*args,**kwargs)
         if isinstance(self.reader, ReaderPlugin):
             self.__endpoint         = self.reader.endpoint
-            self.__default_graph    = self.reader.default_graph
         else:
             self.__endpoint         = kwargs['endpoint'] if 'endpoint' in kwargs else None
-            self.__default_graph    = kwargs['default_graph'] if 'default_graph' in kwargs else None
             
         self.__results_format   = JSON
         
         print "endpoint: %s" % self.__endpoint
-        self.__sparql_wrapper   = SPARQLWrapper(self.__endpoint, self.__results_format,defaultGraph=self.__default_graph)
+        self.__sparql_wrapper   = SPARQLWrapper(self.__endpoint, self.__results_format)
                 
     endpoint        = property(lambda self: self.__endpoint)
-    default_graph   = property(lambda self: self.__default_graph)
             
     def _save(self, resource):
         s = resource.subject
-        self.__remove(s)
+        self.__remove(s, context = resource.context)
         
         def statement_generator():
             for p, objs in resource.rdf_direct.items():
                 for o in objs:
                     yield (s, p, o)
             
-        self.__add_many(statement_generator())
+        self.__add_many(statement_generator(), resource.context)
     
     def _update(self, resource):
         s = resource.subject
@@ -82,8 +79,9 @@ class WriterPlugin(RDFWriter):
                 self.__add(s, p, o)
     
     def _remove(self, resource, inverse = False):
-        self.__remove(s=resource.subject)
-        if inverse: self.__remove(o=resource.subject)
+        self.__remove(s = resource.subject, context = resource.context)
+        if inverse: 
+            self.__remove(o = resource.subject, context = resource.context)
     
     def _size(self):
         '''
@@ -92,14 +90,14 @@ class WriterPlugin(RDFWriter):
         
         raise NotImplementedError
     
-    def _add_triple(self,s=None,p=None,o=None,context = None):
+    def _add_triple(self, s = None, p = None, o = None, context = None):
         self.__add(s,p,o,context)
     
-    def _set_triple(self,s=None,p=None,o=None,context = None):
+    def _set_triple(self,s = None, p = None, o = None, context = None):
         self.__remove(s,p,context=context)
         self.__add(s,p,o,context)
     
-    def _remove_triple(self,s=None,p=None,o=None,context = None):
+    def _remove_triple(self, s = None, p = None, o = None, context = None):
         self.__remove(s,p,o,context)
 
     def __add_many(self, triples, context = None):
@@ -107,9 +105,8 @@ class WriterPlugin(RDFWriter):
         
         query = insert()
 
-        graph = context if context != None else self.default_graph
-        if graph:
-            query.into(graph)
+        if context:
+            query.into(context)
         
         for s, p, o in triples:
             query.template((s, p, o))
@@ -135,18 +132,19 @@ class WriterPlugin(RDFWriter):
     def __add(self,s, p, o, context = None):
         return self.__add_many([(s, p, o)], context)
         
-    def __remove(self,s=None,p=None,o=None,context=None):
+    def __remove(self, s = None, p = None, o = None, context = None):
         self.log.debug('REM : %s, %s, %s, %s' % (s, p, o, context))
         
         query = delete()
-        graph = context if context != None else self.default_graph
         
         try:
             #clear
-            if s == None and p == None and o == None and graph:
-                query = clear().graph(graph)
+            if s == None and p == None and o == None and context:
+                query = clear().graph(context)
             else:
-                query = delete().from_(graph)
+                if context:
+                    query = delete().from_(context)
+                    
                 query.template(("?s", "?p", "?o"))
                 query.where(("?s", "?p", "?o"))
                 query.filter("(" + self.__build_filter(s,p,o) + ")")
@@ -162,8 +160,6 @@ class WriterPlugin(RDFWriter):
             self.log.error('SPARQL EXCEPTION ON QUERY (BAD FORMAT): \n ' + str(badquery))
         except SPARQLWrapperException, sparqlwrapper:
             self.log.error('SPARQL WRAPPER Exception \n' + str(sparqlwrapper))
-        except Exception, e:
-            self.log.error('Exception while querying' + str(e))
 
         return None
             

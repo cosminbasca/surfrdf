@@ -1,5 +1,6 @@
 """ Module for rdflib plugin tests. """
 
+from rdflib.URIRef import URIRef
 from unittest import TestCase
 
 import surf
@@ -28,3 +29,4 @@ class TestRdfLib(TestCase):
         self.assertEquals(john.is_present(), False)
         john.save()
         self.assertEquals(john.is_present(), True)
+        

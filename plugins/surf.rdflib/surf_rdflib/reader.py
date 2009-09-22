@@ -43,14 +43,15 @@ from rdflib.Literal import Literal
 from rdflib.BNode import BNode
 
 class ReaderPlugin(RDFQueryReader):
-    def __init__(self,*args,**kwargs):
+    def __init__(self, *args, **kwargs):
             RDFQueryReader.__init__(self,*args,**kwargs)
             
             self.__rdflib_store         = kwargs['rdflib_store'] if 'rdflib_store' in kwargs else 'IOMemory'
             self.__rdflib_identifier    = kwargs['rdflib_identifier'] if 'rdflib_identifier' in kwargs else None
             self.__commit_pending_transaction_on_close = kwargs['commit_pending_transaction_on_close'] if 'commit_pending_transaction_on_close' in kwargs else True
             
-            self.__graph = ConjunctiveGraph(store=self.__rdflib_store, identifier = self.__rdflib_identifier)
+            self.__graph = ConjunctiveGraph(store = self.__rdflib_store, 
+                                            identifier = self.__rdflib_identifier)
     
     rdflib_store        = property(lambda self: self.__rdflib_store)
     rdflib_identifier   = property(lambda self: self.__rdflib_identifier)

@@ -36,56 +36,50 @@
 __author__ = 'Cosmin Basca'
 
 from surf.plugin import Plugin
-import logging
-from surf.query import Query
-
-# the rdf way
-#from rdf.graph import ConjunctiveGraph
-#from rdf.term import URIRef, BNode, Literal, RDF
-# the rdflib 2.4.x way
-from rdflib.Graph import ConjunctiveGraph
-from rdflib.URIRef import URIRef
-from rdflib.BNode import BNode
-from rdflib.Literal import Literal
-from rdflib.RDF import RDFNS as RDF
 
 class RDFReader(Plugin):
     '''
     super class for all surf Reader Plugins
     '''
     #protected interface
-    def _get(self,subject,attribute,direct):
+    def _get(self, subject, attribute, direct, context):
         '''to be implemented by classes that inherit `RDFReader`, is called
         directly by `get`'''
+        
         return None
     
-    def _load(self,subject):
+    def _load(self, subject, context):
         '''to be implemented by classes that inherit `RDFReader`, is called
         directly by `load`'''
+        
         return {}
     
-    def _is_present(self,subject):
+    def _is_present(self, subject, context):
         '''to be implemented by classes that inherit `RDFReader`, is called
         directly by `is_present`'''
+        
         return False
     
     def _all(self, concept, limit = None, offset = None, 
-             full = False):
+             full = False, context = None):
         '''to be implemented by classes that inherit `RDFReader`, is called
         directly by `all`'''
+        
         return []
         
     def _concept(self,subject):
         '''to be implemented by classes that inherit `RDFReader`, is called
         directly by `concept`'''
+        
         return None
     
-    def _instances_by_attribute(self,concept,attributes,direct):
+    def _instances_by_attribute(self, concept, attributes, direct, context):
         '''to be implemented by classes that inherit `RDFReader`, is called
         directly by `instances_by_attribute`'''
+        
         return []
         
-    def _instances(self,concept,direct,filter,predicates):
+    def _instances(self, concept, direct, filter, predicates, context):
         '''to be implemented by classes that inherit `RDFReader`, is called
         directly by `instances`'''
         return []
@@ -97,32 +91,35 @@ class RDFReader(Plugin):
     
     
     #public interface
-    def get(self,resource,attribute,direct):
-        '''returns the `value(s)` of the corresponding `attribute`,
+    def get(self, resource, attribute, direct):
+        '''Return the `value(s)` of the corresponding `attribute`,
         if `direct` is False, than the `subject` of the `resource` is considered
         the `object` of the query'''
-        subj = resource.subject if hasattr(resource, 'subject') else resource
-        return self._get(subj, attribute, direct)
         
-    def load(self,resource,direct):
-        '''fully loads the `resource` from the `store`, returns all statements about
+        subj = resource.subject if hasattr(resource, 'subject') else resource
+        return self._get(subj, attribute, direct, resource.context)
+        
+    def load(self, resource, direct):
+        '''Fully load the `resource` from the `store`, returns all statements about
         the `resource`
         if `direct` is False, than the `subject` of the `resource` is considered
         the `object` of the query'''
-        subj = resource.subject if hasattr(resource, 'subject') else resource
-        return self._load(subj,direct)
         
-    def is_present(self,resource):
-        '''True if the `resource` is present in the `store`, False otherwise'''
         subj = resource.subject if hasattr(resource, 'subject') else resource
-        return self._is_present(subj)
+        return self._load(subj, direct, resource.context)
+        
+    def is_present(self, resource):
+        '''True if the `resource` is present in the `store`, False otherwise'''
+        
+        subj = resource.subject if hasattr(resource, 'subject') else resource
+        return self._is_present(subj, resource.context)
         
     def all(self, concept, limit = None, offset = None, 
-            full = False):
+            full = False, context = None):
         '''returns all `uri's` that are `instances` of `concept` within [`limit`,`limit`+`offset`]'''
         con = concept.uri if hasattr(concept, 'uri') else concept
         return self._all(con, limit = limit, offset = offset, 
-                         full = full)
+                         full = full, context = context)
         
     def concept(self,resource):
         '''returns the `concept` URI of the following `resource`,
@@ -130,14 +127,16 @@ class RDFReader(Plugin):
         subj = resource.subject if hasattr(resource, 'subject') else resource
         return self._concept(subj)
         
-    def instances_by_attribute(self,resource,attributes,direct):
+    def instances_by_attribute(self, resource, attributes, direct, context):
         '''returns all `uri's` that are `instances` of `concept` that have the specified `attributes`
         if `direct` is False, than the `subject` of the `resource` is considered
         the `object` of the query'''
-        concept = resource.uri if hasattr(resource, 'uri') else resource
-        return self._instances_by_attribute(concept,attributes,direct)
         
-    def instances(self,resource,direct,filter,predicates):
+        concept = resource.uri if hasattr(resource, 'uri') else resource
+        return self._instances_by_attribute(concept, attributes, direct, 
+                                            context)
+        
+    def instances(self, resource, direct, filter, predicates, context):
         '''returns all `uri's` that are `instances` of `concept` that have the
         specified `predicates` - a `dict` where the `key` is the shorthand notation,
         and the `value` is the predicate value
@@ -151,7 +150,7 @@ class RDFReader(Plugin):
         '''
         concept = resource.uri if hasattr(resource, 'uri') else resource
         #TODO: make sure uri's are passed further
-        return self._instances(concept,direct,filter,predicates)
+        return self._instances(concept, direct, filter, predicates, context)
         
     def instances_by_value(self,resource,direct,attributes):
         '''returns all `uri's` that are `instances` of `concept` as values and

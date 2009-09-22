@@ -36,10 +36,10 @@
 __author__ = 'Cosmin Basca'
 
 import logging
-import os
 import pkg_resources
 from plugin.reader import RDFReader
 from plugin.writer import RDFWriter
+from rdflib.URIRef import URIRef
 
 from query import Query
 
@@ -76,27 +76,38 @@ class Store(object):
     def __init__(self,reader=None,writer=None,*args,**kwargs):
         self.log = logging.getLogger(self.__class__.__name__)
         self.log.info('initializing the store')
-        self.log.info('registered readers : '+str(registered_readers()))
-        self.log.info('registered writer : '+str(registered_writers()))
+        self.log.info('registered readers : ' + str(registered_readers()))
+        self.log.info('registered writer : ' + str(registered_writers()))
+        
+        self.__default_context = None
+        if "default_context" in kwargs:
+            self.__default_context = URIRef(kwargs["default_context"])
+        
         if reader:
             if reader in __readers__:
-                self.reader = __readers__[reader](*args,**kwargs)
+                self.reader = __readers__[reader](*args, **kwargs)
             else:
                 raise PluginNotFoundException('The <%s> READER plugin was not found'%(reader))
         else:
-            self.reader = RDFReader(*args,**kwargs)
+            self.reader = RDFReader(*args, **kwargs)
             
         if writer:
             if writer in __writers__:
-                self.writer = __writers__[writer](self.reader,*args,**kwargs)
+                self.writer = __writers__[writer](self.reader, *args, **kwargs)
             else:
                 raise PluginNotFoundException('The <%s> WRITER plugin was not found'%(reader))
         else:
             self.writer = RDFWriter(self.reader, *args, **kwargs)
         self.log.info('store initialized')
+
+    default_context = property(lambda self: self.__default_context)
      
+    use_subqueries = property(fget = lambda self: self.reader.use_subqueries if hasattr(self.reader,'use_subqueries') else False)
+    '''True if the `reader` plugin is using sub queries, False otherwise'''
+    
     def enable_logging(self,enable):
         '''Toggle `loggin` on or off'''
+        
         level = logging.DEBUG if enable else logging.NOTSET
         self.log.setLevel(level)
         self.reader.enable_logging(enable)
@@ -105,9 +116,6 @@ class Store(object):
     def is_enable_logging(self):
         '''True if `logging` is enabled, False otherwise'''
         return False if self.log.level == logging.NOTSET else True
-    
-    use_subqueries = property(fget = lambda self: self.reader.use_subqueries if hasattr(self.reader,'use_subqueries') else False)
-    '''True if the `reader` plugin is using sub queries, False otherwise'''
     
     def close(self):
         '''close the `store`, both the `reader` and the `writer` plugins are closed
@@ -127,37 +135,53 @@ class Store(object):
     # the reader interface
     #---------------------------------------------------------------------------
     
-    def get(self,resource,attribute,direct):
+    def get(self, resource, attribute, direct):
         ''':func:`surf.plugin.reader.RDFReader.get` method'''
-        return self.reader.get(resource,attribute,direct)
+        
+        return self.reader.get(resource, attribute, direct)
     
     # cRud    
-    def load(self,resource,direct):
+    def load(self, resource, direct):
         ''':func:`surf.plugin.reader.RDFReader.load` method'''
-        return self.reader.load(resource,direct)
         
-    def is_present(self,resource):
+        return self.reader.load(resource, direct)
+        
+    def is_present(self, resource):
         ''':func:`surf.plugin.reader.RDFReader.is_present` method'''
+        
         return self.reader.is_present(resource)
         
     def all(self, concept, limit = None, offset = None, 
-            full = False):
+            full = False, context = None):
         ''':func:`surf.plugin.reader.RDFReader.all` method'''
         
+        if not context:
+            context = self.__default_context
+        
         return self.reader.all(concept, limit = limit, offset = offset,
-                               full = full)
+                               full = full, context = context)
         
     def concept(self,resource):
         ''':func:`surf.plugin.reader.RDFReader.concept` method'''
         return self.reader.concept(resource)
         
-    def instances_by_attribute(self,resource,attributes,direct):
+    def instances_by_attribute(self, resource, attributes, direct, context):
         ''':func:`surf.plugin.reader.RDFReader.instances_by_attribute` method'''
-        return self.reader.instances_by_attribute(resource,attributes,direct)
+
+        if not context:
+            context = self.__default_context
         
-    def instances(self,resource,direct,filter,predicates):
+        return self.reader.instances_by_attribute(resource, attributes, 
+                                                  direct, context)
+        
+    def instances(self, resource, direct, filter, predicates, context):
         ''':func:`surf.plugin.reader.RDFReader.instances` method'''
-        return self.reader.instances(resource,direct,filter,predicates)
+        
+        if not context:
+            context = self.__default_context
+            
+        return self.reader.instances(resource, direct, filter, predicates, 
+                                     context)
         
     def instances_by_value(self,resource,direct,attributes):
         ''':func:`surf.plugin.reader.RDFReader.instances_by_value` method'''
@@ -183,33 +207,39 @@ class Store(object):
     # the writer interface
     #---------------------------------------------------------------------------
     
-    def clear(self,context=None):
+    def clear(self, context = None):
         '''see :func:`surf.plugin.writer.RDFWriter.clear` method'''
+        
         self.writer.clear(context=context)
     
     # Crud    
-    def save(self,resource):
+    def save(self, resource):
         '''see :func:`surf.plugin.writer.RDFWriter.save` method'''
+        
         self.writer.save(resource)
     
     # crUd
-    def update(self,resource):
+    def update(self, resource):
         '''see :func:`surf.plugin.writer.RDFWriter.update` method'''
+        
         self.writer.update(resource)
         
     # cruD
-    def remove(self,resource):
+    def remove(self, resource):
         '''see :func:`surf.plugin.writer.RDFWriter.remove` method'''
+        
         self.writer.remove(resource)
         
     def size(self):
         '''see :func:`surf.plugin.writer.RDFWriter.size` method'''
+        
         return self.writer.size()
         
     # triple level access methods
-    def add_triple(self,s=None,p=None,o=None, context=None):
+    def add_triple(self, s = None, p = None, o = None, context = None):
         '''see :func:`surf.plugin.writer.RDFWriter.add_triple` method'''
-        self.writer.add_triple(s=s,p=p,o=o,context=context)
+        
+        self.writer.add_triple(s = s, p = p, o = o, context = context)
     
     def set_triple(self,s=None,p=None,o=None, context=None):
         '''see :func:`surf.plugin.writer.RDFWriter.set_triple` method'''

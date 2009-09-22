@@ -100,7 +100,8 @@ class RDFWriter(Plugin):
         
     def save(self,resource):
         '''replace the `resource` with it's current state'''
-        if hasattr(resource,'subject'): self._save(resource)
+        
+        if hasattr(resource, 'subject'): self._save(resource)
         else: raise InvalidResourceException('argument must be of type surf.resource.Resource')
 
     def update(self,resource):
@@ -108,10 +109,11 @@ class RDFWriter(Plugin):
         if hasattr(resource,'subject'): self._update(resource)
         else: raise InvalidResourceException('argument must be of type surf.resource.Resource')
         
-    def remove(self,resource):
+    def remove(self, resource):
         '''completly remove the `resource` from the `store`'''
+        
         #TODO: decide wether triples that are indirect (belong to other resource should be rremoved as well)
-        if hasattr(resource,'subject'): self._remove(resource)
+        if hasattr(resource, 'subject'): self._remove(resource)
         else: raise InvalidResourceException('argument must be of type surf.resource.Resource')
         
     def size(self):

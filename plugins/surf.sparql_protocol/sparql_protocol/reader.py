@@ -49,17 +49,16 @@ from rdflib.BNode import BNode
 from rdflib.Literal import Literal
 
 class ReaderPlugin(RDFQueryReader):
-    def __init__(self,*args,**kwargs):
+    def __init__(self, *args, **kwargs):
         RDFQueryReader.__init__(self,*args,**kwargs)
         
         self.__endpoint         = kwargs['endpoint'] if 'endpoint' in kwargs else None
-        self.__default_graph    = kwargs['default_graph'] if 'default_graph' in kwargs else None
         #self.__results_format  = kwargs['results_format'] if 'results_format' in kwargs else JSON
         self.__results_format   = JSON
         
         #if self.__results_format not in [JSON, XML]:
         #    raise UnsupportedResultType('Result of type %s is unsupported'%self.__results_format)
-        self.__sparql_wrapper   = SPARQLWrapper(self.__endpoint, self.__results_format,defaultGraph=self.__default_graph)
+        self.__sparql_wrapper   = SPARQLWrapper(self.__endpoint, self.__results_format)
 
         # Try to use cjson
         try: 
@@ -70,13 +69,12 @@ class ReaderPlugin(RDFQueryReader):
             self.log.warning("cjson not available, falling back on slower simplejson")
         
     endpoint        = property(lambda self: self.__endpoint)
-    default_graph   = property(lambda self: self.__default_graph)
     results_format  = property(lambda self: self.__results_format)
     
-    def _to_table(self,result):
+    def _to_table(self, result):
         return result['results']['bindings']
         
-    def _ask(self,result):
+    def _ask(self, result):
         '''
         returns the boolean value of a ASK query
         '''
@@ -100,7 +98,7 @@ class ReaderPlugin(RDFQueryReader):
         return None    
     
     # execute
-    def _execute(self,query):
+    def _execute(self, query):
         q_string = SparqlTranslator(query).translate()
         return self.execute_sparql(q_string)
     

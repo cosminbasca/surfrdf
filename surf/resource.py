@@ -63,7 +63,7 @@ a = RDF['type']
 
 
 class ResourceMeta(type):
-    def __new__(meta,classname,bases,class_dict):
+    def __new__(meta, classname, bases, class_dict):
         ResourceClass = super(ResourceMeta,meta).__new__(meta,classname,bases,class_dict)
         if 'uri' not in class_dict:
             ResourceClass.uri = None
@@ -142,7 +142,7 @@ class Resource(object):
     __metaclass__ = ResourceMeta
     _instances = WeakKeyDictionary()
     
-    def __init__(self,subject=None,block_outo_load=False):
+    def __init__(self, subject = None, block_outo_load = False, context = None):
         '''initializes a Resource, with the `subject` (a URI - either a string or a URIRef),
         if the `subject` is None than a unique subject will be generated using the
         :func:`surf.util.uuid_subject` method
@@ -150,6 +150,7 @@ class Resource(object):
         with the subject of the resource'''
         self.__subject = subject if subject else uuid_subject()
         self.__subject = self.__subject if type(self.__subject) is URIRef else URIRef(self.__subject)
+        self.__context = context
         self.__dirty = False
         self._instances[self] = True
         self.__expired = False
@@ -175,12 +176,16 @@ class Resource(object):
     
     rdf_inverse = property(fget = lambda self: self.__rdf_inverse)
     '''inverse predicates (`incoming` predicates)'''
+
+    context = property(fget = lambda self: self.__context)
     
     def bind_namespaces(self,*namespaces):
-        '''
-        binds the `namespace` to the `resource`,
-        usefull for pretty serialization of the resource
-        '''
+        """ Bind the `namespace` to the `resource`.
+        
+        Useful for pretty serialization of the resource.
+        
+        """
+        
         for ns in namespaces:
             if type(ns) in [str,unicode]:
                 self.__namespaces[ns] = get_namespace_url(ns)
@@ -287,7 +292,7 @@ class Resource(object):
         value = None
         predicate, direct = attr2rdf(attr_name)
         if predicate:
-            values = self.session[self.store_key].get(self,predicate,direct)
+            values = self.session[self.store_key].get(self, predicate, direct)
             # TODO: reuse already existing instances - CACHED
             value =  self._lazy(values)
             if value or (type(value) is list and len(value) > 0):
@@ -299,14 +304,16 @@ class Resource(object):
 
     def load(self):
         '''
-        loads all attributes from the data store:
+        Load all attributes from the data store:
             - direct attributes (where the subject is the subject of the resource)
             - indirect attributes (where the object is the subject of the resource)
             
         note: this method resets the *dirty* state of the object
+        
         '''
-        results_d = self.session[self.store_key].load(self,True)
-        results_i = self.session[self.store_key].load(self,False)
+        
+        results_d = self.session[self.store_key].load(self, True)
+        results_i = self.session[self.store_key].load(self, False)
         self.__set_predicate_values(results_d,True)
         self.__set_predicate_values(results_i,False)
         self.__dirty = False
@@ -323,14 +330,16 @@ class Resource(object):
     
         
     @classmethod
-    def get_by_attribute(cls,*attributes):
+    def get_by_attribute(cls, attributes, context = None):
         '''
-        retrieves all `instances` from the data store that have the specified `attributes`
+        Retrieve all `instances` from the data store that have the specified `attributes`
         and are of `rdf:type` of the resource class
         '''
+        
         subjects = {}
-        subjects.update(cls.session[cls.store_key].instances_by_attribute(self,attributes,True))
-        subjects.update(cls.session[cls.store_key].instances_by_attribute(self,attributes,False))
+        subjects.update(cls.session[cls.store_key].instances_by_attribute(cls, attributes, True, context))
+        subjects.update(cls.session[cls.store_key].instances_by_attribute(cls, attributes, False, context))
+        
         instances = []
         for s, types in subjects.items():
             if type(s) is URIRef:
@@ -338,7 +347,7 @@ class Resource(object):
         return instances if len(instances) > 0 else []
         
     @classmethod
-    def all(cls, offset = None, limit = None, full = False):
+    def all(cls, offset = None, limit = None, full = False, context = None):
         """Retrieve all or limited number of `instances`.
         
         Retrieve all (or just a limited number from the specified offset) 
@@ -350,7 +359,8 @@ class Resource(object):
             return []
         
         store = cls.session[cls.store_key]
-        store_response = store.all(cls, limit = limit, offset = offset, full = full)
+        store_response = store.all(cls, limit = limit, offset = offset, 
+                                   full = full, context = context)
 
         if store.use_subqueries and full:
             direct = True # TODO: must implement for indirect as well
@@ -369,7 +379,7 @@ class Resource(object):
         return results
         
     @classmethod
-    def __get(cls,filter,*objects,**symbols):
+    def __get(cls, filter, context, *objects, **symbols):
         '''
         
         For *internal* use only! Retrieve `instances` of the `rdf:type` as 
@@ -386,9 +396,9 @@ class Resource(object):
         subjects = {}
         if len(symbols) > 0:
             if len(predicates_d) > 0:
-                subjects.update(cls.session[cls.store_key].instances(cls, True, filter, predicates_d))
+                subjects.update(cls.session[cls.store_key].instances(cls, True, filter, predicates_d, context))
             if len(predicates_i) > 0:
-                subjects.update(cls.session[cls.store_key].instances(cls, False, filter, predicates_i))
+                subjects.update(cls.session[cls.store_key].instances(cls, False, filter, predicates_i, context))
         
         #if len(objects) > 0:
         #    subjects.update(cls.store().o(True,cls.uri(),filter,objects))
@@ -401,7 +411,7 @@ class Resource(object):
         return instances if len(instances) > 0 else []
         
     @classmethod
-    def get_by(cls,*objects,**symbols):
+    def get_by(cls, context = None, *objects, **symbols):
         ''' Retrieve all instances that match specified filters and class.
         
         Filters are specified as keyword arguments, argument names follow SuRF
@@ -414,19 +424,19 @@ class Resource(object):
         
         '''
         
-        return cls.__get(None,*objects,**symbols)
+        return cls.__get(None, context, *objects, **symbols)
     
     @classmethod
-    def get_like(cls,*objects,**symbols):
+    def get_like(cls, context = None, *objects, **symbols):
         '''
         retrieves all `instances` that have attribute value pairs, with support for regex
         matching on values and have `rdf:type` as the resource class
         
         note: currently regex is slow, try to avoid the use of this method
         '''
-        return cls.__get('regex',*objects,**symbols)
+        return cls.__get('regex', context, *objects, **symbols)
     
-    def serialize(self,format='xml',direct=False):
+    def serialize(self, format = 'xml', direct = False):
         '''
         returns a serialized version of the internal graph represenatation
         of the resource, the format is the same as expected by rdflib's graph
