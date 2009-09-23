@@ -40,6 +40,7 @@ import re
 import new
 from uuid import uuid4
 from urlparse import urlparse
+from rdflib.URIRef import URIRef
 
 pattern_direct = re.compile('^[a-z0-9]{1,}_[a-zA-Z0-9_]{1,}$', re.DOTALL)
 pattern_inverse = re.compile('^is_[a-z0-9]{1,}_[a-zA-Z0-9_]{1,}_of$', re.DOTALL)
@@ -199,3 +200,18 @@ def is_uri(uri):
     if scheme and netloc and path:
         return True
     return False
+
+
+def pretty_rdf(uri):
+    '''Returns a string of the given URI under the form `namespace:symbol`, if `namespace` is registered,
+    else returns an empty string'''
+    if hasattr(uri,'subject'):
+        uri = uri.subject
+    if type(uri) is URIRef:
+        NS, symbol = uri_split(uri)
+        if str(NS).startswith('NS'):
+            pretty = symbol
+        else:
+            pretty = NS.lower()+':'+symbol
+        return pretty
+    return ''
