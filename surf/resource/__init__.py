@@ -251,11 +251,10 @@ class Resource(object):
         if predicate:
             if type(value) is ResourceValue:
                 pass
-            elif type(value) in [list, tuple]:
-                value = ResourceValue(value, self, predicate, direct)
             else:
-                value = [value]
+                if type(value) not in [list, tuple]: value = [value]
                 value = map(self.value_to_rdf,value)
+                value = ResourceValue(value, self, predicate, direct)
             
             rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
             rdf_dict[predicate] = []
