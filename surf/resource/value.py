@@ -53,7 +53,7 @@ class ResourceValue(list):
         if len(self) > 0:
             return self[0]
         else:
-            raise Exception('list must have at least one element')
+            return None
     first = property(fget = get_first)
     
     def __setitem__(self, key, value):
