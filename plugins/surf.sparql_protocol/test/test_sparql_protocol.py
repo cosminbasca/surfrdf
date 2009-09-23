@@ -46,16 +46,16 @@ class TestSparqlProtocol(TestCase):
         _, session = self._get_store_session()
         Person = session.get_class(surf.ns.FOAF + "Person")
         john = session.get_resource("http://john", Person)
-        self.assertEquals(john.foaf_name, "John")
-        self.assertEquals(john.foaf_surname, "Smith")
+        self.assertEquals(john.foaf_name.one, "John")
+        self.assertEquals(john.foaf_surname.one, "Smith")
         
         # Remove and try to read again.
         john.remove()
         _, session = self._get_store_session()
         Person = session.get_class(surf.ns.FOAF + "Person")
         john = session.get_resource("http://john", Person)
-        self.assertEquals(john.foaf_name, None)
-        self.assertEquals(john.foaf_surname, None)
+        self.assertEquals(john.foaf_name.first, None)
+        self.assertEquals(john.foaf_surname.first, None)
         
         
     def test_ask(self):
@@ -85,7 +85,7 @@ class TestSparqlProtocol(TestCase):
         # Same context.
         jane2 = session.get_resource("http://jane", Person, context = context)
         jane2.load()
-        self.assertEqual(jane2.foaf_name, "Jane")
+        self.assertEqual(jane2.foaf_name.one, "Jane")
         self.assertEqual(jane2.context, context)
 
         # Different context.
