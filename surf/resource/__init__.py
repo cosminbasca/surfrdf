@@ -232,10 +232,15 @@ class Resource(object):
             if val:
                 return Literal(val,lang=language,datatype=datatype)
             return value
-        elif type(value) is ResourceMeta:
+        return value
+    
+    def to_rdf_internal(self, value):
+        if type(value) is ResourceMeta:
             return value.uri
         elif hasattr(value,'subject'):
             return value.subject
+        elif type(value) not in [URIRef, Bnode, Literal]:
+            return self.value_to_rdf(value)
         return value
     
     #TODO: add the auto_persist feature...
@@ -258,7 +263,7 @@ class Resource(object):
             
             rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
             rdf_dict[predicate] = []
-            rdf_dict[predicate].extend([val.subject if hasattr(val,'subject') else val for val in value])
+            rdf_dict[predicate].extend([self.to_rdf_internal(val) for val in value])
             self.__dirty = True
         object.__setattr__(self,name,value)
         
