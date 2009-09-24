@@ -29,4 +29,28 @@ class TestRdfLib(TestCase):
         self.assertEquals(john.is_present(), False)
         john.save()
         self.assertEquals(john.is_present(), True)
+    
+    def test_get_resource_lazy_attr(self):
+        """ Check that attributes are converted into SuRF objects. """
+        
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF["Person"])
+        
+        p1 = session.get_resource("http://p1", Person)
+        p2 = session.get_resource("http://p2", Person)
+        p1.foaf_knows = p2
+        p2.foaf_knows = p1
+        p1.save()
+        p2.save()
+
+        another_p1 = session.get_resource("http://p1", Person)
+        another_p1.load()
+        another_p2 = another_p1.foaf_knows.first
+
+        # .foaf_knows.first should be SuRF object not URIRef
+        self.assertTrue(isinstance(another_p2, surf.Resource))
+        self.assertTrue(isinstance(another_p2.foaf_knows.first, surf.Resource))
+        
+        
+        
         
