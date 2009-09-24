@@ -239,7 +239,7 @@ class Resource(object):
             return value.uri
         elif hasattr(value,'subject'):
             return value.subject
-        elif type(value) not in [URIRef, Bnode, Literal]:
+        elif type(value) not in [URIRef, BNode, Literal]:
             return self.value_to_rdf(value)
         return value
     
