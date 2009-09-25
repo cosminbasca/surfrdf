@@ -77,7 +77,7 @@ class ResourceMeta(type):
         pass
     
     @classmethod
-    def _instance(cls,subject,vals):
+    def _instance(cls, subject, vals, context = None):
         '''
         creates an instance from the `subject` and it's associated `concept` (`vals`) uri's
         only the first `concept` uri is considered for inheritance
@@ -85,7 +85,12 @@ class ResourceMeta(type):
         if cls.session:
             uri = vals[0] if len(vals) > 0 else None
             classes = map(uri_to_class,vals[1:]) if len(vals) > 1 else []
-            return cls.session.map_instance(uri,subject,classes=classes,block_outo_load=True) if uri else subject
+            if uri:
+                return cls.session.map_instance(uri, subject, classes = classes,
+                                                block_outo_load = True,
+                                                context = context) 
+            else:
+                return subject
         else:
             return None
     
@@ -392,13 +397,13 @@ class Resource(object):
             direct = True # TODO: must implement for indirect as well
             results = []
             for subject, attrs_values in store_response.items():
-                obj = cls(subject)
+                obj = cls(subject, context = context)
                 obj.__set_predicate_values(attrs_values,direct)
                 results.append(obj) 
         else:
             results = []
             for subject in store_response:
-                instance = cls(subject)
+                instance = cls(subject, context = context)
                 if full: instance.load()
                 results.append(instance)
         
@@ -413,11 +418,12 @@ class Resource(object):
         pair specified using `**symbols`, the method also supports `filters`.
         
         '''
-        
+
         predicates_d = {}
         predicates_d.update( [(attr2rdf(name)[0],symbols[name]) for name in symbols if is_attr_direct(name)])
         predicates_i = {}
         predicates_i.update( [(attr2rdf(name)[0],symbols[name]) for name in symbols if not is_attr_direct(name)])
+        
         
         subjects = {}
         if len(symbols) > 0:
@@ -432,8 +438,13 @@ class Resource(object):
         
         instances = []
         for s, types in subjects.items():
-            if type(s) is URIRef:
-                instances.append(cls._instance(s,[cls.uri] if cls.uri else types))
+            if type(s) is not URIRef:
+                continue
+                
+            instance = cls._instance(s, [cls.uri] if cls.uri else types,
+                                     context = context)
+            instances.append(instance)
+            
         return instances if len(instances) > 0 else []
         
     @classmethod
