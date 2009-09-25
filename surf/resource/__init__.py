@@ -62,11 +62,6 @@ from rdflib.RDFS import RDFSNS as RRDFS
 
 a = RDF['type']
 
-# A constant to use as context argument when we want to avoid default context.
-# Example: sess.get_resource(uri, Concept, context = surf.NO_CONTEXT),
-# this explicitly says that no context should be used.
-NO_CONTEXT = "no-context"
-
 #--------------------------------------------------------------------------------------------------------
 
 class ResourceMeta(type):
