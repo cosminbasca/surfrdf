@@ -136,7 +136,6 @@ class WriterPlugin(RDFWriter):
         self.log.debug('REM : %s, %s, %s, %s' % (s, p, o, context))
         
         query = delete()
-        
         try:
             #clear
             if s == None and p == None and o == None and context:
@@ -152,7 +151,7 @@ class WriterPlugin(RDFWriter):
             query_str = SparulTranslator(query).translate()
             self.log.debug(query_str)
             self.__sparql_wrapper.setQuery(query_str)
-            result = self.__sparql_wrapper.query().convert()
+            self.__sparql_wrapper.query().convert()
             return True
         except EndPointNotFound, notfound: 
             self.log.error('SPARQL ENDPOINT not found : \n' + str(notfound))
@@ -184,7 +183,7 @@ class WriterPlugin(RDFWriter):
     def _clear(self, context = None):
         """ Clear the triple-store. """
 
-        self.__remove(None, None, None)        
+        self.__remove(None, None, None, context = context)        
         
     def _term(self,term):
         if type(term) in [URIRef,BNode]:

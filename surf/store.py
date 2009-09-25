@@ -63,6 +63,11 @@ load_plugins()
 registered_readers = lambda : __readers__.keys()
 registered_writers = lambda : __writers__.keys()
 
+# A constant to use as context argument when we want to avoid default context.
+# Example: sess.get_resource(uri, Concept, context = surf.NO_CONTEXT),
+# this explicitly says that no context should be used.
+NO_CONTEXT = "no-context"
+
 class PluginNotFoundException(Exception):
     def __init__(self,*args,**kwargs):
         super(PluginNotFoundException,self).__init__(self,*args,**kwargs)
@@ -155,7 +160,9 @@ class Store(object):
             full = False, context = None):
         ''':func:`surf.plugin.reader.RDFReader.all` method'''
         
-        if not context:
+        if context == NO_CONTEXT:
+            context = None
+        elif not context:
             context = self.__default_context
         
         return self.reader.all(concept, limit = limit, offset = offset,
@@ -168,7 +175,9 @@ class Store(object):
     def instances_by_attribute(self, resource, attributes, direct, context):
         ''':func:`surf.plugin.reader.RDFReader.instances_by_attribute` method'''
 
-        if not context:
+        if context == NO_CONTEXT:
+            context = None
+        elif not context:
             context = self.__default_context
         
         return self.reader.instances_by_attribute(resource, attributes, 
@@ -177,7 +186,9 @@ class Store(object):
     def instances(self, resource, direct, filter, predicates, context):
         ''':func:`surf.plugin.reader.RDFReader.instances` method'''
         
-        if not context:
+        if context == NO_CONTEXT:
+            context = None
+        elif not context:
             context = self.__default_context
             
         return self.reader.instances(resource, direct, filter, predicates, 

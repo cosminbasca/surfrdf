@@ -62,6 +62,11 @@ from rdflib.RDFS import RDFSNS as RRDFS
 
 a = RDF['type']
 
+# A constant to use as context argument when we want to avoid default context.
+# Example: sess.get_resource(uri, Concept, context = surf.NO_CONTEXT),
+# this explicitly says that no context should be used.
+NO_CONTEXT = "no-context"
+
 #--------------------------------------------------------------------------------------------------------
 
 class ResourceMeta(type):
@@ -175,7 +180,14 @@ class Resource(object):
     rdf_inverse = property(fget = lambda self: self.__rdf_inverse)
     '''inverse predicates (`incoming` predicates)'''
 
-    context = property(fget = lambda self: self.__context)
+    def __set_context(self, value):
+        if not isinstance(value, URIRef):
+            value = URIRef(value)
+        
+        self.__context = value
+    
+    context = property(fget = lambda self: self.__context,
+                       fset = __set_context)
     
     def bind_namespaces(self,*namespaces):
         """ Bind the `namespace` to the `resource`.

@@ -35,7 +35,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-from store import Store
+from store import Store, NO_CONTEXT
 from resource import Resource, ResourceMeta
 from util import *
 
@@ -279,7 +279,9 @@ class Session(object):
         if not store:
             store = self.default_store_key
         
-        if context:
+        if context == NO_CONTEXT:
+            context = None
+        elif context:
             context = URIRef(str(context))
         else:
             context = self[store].default_context

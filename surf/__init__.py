@@ -52,7 +52,7 @@ from surf.query import Query, select, ask, describe, construct, OptionalGroup, G
 
 from resource import Resource, a
 import namespace as ns
-from store import Store, PluginNotFoundException
+from store import Store, PluginNotFoundException, NO_CONTEXT
 from session import Session
 import sys
 import os
