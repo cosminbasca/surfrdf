@@ -35,12 +35,13 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
+from surf.util import value_to_rdf
+
 class ResourceValue(list):
-    def __init__(self,sequence,resource,predicate,direct):
+    def __init__(self,sequence,resource,rdf_values):
         list.__init__(self,sequence)
         self.resource = resource
-        self.predicate = predicate
-        self.direct = direct
+        self.rdf_values =rdf_values
 
     def get_one(self):
         if len(self) == 1:
@@ -56,14 +57,47 @@ class ResourceValue(list):
             return None
     first = property(fget = get_first)
     
+    def set_dirty(self, dirty):
+        if hasattr(self.resource, 'dirty'):
+            self.resource.dirty = dirty
+            
+    def to_rdf(self, value):
+        if hasattr(self.resource, 'to_rdf'):
+            return self.resource.to_rdf(value)
+        return value_to_rdf(value)
+    
     def __setitem__(self, key, value):
-        if hasattr(self.resource, 'value_set_item'):
-            self.resource.value_set_item(key, value, self.predicate, self.direct)
+        self.rdf_values[key] = self.to_rdf(item_value)
+        self.set_dirty(True)
         list.__setitem__(self, key, value)
         
     def __delitem__(self, key):
-        if hasattr(self.resource, 'value_del_item'):
-            self.resource.value_del_item(key, self.predicate, self.direct)
+        del self.rdf_values[key]
+        self.set_dirty(True)
         list.__delitem__(self, key)
     
-    # implement the other list methods 
+    def append(self, value):
+        self.rdf_values.append(self.to_rdf(value))
+        self.set_dirty(True)
+        list.append(self, value)
+        
+    def extend(self, L):
+        self.rdf_values.extend([self.to_rdf(value) for value in L])
+        self.set_dirty(True)
+        list.extend(self, L)
+        
+    def insert(self, i, value):
+        self.rdf_values.insert(i, self.to_rdf(value))
+        self.set_dirty(True)
+        list.insert(self, i, value)
+        
+    def remove(self, value):
+        self.rdf_values.remove(self.to_rdf(value))
+        self.set_dirty(True)
+        list.remove(self, value)
+        
+    def pop(self, i = -1):
+        self.rdf_values.pop(i)
+        self.set_dirty(True)
+        list.pop(self, i)
+    

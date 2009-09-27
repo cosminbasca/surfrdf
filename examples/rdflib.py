@@ -6,16 +6,6 @@ store = Store(  reader='rdflib',
 
 session = Session(store)
 
-Person = session.get_class(ns.FOAF['Person'])
-
-toms = Person()
-cosmin = Person()
-peteris = Person()
-jonas = Person()
-
-toms.foaf_knows = [cosmin, peteris]
-toms.foaf_knows[2] = jonas
-
 #print 'load : http://bigasterisk.com/foaf.rdf'
 #store.load_triples(source='http://bigasterisk.com/foaf.rdf')
 print 'load : http://www.w3.org/People/Berners-Lee/card.rdf'

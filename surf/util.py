@@ -41,6 +41,8 @@ import new
 from uuid import uuid4
 from urlparse import urlparse
 from rdflib.URIRef import URIRef
+from rdflib.Literal import Literal
+from datetime import datetime, date, time
 
 pattern_direct = re.compile('^[a-z0-9]{1,}_[a-zA-Z0-9_]{1,}$', re.DOTALL)
 pattern_inverse = re.compile('^is_[a-z0-9]{1,}_[a-zA-Z0-9_]{1,}_of$', re.DOTALL)
@@ -215,3 +217,23 @@ def pretty_rdf(uri):
             pretty = NS.lower()+':'+symbol
         return pretty
     return ''
+
+def value_to_rdf(value):
+    '''converts the value to an `rdflib` compatible type if appropriate'''
+    if type(value) in [str, unicode, basestring, float, int, long, bool, datetime, date, time]:
+        return Literal(value)
+    elif type(value) in [list, tuple]:
+        language = value[1] if len(value) > 1 else None
+        datatype = value[2] if len(value) > 2 else None
+        return Literal(value[0],lang=language,datatype=datatype)
+    elif type(value) is dict:
+        val = value['value'] if 'value' in value else None
+        language = value['language'] if 'language' in value else None
+        datatype = value['datatype'] if 'datatype' in value else None
+        if val:
+            return Literal(val,lang=language,datatype=datatype)
+        return value
+    return value
+
+
+    

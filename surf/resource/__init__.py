@@ -45,7 +45,6 @@ from surf.util import *
 from surf.rest import *
 from surf.serializer import to_json
 from weakref import WeakKeyDictionary
-from datetime import datetime, date, time
 
 # the rdf way
 #from rdf.term import URIRef, Literal, BNode, RDF, RDFS, XSD
@@ -171,7 +170,12 @@ class Resource(object):
     namespaces = property(fget = lambda self: self.__namespaces)
     '''the namespaces'''
     
-    dirty = property(fget = lambda self: self.__dirty)
+    def set_dirty(self, dirty):
+        if type(dirty) is bool:
+            self.__dirty = dirty
+        else:
+            raise ValueError('Value must be of type bool not <%s>'%type(dirty))
+    dirty = property(fget = lambda self: self.__dirty, fset = set_dirty)
     '''reflects the `dirty` state of the resource'''
     
     rdf_direct = property(fget = lambda self: self.__rdf_direct)
@@ -227,33 +231,14 @@ class Resource(object):
                 return i
         return None
     
-    def value_to_rdf(self,value):
-        '''
-        for **internal** use, converts the value to an RDFLib compatible type if appropriate
-        '''
-        if type(value) in [str, unicode, basestring, float, int, long, bool, datetime, date, time]:
-            return Literal(value)
-        elif type(value) in [list, tuple]:
-            language = value[1] if len(value) > 1 else None
-            datatype = value[2] if len(value) > 2 else None
-            return Literal(value[0],lang=language,datatype=datatype)
-        elif type(value) is dict:
-            val = value['value'] if 'value' in value else None
-            language = value['language'] if 'language' in value else None
-            datatype = value['datatype'] if 'datatype' in value else None
-            if val:
-                return Literal(val,lang=language,datatype=datatype)
-            return value
-        return value
-    
-    def to_rdf_internal(self, value):
+    @classmethod
+    def to_rdf(cls,value):
+        '''converts any value to it's appropriate `rdflib` construct'''
         if type(value) is ResourceMeta:
             return value.uri
-        elif hasattr(value,'subject'):
+        elif hasattr(value, 'subject'):
             return value.subject
-        elif type(value) not in [URIRef, BNode, Literal]:
-            return self.value_to_rdf(value)
-        return value
+        return value_to_rdf(value)
     
     #TODO: add the auto_persist feature...
     def __setattr__(self,name,value):
@@ -266,24 +251,19 @@ class Resource(object):
         '''
         predicate, direct = attr2rdf(name)
         if predicate:
+            rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
+            rdf_dict[predicate] = []
+            rdf_dict[predicate].extend([self.to_rdf(val) for val in value])
+            self.__dirty = True
+            
             if type(value) is ResourceValue:
                 pass
             else:
                 if type(value) not in [list, tuple]: value = [value]
-                value = map(self.value_to_rdf,value)
-                value = ResourceValue(value, self, predicate, direct)
-            
-            rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
-            rdf_dict[predicate] = []
-            rdf_dict[predicate].extend([self.to_rdf_internal(val) for val in value])
-            self.__dirty = True
+                value = map(value_to_rdf,value)
+                value = ResourceValue(value, self, rdf_dict[predicate])
+                
         object.__setattr__(self,name,value)
-        
-    def value_set_item(self,key, value, predicate, direct):
-        item_value = self.value_to_rdf(value)
-        rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
-        rdf_dict[predicate][key] = item_value.subject if hasattr(item_value,'subject') else item_value
-        self.__dirty = True
             
     #TODO: add the auto_persist feature...
     def __delattr__(self,attr_name):
@@ -302,11 +282,6 @@ class Resource(object):
             self.__dirty = True
         object.__delattr__(self,attr_name)
     
-    def value_del_item(key, predicate, direct):
-        rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
-        del rdf_dict[predicate][key]
-        self.__dirty = True
-    
     # TODO: reuse already existing instances - CACHED
     # TODO: shoud we raise an error when predicate not foud ? or just return an empty list ? hmmm --- error :]
     def __getattr__(self,attr_name):
@@ -321,12 +296,10 @@ class Resource(object):
         if predicate:
             values = self.session[self.store_key].get(self, predicate, direct)
             surf_values = self._lazy(values)
-            if len(surf_values) == 0:
-                #raise ValueError('the specified attribute <%s> does not exist for the current resource <%s>'%(attr_name,self.subject))
-                #attr_value = None
-                attr_value = ResourceValue([], self, predicate, direct)
-            else:
-                attr_value = ResourceValue(surf_values, self, predicate, direct)
+            rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
+            
+            attr_value = ResourceValue(surf_values, self, rdf_dict[predicate])
+            
             self.__setattr__(attr_name,attr_value)
             self.__dirty = False
         else:
@@ -638,6 +611,4 @@ class Resource(object):
         '''returns True if the two `resources` have the same `subject` and are both
         of type `Resource`, False otherwise'''
         return self.subject == other.subject if isinstance(other, Resource) else False
-    
-
     
