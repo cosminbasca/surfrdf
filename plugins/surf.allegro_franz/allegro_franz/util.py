@@ -64,7 +64,10 @@ try:
                         dtype = URIRef(dtype)
                     else:
                         dtype = URIRef(dtype)
-                return Literal(term.getLabel(),lang=term.getLanguage(),datatype=dtype)
+                    
+                    return Literal(term.getLabel(), lang=term.getLanguage(),
+                                   datatype=dtype)
+                    
             except Exception, e:
                 print e
         elif type(term) is fBNode:
