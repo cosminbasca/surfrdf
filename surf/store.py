@@ -110,6 +110,16 @@ class Store(object):
     use_subqueries = property(fget = lambda self: self.reader.use_subqueries if hasattr(self.reader,'use_subqueries') else False)
     '''True if the `reader` plugin is using sub queries, False otherwise'''
     
+    def __add_default_context(self, context):
+        """ Return default context if context is None. """
+
+        if context == NO_CONTEXT:
+            context = None
+        elif not context:
+            context = self.__default_context
+        
+        return context
+    
     def enable_logging(self,enable):
         '''Toggle `loggin` on or off'''
         
@@ -160,37 +170,26 @@ class Store(object):
             full = False, context = None):
         ''':func:`surf.plugin.reader.RDFReader.all` method'''
         
-        if context == NO_CONTEXT:
-            context = None
-        elif not context:
-            context = self.__default_context
-        
+        context = self.__add_default_context(context)
         return self.reader.all(concept, limit = limit, offset = offset,
                                full = full, context = context)
         
-    def concept(self,resource):
+    def concept(self, resource):
         ''':func:`surf.plugin.reader.RDFReader.concept` method'''
+        
         return self.reader.concept(resource)
         
     def instances_by_attribute(self, resource, attributes, direct, context):
         ''':func:`surf.plugin.reader.RDFReader.instances_by_attribute` method'''
 
-        if context == NO_CONTEXT:
-            context = None
-        elif not context:
-            context = self.__default_context
-        
+        context = self.__add_default_context(context)
         return self.reader.instances_by_attribute(resource, attributes, 
                                                   direct, context)
         
     def instances(self, resource, direct, filter, predicates, context):
         ''':func:`surf.plugin.reader.RDFReader.instances` method'''
         
-        if context == NO_CONTEXT:
-            context = None
-        elif not context:
-            context = self.__default_context
-            
+        context = self.__add_default_context(context)
         return self.reader.instances(resource, direct, filter, predicates, 
                                      context)
         
@@ -204,12 +203,14 @@ class Store(object):
     
     def execute(self,query):
         ''':func:`surf.plugin.reader.RDFQueryReader.execute` method'''
+        
         if hasattr(self.reader,'execute') and type(query) is Query:
             return self.reader.execute(query)
         return None
     
     def execute_sparql(self,sparql_query, format = 'JSON'):
         ''':func:`surf.plugin.reader.RDFQueryReader.execute_sparql` method'''
+        
         if hasattr(self.reader,'execute_sparql') and type(sparql_query) in [str,unicode]:
             return self.reader.execute_sparql(sparql_query, format = format)
         return None
@@ -250,20 +251,27 @@ class Store(object):
     def add_triple(self, s = None, p = None, o = None, context = None):
         '''see :func:`surf.plugin.writer.RDFWriter.add_triple` method'''
         
+        context = self.__add_default_context(context)
         self.writer.add_triple(s = s, p = p, o = o, context = context)
     
-    def set_triple(self,s=None,p=None,o=None, context=None):
+    def set_triple(self,s = None, p = None, o = None, context = None):
         '''see :func:`surf.plugin.writer.RDFWriter.set_triple` method'''
-        self.writer.set_triple(s=s,p=p,o=o,context=context)
+
+        context = self.__add_default_context(context)
+        self.writer.set_triple(s = s, p = p, o = o, context = context)
     
-    def remove_triple(self,s=None,p=None,o=None, context=None):
+    def remove_triple(self, s = None, p = None, o = None, context = None):
         '''see :func:`surf.plugin.writer.RDFWriter.remove_triple` method'''
-        self.writer.remove_triple(s=s,p=p,o=o,context=context)
+
+        context = self.__add_default_context(context)
+        self.writer.remove_triple(s = s, p = p, o = o, context = context)
     
-    def index_triples(self,**kwargs):
+    def index_triples(self, **kwargs):
         '''see :func:`surf.plugin.writer.RDFWriter.index_triples` method'''
+        
         return self.writer.index_triples(**kwargs)
         
-    def load_triples(self,**kwargs):
+    def load_triples(self, **kwargs):
         '''see :func:`surf.plugin.writer.RDFWriter.load_triples` method'''
+        
         return self.writer.load_triples(**kwargs)
