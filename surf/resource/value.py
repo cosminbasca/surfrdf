@@ -41,13 +41,16 @@ class ResourceValue(list):
     def __init__(self,sequence,resource,rdf_values):
         list.__init__(self,sequence)
         self.resource = resource
-        self.rdf_values =rdf_values
+        self.rdf_values = rdf_values
 
     def get_one(self):
         if len(self) == 1:
             return self[0]
-        else:
+        elif len(self) == 0:
+            raise Exception('list is empty')
+        else: 
             raise Exception('list has more elements than one')
+            
     one = property(fget = get_one)
     
     def get_first(self):

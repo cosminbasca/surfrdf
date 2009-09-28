@@ -233,7 +233,8 @@ class Resource(object):
     
     @classmethod
     def to_rdf(cls,value):
-        '''converts any value to it's appropriate `rdflib` construct'''
+        '''Convert any value to it's appropriate `rdflib` construct'''
+        
         if type(value) is ResourceMeta:
             return value.uri
         elif hasattr(value, 'subject'):
@@ -241,17 +242,22 @@ class Resource(object):
         return value_to_rdf(value)
     
     #TODO: add the auto_persist feature...
-    def __setattr__(self,name,value):
+    def __setattr__(self, name, value):
         '''
-        the `set` method - responsible for *caching* the `value` to the coresponding
-        object attribute given by `name`
+        The `set` method - responsible for *caching* the `value` to the 
+        corresponding object attribute given by `name`.
         
-        note: this method sets the state of the resource to *dirty* (the `resource`
-        will be persisted if the `commit` `session` method is called)
+        Note: this method sets the state of the resource to *dirty* 
+        (the `resource` will be persisted if the `commit` `session` method 
+        is called).
+        
         '''
+        
         predicate, direct = attr2rdf(name)
         if predicate:
             rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
+            if not isinstance(value, list):
+                value = [value]
             rdf_dict[predicate] = []
             rdf_dict[predicate].extend([self.to_rdf(val) for val in value])
             self.__dirty = True
@@ -298,7 +304,8 @@ class Resource(object):
             surf_values = self._lazy(values)
             rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
             
-            attr_value = ResourceValue(surf_values, self, rdf_dict[predicate])
+            attr_value = ResourceValue(surf_values, self, 
+                                       rdf_dict.get(predicate, {}))
             
             self.__setattr__(attr_name,attr_value)
             self.__dirty = False
