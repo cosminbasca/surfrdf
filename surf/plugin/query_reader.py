@@ -241,7 +241,10 @@ class RDFQueryReader(RDFReader):
         for row in results_table:
             data = results
             for i in range(len(keys)-1):
-                v = row[keys[i]]
+                k = keys[i]
+                if k not in row:
+                    continue
+                v = row[k]
                 if i < last:
                     if v not in data:
                         data[v] = {}

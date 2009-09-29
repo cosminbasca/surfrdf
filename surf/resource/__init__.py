@@ -398,7 +398,7 @@ class Resource(object):
         pair specified using `**symbols`, the method also supports `filters`.
         
         '''
-
+        
         predicates_d = {}
         predicates_d.update( [(attr2rdf(name)[0],symbols[name]) for name in symbols if is_attr_direct(name)])
         predicates_i = {}
