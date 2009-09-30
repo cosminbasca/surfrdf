@@ -142,11 +142,70 @@ class ResourceMeta(type):
 
 class Resource(object):
     """
-    The Resource class, represents the transparent proxy object that exposes sets of
-    RDF triples under the form of <s,p,o> and <s',p,s> as an object in python,
-    one can create resource directly by instantiating this class, but it is advisable
-    to use the session to do so, as the session will create subclasses of Resource based
-    on the <s,rdf:type,`concept`> pattern
+    The Resource class, represents the transparent proxy object that exposes 
+    sets of RDF triples under the form of <s,p,o> and <s',p,s> as an object 
+    in python.
+    
+    One can create resource directly by instantiating this class, but it is 
+    advisable to use the session to do so, as the session will create 
+    subclasses of Resource based on the <s,rdf:type,`concept`> pattern.
+    
+    Triples that constitute a resource can be accessed via Resource instance
+    attributes. SuRF uses the following naming convention for attribute names:
+    *nsprefix_predicate*. Attribute name examples: "rdfs_label", "foaf_name",
+    "owl_Class".
+    
+    Resource instance attributes can be set and get. If get, they will 
+    be structures of type :class:`ResourceValue`. This class is subclass of 
+    `list` (to handle situations when there are several triples with the
+    same subject and predicate but different objects) and have some some 
+    special features. Since `ResourceValue` is subtype of list, it can be
+    iterated, sliced etc.
+    
+    :meth:`ResourceValue.first` will return first element of list or `None`
+    if list is empty::
+    
+        >>> resource.foaf_knows = [URIRef("http://p1"), URIRef("http://p2")]
+        >>> resource.foaf_knows.first
+        rdflib.URIRef('http://p1')
+
+    :meth:`ResourceValue.one` will return first element of list or will
+    raise if list is empty or has more than one element::
+    
+    
+        >>> resource.foaf_knows = [URIRef("http://p1"), URIRef("http://p2")]
+        >>>resource.foaf_knows.one
+        Traceback (most recent call last):
+            ....
+        Exception: list has more elements than one
+    
+    When setting resource attribute, it will accept about anything and 
+    translate it to `ResourceValue`. Attribute can be set to instance 
+    of `URIRef`::
+    
+        >>> resource.foaf_knows = URIRef("http://p1")
+        >>> resource.foaf_knows
+        [rdflib.URIRef('http://p1')]
+        
+    Attribute can be set to list or tuple::
+    
+        >>> resource.foaf_knows = (URIRef("http://p1"), URIRef("http://p2")) 
+        >>> resource.foaf_knows
+        [rdflib.Literal(u'http://p1', lang=rdflib.URIRef('http://p2'))]
+        
+    Attribute can be set to string, integer, these will be converted into
+    instances of `Literal`::
+    
+        >>> resource.foaf_name = "John"
+        >>> resource.foaf_name
+        [rdflib.Literal(u'John')]
+        
+    Attribute can be set to another SuRF resource. Values of different types
+    can be mixed::
+    
+        >>> resource.foaf_knows = (URIRef("http://p1"), another_resource) 
+        >>> resource.foaf_knows
+        [rdflib.URIRef('http://p1'), <surf.session.FoafPerson object at 0xad049cc>]
     
     """
     
@@ -498,8 +557,8 @@ class Resource(object):
         
         Example::
         
-            Person = session.get_class(surf.ns.FOAF['Person'])
-            johns = Person.get_by(foaf_name = u"John") 
+            >>> Person = session.get_class(surf.ns.FOAF['Person'])
+            >>> johns = Person.get_by(foaf_name = u"John") 
         
         """
         
