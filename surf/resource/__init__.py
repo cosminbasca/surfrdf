@@ -482,8 +482,8 @@ class Resource(object):
         `instances` that are of the `rdf:type` as the resource class. Instances
         are returned in no particular order.
         
-        If parameter ``full`` is present, returned instances will be already
-        loaded (as if :meth:`Resource.load()` was executed on each of them).
+        If parameter ``full`` is present, returned instances will have
+        direct attributes already loaded.
         
         """
         

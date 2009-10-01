@@ -44,6 +44,7 @@ from SPARQLWrapper.SPARQLExceptions import EndPointNotFound, QueryBadFormed, SPA
 # the rdf way
 #from rdf.term import URIRef, BNode, Literal
 # the rdflib 2.4.x way
+from rdflib import ConjunctiveGraph
 from rdflib.URIRef import URIRef
 from rdflib.BNode import BNode
 from rdflib.Literal import Literal
@@ -108,6 +109,9 @@ class ReaderPlugin(RDFQueryReader):
     def _toRdflib(self,results):
         """Convert the result dict to rdfLib types."""
         
+        if isinstance(results, ConjunctiveGraph):
+            return results        
+
         if results:
             if results.has_key('results'):
                 for i in range(len(results['results']['bindings'])):
