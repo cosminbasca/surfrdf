@@ -179,7 +179,7 @@ class RDFReader(Plugin):
     def concept(self, resource):
         """ Return the `concept` URI of the following `resource`.
         
-        `resource` can be a `string` or a `URIRef`.__builtins__
+        `resource` can be a `string` or a `URIRef`.
         
         """
         
