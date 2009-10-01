@@ -6,14 +6,15 @@ The `sparql_protocol` Plugin
     :widths: 20, 20, 60
     
     `endpoint`, `None`, the SPARQL http endpoint location where the server is accessible
-    `default_graph`, `None`, the default GRAPH to be queried against (this is useful in particular for the `virtuoso` RDF store)
+    `default_context`, `None`, the default context (graph) to be queried against (this is useful in particular for the `virtuoso` RDF store).
     
 the parameters are passed as key-value arguments to the :class:`surf.store.Store` class
 
 .. code-block:: python
 
-    s = Store(  reader          =   'sparql_protocol',
-                endpoint        =   'http://dbpedia.org/sparql',
-                default_graph   =   'http://dbpedia.org')
+    s = Store(  reader          =   "sparql_protocol",
+                writer          =   "sparql_protocol",
+                endpoint        =   "http://dbpedia.org/sparql",
+                default_graph   =   "http://dbpedia.org")
         
         

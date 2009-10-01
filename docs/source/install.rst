@@ -7,6 +7,7 @@ to install **SuRF** execute the following commands (if you have `setuptools` ins
 
     >>> easy_install -U surf
     >>> easy_install -U surf.allegro_franz
+    >>> easy_install -U surf.rdflib
     >>> easy_install -U surf.sesame2
     >>> easy_install -U surf.sparql_protocol
     
