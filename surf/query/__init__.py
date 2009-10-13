@@ -35,13 +35,9 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-# the rsf way
-#from rdf.graph import Graph, ConjunctiveGraph
-#from rdf.term import URIRef, Literal, BNode, RDF, RDFS
-#from rdf.namespace import Namespace
+import logging
+import re
 
-
-# the rdflib 2.4.x way
 from rdflib.Namespace import Namespace
 from rdflib.Graph import Graph, ConjunctiveGraph
 from rdflib.URIRef import URIRef
@@ -49,7 +45,6 @@ from rdflib.BNode import BNode
 from rdflib.Literal import Literal
 from rdflib.RDF import RDFNS as RDF
 from rdflib.RDFS import RDFSNS as RRDFS
-import logging
 
 a = RDF['type']
 
@@ -274,8 +269,12 @@ class Query(object):
     
     def order_by(self, *vars):
         """ Add *ORDER_BY* modifier to query. """
+        
+        pattern = re.compile("(asc|desc)\(\?\w+\)", re.I)
+        for var in vars:
+            if re.match(pattern, var):
+                self._order_by.append(var)
 
-        self._order_by.extend([var for var in vars if type(var) in [str, unicode] and var.startswith('?')])
         return self
     
 def validate_statement(statement):
