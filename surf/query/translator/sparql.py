@@ -66,7 +66,7 @@ class SparqlTranslator(QueryTranslator):
         if query.query_type == DESCRIBE:
             query_type = "DESCRIBE"
             
-        rep = '%(query_type)s %(modifier)s %(vars)s %(from_)s WHERE { %(where)s } %(limit)s %(offset)s %(order_by)s'
+        rep = '%(query_type)s %(modifier)s %(vars)s %(from_)s WHERE { %(where)s } %(order_by)s %(limit)s %(offset)s '
         modifier    = query.query_modifier.upper() if query.query_modifier else ''
         limit       = ' LIMIT %d '%(query.query_limit) if query.query_limit else ''
         offset      = ' OFFSET %d '%(query.query_offset) if query.query_offset else ''
