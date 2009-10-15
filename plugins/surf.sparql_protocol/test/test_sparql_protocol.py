@@ -106,7 +106,7 @@ class TestSparqlProtocol(TestCase):
         jane.foaf_name = "Jane"
         jane.save()
 
-        persons = Person.all(context = context)
+        persons = list(Person.all().context(context))
         self.assertAlmostEquals(len(persons), 1)
 
         persons = Person.get_by(foaf_name = Literal("Jane"), context = context)
@@ -115,4 +115,35 @@ class TestSparqlProtocol(TestCase):
         persons = Person.get_by_attribute(["foaf_name"], context = context)
         self.assertAlmostEquals(len(persons), 1)
 
+    def test_get_by(self):
+        """ Test reader.get_by() """
         
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        
+        jay = session.get_resource("http://jay", Person)
+        jay.foaf_name = "Jay"
+        jay.save()
+
+        joe = session.get_resource("http://joe", Person)
+        joe.foaf_name = "Joe"
+        joe.save()
+
+        persons = Person.all().get_by(foaf_name = Literal("Jay"))
+        persons = list(persons) 
+        self.assertTrue(persons[0].foaf_name.first, "Jay")
+
+    def test_full(self):
+        """ Test subqueries. """
+        
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        
+        mary = session.get_resource("http://mary", Person)
+        mary.foaf_name = "Mary"
+        mary.save()
+
+        persons = Person.all().get_by(foaf_name = Literal("Mary")).full()
+        persons = list(persons) 
+        self.assertTrue(len(persons[0].rdf_direct) > 1)
+

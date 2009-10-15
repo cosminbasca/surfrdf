@@ -41,6 +41,7 @@ from surf.namespace import *
 from surf.query import Query
 from surf.store import Store
 from surf.resource.value import ResourceValue
+from surf.resource.result_proxy import ResultProxy
 from surf.util import *
 from surf.rest import *
 from surf.serializer import to_json
@@ -486,6 +487,24 @@ class Resource(object):
         direct attributes already loaded.
         
         """
+        
+        store = cls.session[cls.store_key]
+        
+        def instancemaker(params, instance_data):
+            print instance_data
+            subject, data = instance_data
+            instance = cls(subject)    
+            if "context" in params:
+                instance.context = params["context"]
+
+            instance.__set_predicate_values(data.get("direct", {}), True)
+            instance.__set_predicate_values(data.get("inverse", {}), False)
+
+            return instance
+        
+        proxy = ResultProxy(store = store, instancemaker = instancemaker)
+        return proxy.get_by(rdf_type = cls.uri)
+        
         
         if not hasattr(cls,'uri') or cls == Resource:
             return []

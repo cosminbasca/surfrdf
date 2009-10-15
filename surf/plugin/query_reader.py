@@ -215,6 +215,62 @@ class RDFQueryReader(RDFReader):
         
         result = self._execute(query)
         return self.convert(result, 's', 'c')
+
+    def _get_by(self, params):
+        unhandled = set(params.keys())
+        
+        query = select("?s")
+
+        if "limit" in params:
+            query.limit(params["limit"])
+            unhandled.remove("limit")
+        
+        if "offset" in params:
+            query.offset(params["offset"])
+            unhandled.remove("offset")
+
+        if "order" in params:
+            if params["order"] == True:
+                # Order by subject URI
+                query.order_by("?s")
+            else:
+                # Match another variable, order by it
+                query.optional_group(("?s", params["order"], "?o")) 
+                query.order_by("?o")
+            unhandled.remove("order")
+                
+        if "context" in params:
+            query.from_(params["context"])
+            unhandled.remove("context")
+            
+        if "get_by" in params:
+            for attribute, value, direct  in params["get_by"]:
+                if direct:
+                    query.where(("?s", attribute, value))
+                else:
+                    query.where((value, attribute, "?s"))
+            unhandled.remove("get_by")
+
+        if "full" in params:
+            unhandled.remove("full")
+
+            # Load details, for now the simplest approach with N queries. 
+            results = []
+            for subject in self.convert(self._execute(query), 's'):
+                details_query = select("?p", "?v", "?c")
+                details_query.where((subject, "?p", "?v"))
+                details_query.optional_group(("?v", a, "?c"))
+                
+                result = self._execute(details_query)
+                result = self.convert(result, 'p', 'v', 'c')
+                
+                results.append((subject, { "direct" : result }))
+            
+            return results
+        else:
+            # Load just subjects
+            subjects = self.convert(self._execute(query), 's')
+            return [(subject, {}) for subject in subjects]
         
     def _instances_by_value(self, concept, direct, attributes):
         query = query_P_V(concept, direct, p = attributes)

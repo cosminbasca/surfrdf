@@ -202,6 +202,10 @@ class Store(object):
         context = self.__add_default_context(context)
         return self.reader.instances(resource, direct, filter, predicates, 
                                      context)
+
+    def get_by(self, params):
+        params["context"] = self.__add_default_context(params.get("context"))
+        return self.reader.get_by(params)
         
     def instances_by_value(self, resource, direct, attributes):
         """ :func:`surf.plugin.reader.RDFReader.instances_by_value` method. """
