@@ -439,8 +439,8 @@ class Resource(object):
         
         results_d = self.session[self.store_key].load(self, True)
         results_i = self.session[self.store_key].load(self, False)
-        self.__set_predicate_values(results_d,True)
-        self.__set_predicate_values(results_i,False)
+        self.__set_predicate_values(results_d, True)
+        self.__set_predicate_values(results_i, False)
         self.__dirty = False
         
     def __set_predicate_values(self, results, direct):
@@ -474,37 +474,32 @@ class Resource(object):
             if type(s) is URIRef:
                 instances.append(cls._instance(s,[cls.uri] if cls.uri else types))
         return instances if len(instances) > 0 else []
-        
+    
     @classmethod
-    def all(cls, offset = None, limit = None, full = False, context = None):
-        """Retrieve all or limited number of `instances`.
-        
-        Retrieve all (or just a limited number from the specified offset) 
-        `instances` that are of the `rdf:type` as the resource class. Instances
-        are returned in no particular order.
-        
-        If parameter ``full`` is present, returned instances will have
-        direct attributes already loaded.
-        
-        """
+    def __instancemaker(cls, params, instance_data):
+        """ Construct resource from `instance_data`, return it. """
+
+        subject, data = instance_data
+        instance = cls(subject)    
+        if "context" in params:
+            instance.context = params["context"]
+
+        instance.__set_predicate_values(data.get("direct", {}), True)
+        instance.__set_predicate_values(data.get("inverse", {}), False)
+
+        return instance
+      
+    @classmethod
+    def all(cls):
+        """ Retrieve all or limited number of `instances`. """
 
         if not hasattr(cls, 'uri') or cls == Resource:
             return []
         
         store = cls.session[cls.store_key]
+        proxy = ResultProxy(store = store, 
+                            instancemaker = cls.__instancemaker)
         
-        def instancemaker(params, instance_data):
-            subject, data = instance_data
-            instance = cls(subject)    
-            if "context" in params:
-                instance.context = params["context"]
-
-            instance.__set_predicate_values(data.get("direct", {}), True)
-            instance.__set_predicate_values(data.get("inverse", {}), False)
-
-            return instance
-        
-        proxy = ResultProxy(store = store, instancemaker = instancemaker)
         return proxy.get_by(rdf_type = cls.uri)
         
     @classmethod
@@ -546,7 +541,7 @@ class Resource(object):
         return instances if len(instances) > 0 else []
         
     @classmethod
-    def get_by(cls, context = None, *objects, **symbols):
+    def get_by(cls, **filters):
         """ Retrieve all instances that match specified filters and class.
         
         Filters are specified as keyword arguments, argument names follow SuRF
@@ -559,7 +554,16 @@ class Resource(object):
         
         """
         
-        return cls.__get(None, context, *objects, **symbols)
+        if not hasattr(cls, "uri") or cls == Resource:
+            return []
+        
+        store = cls.session[cls.store_key]
+        filters = filters.copy()
+        filters["rdf_type"] = cls.uri
+        proxy = ResultProxy(store = store, 
+                            instancemaker = cls.__instancemaker)
+
+        return proxy.get_by(**filters)
     
     @classmethod
     def get_like(cls, context = None, *objects, **symbols):

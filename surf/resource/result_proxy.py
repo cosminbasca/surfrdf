@@ -1,6 +1,10 @@
 from surf.util import attr2rdf
 # hello
 
+class CardinalityException(Exception):
+    """ Used by ResultProxy.one() when list length != 1. """
+    pass
+
 class ResultProxy(object):
     def __init__(self, params = {}, store = None, instancemaker = None):
         self.__params = params
@@ -64,20 +68,53 @@ class ResultProxy(object):
     
     def __execute(self):
         store = self.__params["store"]
-        
+
         get_by_args = {}
         for key in ["limit", "offset", "full", "order", "desc", "get_by", 
                     "only_direct", "context"]:
             if key in self.__params:
                 get_by_args[key] = self.__params[key]
         
-        instancemaker = self.__params["instancemaker"]
         if self.__data_cache is None:
             self.__data_cache = store.get_by(get_by_args)
 
+        instancemaker = self.__params["instancemaker"]
         for instance_data in self.__get_data_cache():
             yield instancemaker(get_by_args, instance_data)
 
         
     def __iter__(self):
         return self.__execute()
+
+    def first(self):
+        """ Return first resource or None if there aren't any. """
+        
+        item = None
+        try:
+            item = iter(self).next()
+        except StopIteration:
+            pass
+        
+        return item
+
+    def one(self):
+        """ Return the only resource or raise if resource count != 1. """
+        
+        iterator = iter(self)
+        try:
+            item = iterator.next()
+        except StopIteration:
+            raise CardinalityException("List is empty")
+        
+        try:
+            iterator.next()
+        except StopIteration:
+            # As expected, return item
+            return item
+        
+        raise CardinalityException("List has more than one item")
+        
+        
+        
+        
+        

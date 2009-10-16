@@ -5,6 +5,7 @@ from rdflib.Literal import Literal
 from unittest import TestCase
 
 import surf
+from surf.resource.result_proxy import CardinalityException
 
 class TestSparqlProtocol(TestCase):
     """ Tests for sparql_protocol plugin. """
@@ -113,8 +114,8 @@ class TestSparqlProtocol(TestCase):
         persons = list(Person.all().context(context))
         self.assertAlmostEquals(len(persons), 1)
 
-        persons = Person.get_by(foaf_name = Literal("Jane"), context = context)
-        self.assertAlmostEquals(len(persons), 1)
+        persons = Person.get_by(foaf_name = Literal("Jane")).context(context)
+        self.assertAlmostEquals(len(list(persons)), 1)
 
         persons = Person.get_by_attribute(["foaf_name"], context = context)
         self.assertAlmostEquals(len(persons), 1)
@@ -197,5 +198,21 @@ class TestSparqlProtocol(TestCase):
         Person = session.get_class(surf.ns.FOAF + "Person")
         person = Person.all().first()
         self.assertEquals(person.subject, URIRef("http://john"))
+        
+    def test_one(self):
+        """ Test ResourceProxy.one(). """
+
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        person = Person.all().one()
+        self.assertEquals(person.subject, URIRef("http://john"))
+        
+        mary = session.get_resource("http://mary", Person)
+        mary.foaf_name = "Mary"
+        mary.is_foaf_knows_of = URIRef("http://someguy")
+        mary.save()
+        
+        # Now there are two persons and one() should fail
+        self.assertRaises(CardinalityException, Person.all().one)
         
         
