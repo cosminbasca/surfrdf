@@ -487,11 +487,13 @@ class Resource(object):
         direct attributes already loaded.
         
         """
+
+        if not hasattr(cls, 'uri') or cls == Resource:
+            return []
         
         store = cls.session[cls.store_key]
         
         def instancemaker(params, instance_data):
-            print instance_data
             subject, data = instance_data
             instance = cls(subject)    
             if "context" in params:
@@ -504,30 +506,6 @@ class Resource(object):
         
         proxy = ResultProxy(store = store, instancemaker = instancemaker)
         return proxy.get_by(rdf_type = cls.uri)
-        
-        
-        if not hasattr(cls,'uri') or cls == Resource:
-            return []
-        
-        store = cls.session[cls.store_key]
-        store_response = store.all(cls, limit = limit, offset = offset, 
-                                   full = full, context = context)
-
-        if store.use_subqueries and full:
-            direct = True # TODO: must implement for indirect as well
-            results = []
-            for subject, attrs_values in store_response.items():
-                obj = cls(subject, context = context)
-                obj.__set_predicate_values(attrs_values,direct)
-                results.append(obj) 
-        else:
-            results = []
-            for subject in store_response:
-                instance = cls(subject, context = context)
-                if full: instance.load()
-                results.append(instance)
-        
-        return results
         
     @classmethod
     def __get(cls, filter, context, *objects, **symbols):

@@ -270,7 +270,7 @@ class Query(object):
     def order_by(self, *vars):
         """ Add *ORDER_BY* modifier to query. """
         
-        pattern = re.compile("(asc|desc)\(\?\w+\)", re.I)
+        pattern = re.compile("(asc|desc)\(\?\w+\)|\?\w+", re.I)
         for var in vars:
             if re.match(pattern, var):
                 self._order_by.append(var)

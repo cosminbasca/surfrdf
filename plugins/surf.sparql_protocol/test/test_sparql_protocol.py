@@ -18,7 +18,7 @@ class TestSparqlProtocol(TestCase):
         store = surf.store.Store(reader = "sparql_protocol")
         store.reader._toRdflib(data)
         
-    def _get_store_session(self):
+    def _get_store_session(self, cleanup = True):
         """ Return initialized SuRF store and session objects. """
         
         # FIXME: take endpoint from configuration file,
@@ -27,23 +27,29 @@ class TestSparqlProtocol(TestCase):
                            writer = "sparql_protocol",
                            endpoint = "http://localhost:8890/sparql",
                            default_context = "http://surf_test_graph/dummy2")
+
         session = surf.Session(store)
+        if cleanup: 
+            # Fresh start!
+            store.clear("http://surf_test_graph/dummy2")
+        
+        # Some test data.
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        john = session.get_resource("http://john", Person)
+        john.foaf_name = "John"
+        john.foaf_surname = "Smith"
+        john.save()
+        
         return store, session
     
         
     def test_save_remove(self):
         """ Test that saving SuRF resource works.  """
         
-        # Save
         _, session = self._get_store_session()
-        Person = session.get_class(surf.ns.FOAF + "Person")
-        john = session.get_resource("http://john", Person)
-        john.foaf_name = "John"
-        john.foaf_surname = "Smith"
-        john.save()
                               
         # Read from different session.
-        _, session = self._get_store_session()
+        _, session = self._get_store_session(cleanup = False)
         Person = session.get_class(surf.ns.FOAF + "Person")
         john = session.get_resource("http://john", Person)
         self.assertEquals(john.foaf_name.one, "John")
@@ -51,23 +57,21 @@ class TestSparqlProtocol(TestCase):
         
         # Remove and try to read again.
         john.remove()
-        _, session = self._get_store_session()
-        Person = session.get_class(surf.ns.FOAF + "Person")
         john = session.get_resource("http://john", Person)
         self.assertEquals(john.foaf_name.first, None)
         self.assertEquals(john.foaf_surname.first, None)
-        
         
     def test_ask(self):
         """ Test ask method. """
         
         _, session = self._get_store_session()
+        
+        # ASK gets tested indirectly: resource.is_present uses ASK.
         Person = session.get_class(surf.ns.FOAF + "Person")
         john = session.get_resource("http://john", Person)
         john.remove()
-        
-        # ASK gets tested indirectly: resource.is_present uses ASK.
         self.assertTrue(not john.is_present())
+
         john.save()
         self.assertTrue(john.is_present())        
         
@@ -125,25 +129,73 @@ class TestSparqlProtocol(TestCase):
         jay.foaf_name = "Jay"
         jay.save()
 
-        joe = session.get_resource("http://joe", Person)
-        joe.foaf_name = "Joe"
-        joe.save()
-
         persons = Person.all().get_by(foaf_name = Literal("Jay"))
         persons = list(persons) 
         self.assertTrue(persons[0].foaf_name.first, "Jay")
 
     def test_full(self):
-        """ Test subqueries. """
+        """ Test loading details. """
         
         _, session = self._get_store_session()
         Person = session.get_class(surf.ns.FOAF + "Person")
         
         mary = session.get_resource("http://mary", Person)
         mary.foaf_name = "Mary"
+        mary.is_foaf_knows_of = URIRef("http://someguy")
         mary.save()
+
+        jane = session.get_resource("http://jane", Person)
+        jane.foaf_knows = mary
+        jane.save()
 
         persons = Person.all().get_by(foaf_name = Literal("Mary")).full()
         persons = list(persons) 
         self.assertTrue(len(persons[0].rdf_direct) > 1)
+        self.assertTrue(len(persons[0].rdf_inverse) > 0)
 
+        # Now, only direct
+        persons = Person.all().get_by(foaf_name = Literal("Mary")).full(only_direct = True)
+        persons = list(persons) 
+        self.assertTrue(len(persons[0].rdf_direct) > 1)
+        self.assertTrue(len(persons[0].rdf_inverse) == 0)
+
+    def test_order_limit_offset(self):
+        """ Test ordering by subject, limit, offset. """
+        
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        for i in range(0, 10):
+            person = session.get_resource("http://a%d" % i, Person)
+            person.foaf_name = "A%d" % i
+            person.save()
+
+        persons = Person.all().order().limit(2).offset(5)
+        uris = [person.subject for person in persons] 
+        self.assertEquals(len(uris), 2)
+        self.assertTrue(URIRef("http://a5") in uris)
+        self.assertTrue(URIRef("http://a6") in uris)
+
+    def test_order_by_attr(self):
+        """ Test ordering by attribute other than subject. """
+        
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        for i in range(0, 10):
+            person = session.get_resource("http://a%d" % i, Person)
+            person.foaf_name = "A%d" % (10 - i)
+            person.save()
+
+        sort_uri = URIRef(surf.ns.FOAF["name"])
+        persons = list(Person.all().order(sort_uri).limit(1))
+        self.assertEquals(len(persons), 1)
+        self.assertEquals(persons[0].subject, URIRef("http://a9"))
+        
+    def test_first(self):
+        """ Test ResourceProxy.first(). """
+
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        person = Person.all().first()
+        self.assertEquals(person.subject, URIRef("http://john"))
+        
+        

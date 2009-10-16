@@ -219,6 +219,7 @@ class RDFQueryReader(RDFReader):
     def _get_by(self, params):
         unhandled = set(params.keys())
         
+        context = None
         query = select("?s")
 
         if "limit" in params:
@@ -240,7 +241,8 @@ class RDFQueryReader(RDFReader):
             unhandled.remove("order")
                 
         if "context" in params:
-            query.from_(params["context"])
+            context = params["context"]
+            query.from_(context)
             unhandled.remove("context")
             
         if "get_by" in params:
@@ -257,14 +259,18 @@ class RDFQueryReader(RDFReader):
             # Load details, for now the simplest approach with N queries. 
             results = []
             for subject in self.convert(self._execute(query), 's'):
-                details_query = select("?p", "?v", "?c")
-                details_query.where((subject, "?p", "?v"))
-                details_query.optional_group(("?v", a, "?c"))
+                instance_data = {}
                 
-                result = self._execute(details_query)
+                result = self._execute(query_S(subject, True, context))
                 result = self.convert(result, 'p', 'v', 'c')
+                instance_data["direct"] = result
+
+                if not params.get("only_direct"):
+                    result = self._execute(query_S(subject, False, context))
+                    result = self.convert(result, 'p', 'v', 'c')
+                    instance_data["inverse"] = result
                 
-                results.append((subject, { "direct" : result }))
+                results.append((subject, instance_data))
             
             return results
         else:
