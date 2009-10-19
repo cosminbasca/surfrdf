@@ -79,8 +79,10 @@ class ResourceMeta(type):
     @classmethod
     def _instance(cls, subject, vals, context = None):
         """
-        Create an instance from the `subject` and it's associated `concept` (`vals`) uri's
-        only the first `concept` uri is considered for inheritance
+        Create an instance from the `subject` and it's associated 
+        `concept` (`vals`) URIs.
+        
+        Only the first `concept` URI is considered for inheritance.
         
         """
         
@@ -375,7 +377,7 @@ class Resource(object):
             else:
                 if type(value) not in [list, tuple]: value = [value]
                 value = map(value_to_rdf,value)
-                value = ResourceValue(value, self, rdf_dict[predicate])
+                value = ResourceValue(value, self, rdf_dict[predicate], name)
                 
         object.__setattr__(self,name,value)
             
@@ -419,7 +421,7 @@ class Resource(object):
             rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
             
             attr_value = ResourceValue(surf_values, self, 
-                                       rdf_dict.get(predicate, {}))
+                                       rdf_dict.get(predicate, {}), attr_name)
             
             self.__setattr__(attr_name,attr_value)
             self.__dirty = False
@@ -480,9 +482,29 @@ class Resource(object):
         """ Construct resource from `instance_data`, return it. """
 
         subject, data = instance_data
-        instance = cls(subject)    
-        if "context" in params:
-            instance.context = params["context"]
+        # subject is either URIRef or Literal and we don't try to turn 
+        # literals into SuRF Resources
+        if not isinstance(subject, URIRef):
+            return subject
+        
+        rdf_type = None
+        # Let's see if rdf:type was specified in query parameters
+        for predicate, value, direct in params.get("get_by", []):
+            if predicate == a:
+                rdf_type = value
+                break
+            
+        # In results?
+        if not rdf_type and "direct" in data and a in data["direct"]:
+            rdf_type = data["direct"][a].keys()[0]
+
+        if rdf_type is None:
+            # We don't know rdf:type, so cannot instantiate Resource,
+            # return URIRef instead
+            return subject
+        
+        context = params.get("context", None)
+        instance = cls._instance(subject, [rdf_type], context = context)    
 
         instance.__set_predicate_values(data.get("direct", {}), True)
         instance.__set_predicate_values(data.get("inverse", {}), False)
@@ -525,10 +547,6 @@ class Resource(object):
             if len(predicates_i) > 0:
                 subjects.update(cls.session[cls.store_key].instances(cls, False, filter, predicates_i, context))
         
-        #if len(objects) > 0:
-        #    subjects.update(cls.store().o(True,cls.uri(),filter,objects))
-        #    subjects.update(cls.store().o(False,cls.uri(),filter,objects))
-        
         instances = []
         for s, types in subjects.items():
             if type(s) is not URIRef:
@@ -564,6 +582,23 @@ class Resource(object):
                             instancemaker = cls.__instancemaker)
 
         return proxy.get_by(**filters)
+    
+    def query_attribute(self, attribute_name):
+        """ Return ResultProxy for querying attribute values. """
+        
+        # If we want to get john.foaf_knows values, we have to formulate
+        # query like friends = get_by(is_foaf_knows_of = john), thus the
+        # attribute name inversion
+        uri, direct = attr2rdf(attribute_name)
+        inverse_attribute_name = str(rdf2attr(uri, not direct))
+
+        store = self.session[self.store_key]
+        proxy = ResultProxy(store = store, 
+                            instancemaker = self.__instancemaker)
+
+        kwargs = {inverse_attribute_name : self.subject}
+        return proxy.get_by(**kwargs)
+         
     
     @classmethod
     def get_like(cls, context = None, *objects, **symbols):

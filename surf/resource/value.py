@@ -35,13 +35,16 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-from surf.util import value_to_rdf
+from surf.resource.result_proxy import ResultProxy
+from surf.util import value_to_rdf, rdf2attr
 
 class ResourceValue(list):
-    def __init__(self,sequence,resource,rdf_values):
+    def __init__(self, sequence, resource, rdf_values, attribute_name = None):
         list.__init__(self,sequence)
         self.resource = resource
         self.rdf_values = rdf_values
+        # So we know which attribute this ResourceValue object represents
+        self.__attribute_name = attribute_name
 
     def get_one(self):
         if len(self) == 1:
@@ -103,4 +106,40 @@ class ResourceValue(list):
         self.rdf_values.pop(i)
         self.set_dirty(True)
         list.pop(self, i)
+    
+    # Shortcuts for querying attributes.
+    # It's syntactic sugar around resource.query_attribute(), so instead of 
+    #     >>> resource.query_attribute("foaf_knows").limit(3)
+    # we can use
+    #     >>> resource.foaf_knows.limit(3)  
+    
+    def __query_attribute(self):
+        return self.resource.query_attribute(self.__attribute_name)
+    
+    def limit(self, value):
+        return self.__query_attribute().limit(value)
+
+    def offset(self, value):
+        return self.__query_attribute().offset(value)
+    
+    def full(self, only_direct = False):
+        return self.__query_attribute().full(only_direct)
+    
+    def order(self, value = True):
+        return self.__query_attribute().order(value)
+    
+    def desc(self):
+        return self.__query_attribute().desc()
+    
+    def get_by(self, **kwargs):
+        return self.__query_attribute().get_by(**kwargs)
+
+    def context(self, context):
+        return self.__query_attribute().context(context)
+
+        
+        
+        
+        
+    
     

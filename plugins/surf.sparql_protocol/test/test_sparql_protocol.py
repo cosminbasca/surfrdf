@@ -34,12 +34,12 @@ class TestSparqlProtocol(TestCase):
             # Fresh start!
             store.clear("http://surf_test_graph/dummy2")
         
-        # Some test data.
         Person = session.get_class(surf.ns.FOAF + "Person")
-        john = session.get_resource("http://john", Person)
-        john.foaf_name = "John"
-        john.foaf_surname = "Smith"
-        john.save()
+        for name in ["John", "Mary"]:
+            # Some test data.
+            person = session.get_resource("http://%s" % name, Person)
+            person.foaf_name = name
+            person.save()
         
         return store, session
     
@@ -47,20 +47,16 @@ class TestSparqlProtocol(TestCase):
     def test_save_remove(self):
         """ Test that saving SuRF resource works.  """
         
-        _, session = self._get_store_session()
-                              
         # Read from different session.
         _, session = self._get_store_session(cleanup = False)
         Person = session.get_class(surf.ns.FOAF + "Person")
-        john = session.get_resource("http://john", Person)
+        john = session.get_resource("http://John", Person)
         self.assertEquals(john.foaf_name.one, "John")
-        self.assertEquals(john.foaf_surname.one, "Smith")
         
         # Remove and try to read again.
         john.remove()
-        john = session.get_resource("http://john", Person)
+        john = session.get_resource("http://John", Person)
         self.assertEquals(john.foaf_name.first, None)
-        self.assertEquals(john.foaf_surname.first, None)
         
     def test_ask(self):
         """ Test ask method. """
@@ -69,7 +65,7 @@ class TestSparqlProtocol(TestCase):
         
         # ASK gets tested indirectly: resource.is_present uses ASK.
         Person = session.get_class(surf.ns.FOAF + "Person")
-        john = session.get_resource("http://john", Person)
+        john = session.get_resource("http://John", Person)
         john.remove()
         self.assertTrue(not john.is_present())
 
@@ -140,13 +136,9 @@ class TestSparqlProtocol(TestCase):
         _, session = self._get_store_session()
         Person = session.get_class(surf.ns.FOAF + "Person")
         
-        mary = session.get_resource("http://mary", Person)
-        mary.foaf_name = "Mary"
-        mary.is_foaf_knows_of = URIRef("http://someguy")
-        mary.save()
-
-        jane = session.get_resource("http://jane", Person)
-        jane.foaf_knows = mary
+        # Create inverse foaf_knows attribute for Mary
+        jane = session.get_resource("http://Jane", Person)
+        jane.foaf_knows = URIRef("http://Mary")
         jane.save()
 
         persons = Person.all().get_by(foaf_name = Literal("Mary")).full()
@@ -166,15 +158,16 @@ class TestSparqlProtocol(TestCase):
         _, session = self._get_store_session()
         Person = session.get_class(surf.ns.FOAF + "Person")
         for i in range(0, 10):
-            person = session.get_resource("http://a%d" % i, Person)
+            person = session.get_resource("http://A%d" % i, Person)
             person.foaf_name = "A%d" % i
             person.save()
 
         persons = Person.all().order().limit(2).offset(5)
         uris = [person.subject for person in persons] 
+        print uris
         self.assertEquals(len(uris), 2)
-        self.assertTrue(URIRef("http://a5") in uris)
-        self.assertTrue(URIRef("http://a6") in uris)
+        self.assertTrue(URIRef("http://A5") in uris)
+        self.assertTrue(URIRef("http://A6") in uris)
 
     def test_order_by_attr(self):
         """ Test ordering by attribute other than subject. """
@@ -182,14 +175,14 @@ class TestSparqlProtocol(TestCase):
         _, session = self._get_store_session()
         Person = session.get_class(surf.ns.FOAF + "Person")
         for i in range(0, 10):
-            person = session.get_resource("http://a%d" % i, Person)
+            person = session.get_resource("http://A%d" % i, Person)
             person.foaf_name = "A%d" % (10 - i)
             person.save()
 
         sort_uri = URIRef(surf.ns.FOAF["name"])
         persons = list(Person.all().order(sort_uri).limit(1))
         self.assertEquals(len(persons), 1)
-        self.assertEquals(persons[0].subject, URIRef("http://a9"))
+        self.assertEquals(persons[0].subject, URIRef("http://A9"))
         
     def test_first(self):
         """ Test ResourceProxy.first(). """
@@ -197,22 +190,30 @@ class TestSparqlProtocol(TestCase):
         _, session = self._get_store_session()
         Person = session.get_class(surf.ns.FOAF + "Person")
         person = Person.all().first()
-        self.assertEquals(person.subject, URIRef("http://john"))
+        self.assertEquals(person.subject, URIRef("http://John"))
         
     def test_one(self):
         """ Test ResourceProxy.one(). """
 
         _, session = self._get_store_session()
         Person = session.get_class(surf.ns.FOAF + "Person")
-        person = Person.all().one()
-        self.assertEquals(person.subject, URIRef("http://john"))
-        
-        mary = session.get_resource("http://mary", Person)
-        mary.foaf_name = "Mary"
-        mary.is_foaf_knows_of = URIRef("http://someguy")
-        mary.save()
-        
-        # Now there are two persons and one() should fail
+        # There are two persons and one() should fail
         self.assertRaises(CardinalityException, Person.all().one)
         
+    def test_attribute_limit(self):
+        """ Test limit on attributes. """
+
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        john = session.get_resource(URIRef("http://John"), Person)
+        john.foaf_knows = [URIRef("http://Mary"), URIRef("http://Joe")]
+        john.save()
         
+        # Get this instance again, test its foaf_knows attribute
+        john = session.get_resource(URIRef("http://John"), Person)
+        self.assertEquals(len(list(john.foaf_knows)),  2)
+        
+        # Get this instance again, test its foaf_knows attribute
+        john = session.get_resource(URIRef("http://John"), Person)
+        self.assertEquals(len(list(john.foaf_knows.limit(1))),  1)
+        assert isinstance(john.foaf_knows.limit(1).first(), surf.Resource)

@@ -220,7 +220,11 @@ class RDFQueryReader(RDFReader):
         unhandled = set(params.keys())
         
         context = None
-        query = select("?s")
+        if "full" in params:
+            query = select("?s")
+        else:
+            query = select("?s", "?c")
+            query.where(("?s", a, "?c"))
 
         if "limit" in params:
             query.limit(params["limit"])
@@ -257,8 +261,10 @@ class RDFQueryReader(RDFReader):
             unhandled.remove("full")
 
             # Load details, for now the simplest approach with N queries. 
+            # Use _to_table instead of convert to preserve order.
             results = []
-            for subject in self.convert(self._execute(query), 's'):
+            for match in self._to_table(self._execute(query)):
+                subject = match["s"]
                 instance_data = {}
                 
                 result = self._execute(query_S(subject, True, context))
@@ -274,9 +280,23 @@ class RDFQueryReader(RDFReader):
             
             return results
         else:
-            # Load just subjects
-            subjects = self.convert(self._execute(query), 's')
-            return [(subject, {}) for subject in subjects]
+            # Load just subjects and their types
+            table = self._to_table(self._execute(query))
+            
+            # Create response structure, preserve order, don't include 
+            # duplicate subjects if some subject has multiple types
+            subjects = {} 
+            results = []
+            for match in table:
+                subject = match["s"]
+                concept = match["c"]
+                if not subject in subjects:
+                    instance_data = {"direct" : {a : {}}}
+                    subjects[subject] = instance_data
+                    results.append((subject, instance_data))
+                subjects[subject]["direct"][a][concept] = []
+                
+            return results
         
     def _instances_by_value(self, concept, direct, attributes):
         query = query_P_V(concept, direct, p = attributes)

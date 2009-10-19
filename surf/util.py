@@ -126,7 +126,7 @@ def attr2rdf(attrname):
         return  tordf(attrname), True
     return None, None
 
-def rdf2attr(uri,direct):
+def rdf2attr(uri, direct):
     '''this functions is the inverse of `attr2rdf`, returns the attribute name,
     given the `uri` and wether it is `direct` or not
     
