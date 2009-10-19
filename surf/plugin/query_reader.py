@@ -224,7 +224,7 @@ class RDFQueryReader(RDFReader):
             query = select("?s")
         else:
             query = select("?s", "?c")
-            query.where(("?s", a, "?c"))
+            query.optional_group(("?s", a, "?c"))
 
         if "limit" in params:
             query.limit(params["limit"])
@@ -289,12 +289,14 @@ class RDFQueryReader(RDFReader):
             results = []
             for match in table:
                 subject = match["s"]
-                concept = match["c"]
                 if not subject in subjects:
                     instance_data = {"direct" : {a : {}}}
                     subjects[subject] = instance_data
                     results.append((subject, instance_data))
-                subjects[subject]["direct"][a][concept] = []
+
+                if "c" in match:
+                    concept = match["c"]
+                    subjects[subject]["direct"][a][concept] = []
                 
             return results
         

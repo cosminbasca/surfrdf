@@ -363,6 +363,12 @@ class Resource(object):
         
         """
         
+        def make_values_source(values, rdf_values):
+            def setattr_values_source():
+                return values, rdf_values
+            
+            return setattr_values_source
+        
         predicate, direct = attr2rdf(name)
         if predicate:
             rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
@@ -376,10 +382,11 @@ class Resource(object):
                 pass
             else:
                 if type(value) not in [list, tuple]: value = [value]
-                value = map(value_to_rdf,value)
-                value = ResourceValue(value, self, rdf_dict[predicate], name)
+                value = map(value_to_rdf, value)
+                values_source = make_values_source(value, rdf_dict[predicate]) 
+                value = ResourceValue(values_source, self, name)
                 
-        object.__setattr__(self,name,value)
+        object.__setattr__(self, name, value)
             
     #TODO: add the auto_persist feature...
     def __delattr__(self, attr_name):
@@ -415,18 +422,27 @@ class Resource(object):
         
         attr_value = None
         predicate, direct = attr2rdf(attr_name)
-        if predicate:
-            values = self.session[self.store_key].get(self, predicate, direct)
-            surf_values = self._lazy(values)
-            rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
+        if not predicate:
+            raise ValueError('not a predicate: %s' % attr_name)
             
-            attr_value = ResourceValue(surf_values, self, 
-                                       rdf_dict.get(predicate, {}), attr_name)
+        # Closure for lazy execution.
+        def make_values_source(resource, predicate, direct):
+            def getattr_values_source():
+                store = resource.session[resource.store_key]
+                values = store.get(resource, predicate, direct)
+                surf_values = resource._lazy(values)
+                rdf_dict = resource.__rdf_direct if direct else rdf.__rdf_inverse
+                return surf_values, rdf_dict.get(predicate, {})
             
-            self.__setattr__(attr_name,attr_value)
-            self.__dirty = False
-        else:
-            raise ValueError('not a predicate: %s'%(attr_name))
+            return getattr_values_source
+            
+        values_source = make_values_source(self, predicate, direct)
+        attr_value = ResourceValue(values_source, self, attr_name)
+        
+        # Not using self.__setattr__, that would trigger loading of attributes
+        object.__setattr__(self, attr_name, attr_value)
+        self.__dirty = False
+
         return attr_value
 
     def load(self):

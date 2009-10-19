@@ -209,6 +209,7 @@ class TestSparqlProtocol(TestCase):
         john.foaf_knows = [URIRef("http://Mary"), URIRef("http://Joe")]
         john.save()
         
+        
         # Get this instance again, test its foaf_knows attribute
         john = session.get_resource(URIRef("http://John"), Person)
         self.assertEquals(len(list(john.foaf_knows)),  2)
@@ -217,3 +218,14 @@ class TestSparqlProtocol(TestCase):
         john = session.get_resource(URIRef("http://John"), Person)
         self.assertEquals(len(list(john.foaf_knows.limit(1))),  1)
         assert isinstance(john.foaf_knows.limit(1).first(), surf.Resource)
+        
+    def test_attribute_access(self):
+        """ Test limit on attributes. """
+
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        john = session.get_resource(URIRef("http://John"), Person)
+        # Access with query
+        self.assertEquals(john.foaf_name.limit(1).first(), "John")
+        # Access as attribute
+        self.assertEquals(john.foaf_name.first, "John")
