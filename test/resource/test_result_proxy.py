@@ -16,9 +16,9 @@ class MockStore(object):
     def set_data(self, data):
         self.__data = data
     
-    def get_by(self, **kwargs):
-        if kwargs != self.__expect_args:
-            raise AssertionError("%s != %s" % (kwargs, self.__expect_args))
+    def get_by(self, params):
+        if params != self.__expect_args:
+            raise AssertionError("%s != %s" % (params, self.__expect_args))
 
         return self.__data
 

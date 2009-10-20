@@ -1,3 +1,5 @@
+""" Module for ResultProxy. """
+
 from surf.util import attr2rdf
 
 class CardinalityException(Exception):
@@ -6,6 +8,17 @@ class CardinalityException(Exception):
     pass
 
 class ResultProxy(object):
+    """ Interface to store.get_by().
+    
+    ResultProxy collects filtering parameters. When iterated, it executes
+    store.get_by() with collected parameters and yields results. 
+    
+    ResultProxy doesn't know how to convert data returned by store.get()
+    into Resource objects, URIRefs and Literals. It delegates this task
+    to `instancemaker`.
+    
+    """
+    
     def __init__(self, params = {}, store = None, instancemaker = None):
         self.__params = params
         self.__data_cache = None
@@ -17,6 +30,8 @@ class ResultProxy(object):
             self.__params["instancemaker"] = instancemaker
 
     def instancemaker(self, value):
+        """ Specify the function for converting triples into instances. """
+         
         params = self.__params.copy()
         params["instancemaker"] = value
         return ResultProxy(params)
