@@ -1,8 +1,8 @@
 from surf.util import attr2rdf
-# hello
 
 class CardinalityException(Exception):
     """ Used by ResultProxy.one() when list length != 1. """
+
     pass
 
 class ResultProxy(object):
