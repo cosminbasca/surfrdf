@@ -420,7 +420,6 @@ class Resource(object):
         
         """
         
-        attr_value = None
         predicate, direct = attr2rdf(attr_name)
         if not predicate:
             raise ValueError('not a predicate: %s' % attr_name)
@@ -431,7 +430,7 @@ class Resource(object):
                 store = resource.session[resource.store_key]
                 values = store.get(resource, predicate, direct)
                 surf_values = resource._lazy(values)
-                rdf_dict = resource.__rdf_direct if direct else rdf.__rdf_inverse
+                rdf_dict = resource.__rdf_direct if direct else resource.__rdf_inverse
                 return surf_values, rdf_dict.get(predicate, {})
             
             return getattr_values_source

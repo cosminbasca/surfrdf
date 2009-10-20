@@ -35,8 +35,10 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-class ResourceValue(object):
+class ResourceValue(list):
     def __init__(self, values_source, resource, attribute_name):
+        list.__init__(self)
+        
         self.resource = resource
         
         # So we know which attribute this ResourceValue object represents
@@ -46,20 +48,17 @@ class ResourceValue(object):
         self.__values_source = values_source
         self.__data_loaded = False
 
-    def __get_values(self):
+    def __prepare_values(self):
         if not self.__data_loaded:
-            self.__values, self.__rdf_values = self.__values_source()
+            self[:], self.__rdf_values = self.__values_source()
             self.__data_loaded = True
 
-        return self.__values, self.__rdf_values
-    
-
     def get_one(self):
-        values, _ = self.__get_values()
+        self.__prepare_values()
         
-        if len(values) == 1:
-            return values[0]
-        elif len(values) == 0:
+        if len(self) == 1:
+            return self[0]
+        elif len(self) == 0:
             raise Exception('list is empty')
         else: 
             raise Exception('list has more elements than one')
@@ -67,10 +66,10 @@ class ResourceValue(object):
     one = property(fget = get_one)
     
     def get_first(self):
-        values, _ = self.__get_values()
+        self.__prepare_values()
 
-        if len(values) > 0:
-            return values[0]
+        if len(self) > 0:
+            return self[0]
         else:
             return None
     first = property(fget = get_first)
@@ -84,59 +83,67 @@ class ResourceValue(object):
             return self.resource.to_rdf(value)
         
         raise Exception("to_rdf has no reference to resource")
+
+    def __len__(self):
+        self.__prepare_values()
+        return list.__len__(self)
+
+    def __getitem__(self, key):
+        self.__prepare_values()
+        return list.__getitem__(self, key)
     
     def __setitem__(self, key, value):
-        values, rdf_values = self.__get_values()
+        self.__prepare_values()
 
         self.set_dirty(True)
-        values[key] = value
         rdf_values[key] = self.to_rdf(value)
+        return list.__setitem__(self, key, value)
         
     def __delitem__(self, key):
-        values, rdf_values = self.__get_values()
+        self.__prepare_values()
 
         self.set_dirty(True)
-        del values[key]
         del rdf_values[key]
+        return list.__delitem__(self, key)
     
     def append(self, value):
-        values, rdf_values = self.__get_values()
+        self.__prepare_values()
 
         self.set_dirty(True)
-        values.append(value)
         rdf_values.append(self.to_rdf(value))
+        return list.append(self, value)
         
     def extend(self, L):
-        values, rdf_values = self.__get_values()
+        self.__prepare_values()
 
         self.set_dirty(True)
-        values.extend(L)
         rdf_values.extend([self.to_rdf(value) for value in L])
+        return list.extend(self, L)
         
     def insert(self, i, value):
-        values, rdf_values = self.__get_values()
+        self.__prepare_values()
 
         self.set_dirty(True)
-        values.insert(i, value)
         rdf_values.insert(i, self.to_rdf(value))
+        return list.insert(self, i, value)
         
     def remove(self, value):
-        values, rdf_values = self.__get_values()
+        self.__prepare_values()
 
         self.set_dirty(True)
-        values.remove(value)
         rdf_values.remove(self.to_rdf(value))
+        return list.remove(self, value)
         
     def pop(self, i = -1):
-        values, rdf_values = self.__get_values()
+        self.__prepare_values()
 
         self.set_dirty(True)
         rdf_values.pop(i)
-        return values.pop(i)
+        return list.pop(self, i)
     
     def __iter__(self):
-        values, _ = self.__get_values()
-        return iter(values)
+        self.__prepare_values()
+        return list.__iter__(self)
     
     # Shortcuts for querying attributes.
     # It's syntactic sugar around resource.query_attribute(), so instead of 
