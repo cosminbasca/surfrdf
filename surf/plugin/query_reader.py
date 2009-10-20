@@ -215,6 +215,154 @@ class RDFQueryReader(RDFReader):
         
         result = self._execute(query)
         return self.convert(result, 's', 'c')
+
+    def __apply_limit_offset_order_get_by(self, params, query):
+        """ Apply limit, offset, order parameters to query. """
+        
+        if "limit" in params:
+            query.limit(params["limit"])
+        
+        if "offset" in params:
+            query.offset(params["offset"])
+
+        if "order" in params:
+            if params["order"] == True:
+                # Order by subject URI
+                query.order_by("?s")
+            else:
+                # Match another variable, order by it
+                query.optional_group(("?s", params["order"], "?o")) 
+                query.order_by("?o")
+
+        if "get_by" in params:
+            for attribute, value, direct  in params["get_by"]:
+                if direct:
+                    query.where(("?s", attribute, value))
+                else:
+                    query.where((value, attribute, "?s"))
+        
+        return query
+        
+    def _get_by(self, params):
+        
+        # Decide which loading strategy to use
+        if "full" in params:
+            if self.use_subqueries:
+                return self.__get_by_subquery(params)
+            else:
+                return self.__get_by_n_queries(params)
+
+        # No details, just subjects and classes
+        query = select("?s", "?c")
+        query.optional_group(("?s", a, "?c"))
+        self.__apply_limit_offset_order_get_by(params, query)
+
+        if "context" in params:
+            query.from_(params["context"])
+
+        self.__apply_limit_offset_order_get_by(params, query)
+
+        # Load just subjects and their types
+        table = self._to_table(self._execute(query))
+        
+        # Create response structure, preserve order, don't include 
+        # duplicate subjects if some subject has multiple types
+        subjects = {} 
+        results = []
+        for match in table:
+            subject = match["s"]
+            if not subject in subjects:
+                instance_data = {"direct" : {a : {}}}
+                subjects[subject] = instance_data
+                results.append((subject, instance_data))
+
+            if "c" in match:
+                concept = match["c"]
+                subjects[subject]["direct"][a][concept] = []
+            
+        return results
+
+    def __get_by_n_queries(self, params):
+        context = params.get("context", None)
+            
+        query = select("?s")
+        query.from_(context)
+
+        self.__apply_limit_offset_order_get_by(params, query)
+                
+        # Load details, for now the simplest approach with N queries. 
+        # Use _to_table instead of convert to preserve order.
+        results = []
+        for match in self._to_table(self._execute(query)):
+            subject = match["s"]
+            instance_data = {}
+            
+            result = self._execute(query_S(subject, True, context))
+            result = self.convert(result, 'p', 'v', 'c')
+            instance_data["direct"] = result
+
+            if not params.get("only_direct"):
+                result = self._execute(query_S(subject, False, context))
+                result = self.convert(result, 'p', 'v', 'c')
+                instance_data["inverse"] = result
+            
+            results.append((subject, instance_data))
+        
+        return results
+
+    def __get_by_subquery(self, params):
+        context = params.get("context", None)
+            
+        inner_query = select("?s")
+        inner_params = params.copy()
+        if "order" in inner_params:
+            del inner_params["order"]
+        self.__apply_limit_offset_order_get_by(inner_params, inner_query)
+        
+        query = select("?s", "?p", "?v", "?c").distinct()
+        query.group(('?s', '?p', '?v'), optional_group(('?v',a,'?c')))
+        query.where(inner_query)
+        query.from_(context)
+
+        # Need ordering in outer query
+        if "order" in params:
+            if params["order"] == True:
+                # Order by subject URI
+                query.order_by("?s")
+            else:
+                # Match another variable, order by it
+                query.optional_group(("?s", params["order"], "?order")) 
+                query.order_by("?order")
+
+        table = self._to_table(self._execute(query))
+        subjects = {} 
+        results = []
+        for match in table:
+            subject = match["s"]
+            predicate = match["p"]
+            value = match["v"]
+
+            # Add subject to result list if it's not there
+            if not subject in subjects:
+                instance_data = {"direct" : {}}
+                subjects[subject] = instance_data
+                results.append((subject, instance_data))
+            
+            # Add predicate to subject's direct predicates if it's not there
+            direct_attributes = subjects[subject]["direct"]
+            if not predicate in direct_attributes:
+                direct_attributes[predicate] = {}
+
+            # Add value to subject->predicate if ...
+            predicate_values = direct_attributes[predicate]
+            if not value in predicate_values:
+                predicate_values[value] = []
+                
+            # Add RDF type of the value to subject->predicate->value list 
+            if "c" in match:
+                predicate_values[value].append(match["c"])
+            
+        return results
         
     def _instances_by_value(self, concept, direct, attributes):
         query = query_P_V(concept, direct, p = attributes)

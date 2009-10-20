@@ -35,15 +35,27 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-from surf.util import value_to_rdf
-
 class ResourceValue(list):
-    def __init__(self,sequence,resource,rdf_values):
-        list.__init__(self,sequence)
+    def __init__(self, values_source, resource, attribute_name):
+        list.__init__(self)
+        
         self.resource = resource
-        self.rdf_values = rdf_values
+        
+        # So we know which attribute this ResourceValue object represents
+        self.__attribute_name = attribute_name
+
+        # For lazy loading list contents
+        self.__values_source = values_source
+        self.__data_loaded = False
+
+    def __prepare_values(self):
+        if not self.__data_loaded:
+            self[:], self.__rdf_values = self.__values_source()
+            self.__data_loaded = True
 
     def get_one(self):
+        self.__prepare_values()
+        
         if len(self) == 1:
             return self[0]
         elif len(self) == 0:
@@ -54,6 +66,8 @@ class ResourceValue(list):
     one = property(fget = get_one)
     
     def get_first(self):
+        self.__prepare_values()
+
         if len(self) > 0:
             return self[0]
         else:
@@ -67,40 +81,103 @@ class ResourceValue(list):
     def to_rdf(self, value):
         if hasattr(self.resource, 'to_rdf'):
             return self.resource.to_rdf(value)
-        return value_to_rdf(value)
+        
+        raise Exception("to_rdf has no reference to resource")
+
+    def __len__(self):
+        self.__prepare_values()
+        return list.__len__(self)
+
+    def __getitem__(self, key):
+        self.__prepare_values()
+        return list.__getitem__(self, key)
     
     def __setitem__(self, key, value):
-        self.rdf_values[key] = self.to_rdf(item_value)
+        self.__prepare_values()
+
         self.set_dirty(True)
-        list.__setitem__(self, key, value)
+        rdf_values[key] = self.to_rdf(value)
+        return list.__setitem__(self, key, value)
         
     def __delitem__(self, key):
-        del self.rdf_values[key]
+        self.__prepare_values()
+
         self.set_dirty(True)
-        list.__delitem__(self, key)
+        del rdf_values[key]
+        return list.__delitem__(self, key)
     
     def append(self, value):
-        self.rdf_values.append(self.to_rdf(value))
+        self.__prepare_values()
+
         self.set_dirty(True)
-        list.append(self, value)
+        rdf_values.append(self.to_rdf(value))
+        return list.append(self, value)
         
     def extend(self, L):
-        self.rdf_values.extend([self.to_rdf(value) for value in L])
+        self.__prepare_values()
+
         self.set_dirty(True)
-        list.extend(self, L)
+        rdf_values.extend([self.to_rdf(value) for value in L])
+        return list.extend(self, L)
         
     def insert(self, i, value):
-        self.rdf_values.insert(i, self.to_rdf(value))
+        self.__prepare_values()
+
         self.set_dirty(True)
-        list.insert(self, i, value)
+        rdf_values.insert(i, self.to_rdf(value))
+        return list.insert(self, i, value)
         
     def remove(self, value):
-        self.rdf_values.remove(self.to_rdf(value))
+        self.__prepare_values()
+
         self.set_dirty(True)
-        list.remove(self, value)
+        rdf_values.remove(self.to_rdf(value))
+        return list.remove(self, value)
         
     def pop(self, i = -1):
-        self.rdf_values.pop(i)
+        self.__prepare_values()
+
         self.set_dirty(True)
-        list.pop(self, i)
+        rdf_values.pop(i)
+        return list.pop(self, i)
+    
+    def __iter__(self):
+        self.__prepare_values()
+        return list.__iter__(self)
+    
+    # Shortcuts for querying attributes.
+    # It's syntactic sugar around resource.query_attribute(), so instead of 
+    #     >>> resource.query_attribute("foaf_knows").limit(3)
+    # we can use
+    #     >>> resource.foaf_knows.limit(3)  
+    
+    def __query_attribute(self):
+        return self.resource.query_attribute(self.__attribute_name)
+    
+    def limit(self, value):
+        return self.__query_attribute().limit(value)
+
+    def offset(self, value):
+        return self.__query_attribute().offset(value)
+    
+    def full(self, only_direct = False):
+        return self.__query_attribute().full(only_direct)
+    
+    def order(self, value = True):
+        return self.__query_attribute().order(value)
+    
+    def desc(self):
+        return self.__query_attribute().desc()
+    
+    def get_by(self, **kwargs):
+        return self.__query_attribute().get_by(**kwargs)
+
+    def context(self, context):
+        return self.__query_attribute().context(context)
+
+        
+        
+        
+        
+    
     

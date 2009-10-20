@@ -104,6 +104,10 @@ class RDFReader(Plugin):
         """
         
         return []
+    
+    def _get_by(self, params):
+        
+        return []    
         
     def _instances_by_value(self,concept,direct,attributes):
         """ To be implemented by classes that inherit `RDFReader`.
@@ -218,6 +222,9 @@ class RDFReader(Plugin):
         concept = resource.uri if hasattr(resource, 'uri') else resource
         #TODO: make sure uri's are passed further
         return self._instances(concept, direct, filter, predicates, context)
+
+    def get_by(self, params):
+        return self._get_by(params)
         
     def instances_by_value(self, resource, direct, attributes):
         """
