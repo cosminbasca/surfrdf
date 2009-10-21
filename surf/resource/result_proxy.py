@@ -8,14 +8,15 @@ class CardinalityException(Exception):
     pass
 
 class ResultProxy(object):
-    """ Interface to store.get_by().
+    """ Interface to :meth:`surf.store.get_by()`.
     
     ResultProxy collects filtering parameters. When iterated, it executes
-    store.get_by() with collected parameters and yields results. 
+    :meth:`surf.store.get_by()` with collected parameters and yields results. 
     
-    ResultProxy doesn't know how to convert data returned by store.get()
-    into Resource objects, URIRefs and Literals. It delegates this task
-    to `instancemaker`.
+    ResultProxy doesn't know how to convert data returned by 
+    :meth:`surf.store.get_by()` into :class:`surf.Resource`, `URIRef` 
+    and `Literal` objects. It delegates this task to `instancemaker`
+    function.
     
     """
     
@@ -29,14 +30,34 @@ class ResultProxy(object):
         if instancemaker:
             self.__params["instancemaker"] = instancemaker
 
-    def instancemaker(self, value):
-        """ Specify the function for converting triples into instances. """
+    def instancemaker(self, instancemaker_function):
+        """ Specify the function for converting triples into instances. 
+        
+        ``instancemaker_function`` function can also be specified 
+        as argument to constructor when instantiating :class:`ResultProxy`. 
+
+        ``instancemaker_function`` will be executed whenever 
+        :class:`ResultProxy` needs to return a resource. It has to accept two 
+        arguments: ``params`` and ``instance_data``.
+        
+        ``params`` will be a dictionary containing query parameters gathered
+        by :class:`ResultProxy`. Information from ``params`` can be used 
+        by ``instancemaker_function``, for example, to decide what 
+        context should be set for created instances. 
+
+        ``instance_data`` will be a dictionary containing keys `direct` and
+        `inverse`. These keys map to dictionaries describing direct and 
+        inverse attributes respectively.
+        
+        """
          
         params = self.__params.copy()
-        params["instancemaker"] = value
+        params["instancemaker"] = instancemaker_function
         return ResultProxy(params)
 
     def limit(self, value):
+        """ Set the limit for returned result count. """
+         
         params = self.__params.copy()
         params["limit"] = value
         return ResultProxy(params)

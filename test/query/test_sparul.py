@@ -93,7 +93,13 @@ class TestSparulTranslator(TestCase):
         result = canonical(SparulTranslator(query).translate())
         self.assertEqual(expected, result)
 
+    def test_unicode(self):
+        """ Check that returned query string is unicode.  """
         
+        statement = URIRef("http://a"), URIRef("http://b"), URIRef("http://c")  
+        query = insert().template(statement)
+        result = SparulTranslator(query).translate()
+        self.assertTrue(isinstance(result, unicode))
         
         
         
