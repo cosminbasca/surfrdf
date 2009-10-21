@@ -114,6 +114,9 @@ class WriterPlugin(RDFWriter):
         try:
             query_str = SparulTranslator(query).translate()
             self.log.debug(query_str)
+            if isinstance(query_str, unicode):
+                # SPARQLWrapper doesn't like unicode
+                query_str = query_str.encode("utf-8")
             self.__sparql_wrapper.setQuery(query_str)
             self.__sparql_wrapper.query().convert()
             return True
@@ -150,6 +153,9 @@ class WriterPlugin(RDFWriter):
             
             query_str = SparulTranslator(query).translate()
             self.log.debug(query_str)
+            if isinstance(query_str, unicode):
+                # SPARQLWrapper doesn't like unicode
+                query_str = query_str.encode("utf-8")
             self.__sparql_wrapper.setQuery(query_str)
             self.__sparql_wrapper.query().convert()
             return True

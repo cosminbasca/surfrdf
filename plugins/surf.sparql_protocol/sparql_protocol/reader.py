@@ -85,6 +85,9 @@ class ReaderPlugin(RDFQueryReader):
     def execute_sparql(self, q_string, format = 'JSON'):
         try:
             self.log.debug(q_string)
+            if isinstance(q_string, unicode):
+                # SPARQLWrapper doesn't like unicode
+                q_string = q_string.encode("utf-8")
             self.__sparql_wrapper.setQuery(q_string)
             results = self.__sparql_wrapper.query().convert()
             return self._toRdflib(results)
