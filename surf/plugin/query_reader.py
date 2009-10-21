@@ -244,7 +244,6 @@ class RDFQueryReader(RDFReader):
         return query
         
     def _get_by(self, params):
-        
         # Decide which loading strategy to use
         if "full" in params:
             if self.use_subqueries:
@@ -254,13 +253,11 @@ class RDFQueryReader(RDFReader):
 
         # No details, just subjects and classes
         query = select("?s", "?c")
-        query.optional_group(("?s", a, "?c"))
         self.__apply_limit_offset_order_get_by(params, query)
+        query.optional_group(("?s", a, "?c"))
 
         if "context" in params:
             query.from_(params["context"])
-
-        self.__apply_limit_offset_order_get_by(params, query)
 
         # Load just subjects and their types
         table = self._to_table(self._execute(query))
