@@ -96,54 +96,62 @@ class ResourceValue(list):
         self.__prepare_values()
 
         self.set_dirty(True)
-        rdf_values[key] = self.to_rdf(value)
+        self.__rdf_values[key] = self.to_rdf(value)
         return list.__setitem__(self, key, value)
         
     def __delitem__(self, key):
         self.__prepare_values()
 
         self.set_dirty(True)
-        del rdf_values[key]
+        del self.__rdf_values[key]
         return list.__delitem__(self, key)
     
     def append(self, value):
         self.__prepare_values()
 
         self.set_dirty(True)
-        rdf_values.append(self.to_rdf(value))
+        self.__rdf_values.append(self.to_rdf(value))
         return list.append(self, value)
         
     def extend(self, L):
         self.__prepare_values()
 
         self.set_dirty(True)
-        rdf_values.extend([self.to_rdf(value) for value in L])
+        self.__rdf_values.extend([self.to_rdf(value) for value in L])
         return list.extend(self, L)
         
     def insert(self, i, value):
         self.__prepare_values()
 
         self.set_dirty(True)
-        rdf_values.insert(i, self.to_rdf(value))
+        self.__rdf_values.insert(i, self.to_rdf(value))
         return list.insert(self, i, value)
         
     def remove(self, value):
         self.__prepare_values()
 
         self.set_dirty(True)
-        rdf_values.remove(self.to_rdf(value))
+        self.__rdf_values.remove(self.to_rdf(value))
         return list.remove(self, value)
         
     def pop(self, i = -1):
         self.__prepare_values()
 
         self.set_dirty(True)
-        rdf_values.pop(i)
+        self.__rdf_values.pop(i)
         return list.pop(self, i)
     
     def __iter__(self):
         self.__prepare_values()
         return list.__iter__(self)
+    
+    def __str__(self):
+        self.__prepare_values()
+        return list.__str__(self)
+        
+    def __repr__(self):
+        self.__prepare_values()
+        return list.__repr__(self)
     
     # Shortcuts for querying attributes.
     # It's syntactic sugar around resource.query_attribute(), so instead of 
