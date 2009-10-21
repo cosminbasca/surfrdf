@@ -35,7 +35,8 @@ Modules
    
    modules/namespace
    modules/query
-   modules/resource
+   modules/resource/index
+   modules/resource/result_proxy
    modules/serializer
    modules/session
    modules/store
