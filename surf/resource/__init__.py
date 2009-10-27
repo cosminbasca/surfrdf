@@ -497,9 +497,9 @@ class Resource(object):
         """ Construct resource from `instance_data`, return it. """
 
         subject, data = instance_data
-        # subject is either URIRef or Literal and we don't try to turn 
+        # subject is either URIRef/BNode or Literal and we don't try to turn 
         # literals into SuRF Resources
-        if not isinstance(subject, URIRef):
+        if not (isinstance(subject, URIRef) or isinstance(subject, BNode)):
             return subject
         
         rdf_type = None

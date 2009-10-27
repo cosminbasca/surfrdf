@@ -20,7 +20,7 @@ Print all persons mentioned in Tim Berners-Lee's FOAF document:
     
     all_persons = Person.all()
     
-    print "Found %d persons that Tim Berners-Lee knows" % (len(all_persons))
+    print "Found %d persons in Tim Berners-Lee's FOAF document" % (len(all_persons))
     for person in all_persons:
         print person.foaf_name.first
         
