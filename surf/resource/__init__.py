@@ -117,7 +117,7 @@ class ResourceMeta(type):
             attr_value.append(inst)
         return attr_value
     
-    def __getattr__(self,attr_name):
+    def __getattr__(self, attr_name):
         """
         Find `instances` of the current Class that extends `Resource`,
         the `instances` are selected from the values of the specified 
@@ -127,20 +127,17 @@ class ResourceMeta(type):
         the method is called the instances are retrieved from the `store` again.
         
         """
+
+        # Don't want to reimplement Resource.__getattr__. 
+        # Instantiate this class as instance of owl:Class and  
+        # proxy to its __getattr__. 
+
+        # If this method gets used often, we'll need to add caching
+        # for self_as_instance.
         
-        #TODO: add persistence at metaclass level
-        value = None
-        predicate, direct = attr2rdf(attr_name)
-        if predicate:
-            
-            instances = self.session[self.store_key].instances_by_value(self,direct,[predicate])
-            value = self._lazy(instances)
-            if value or (type(value) is list and len(value) > 0):
-                pass
-            else:
-                value = None
-        return value
-    
+        self_as_instance = self._instance(self.uri, [OWL["Class"]])
+        return getattr(self_as_instance, attr_name)
+
 #--------------------------------------------------------------------------------------------------------
 
 class Resource(object):
@@ -356,7 +353,7 @@ class Resource(object):
         """
         The `set` method - responsible for *caching* the `value` to the 
         corresponding object attribute given by `name`.
-        
+
         .. note: This method sets the state of the resource to *dirty* 
         (the `resource` will be persisted if the `commit` `session` method 
         is called).

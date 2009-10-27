@@ -327,7 +327,7 @@ class Session(object):
                 
         """
         
-        return self.map_type(uri,store,*classes)
+        return self.map_type(uri, store, *classes)
         
     def map_instance(self, uri, subject, store = None, classes = [],
                      block_outo_load = False, context = None):

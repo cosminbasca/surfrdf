@@ -254,3 +254,31 @@ class TestSparqlProtocol(TestCase):
         john.save()
 
         self.assertEquals(len(john.foaf_knows.get_by(foaf_name = "Jane")), 0)
+
+    def test_class_all(self):
+        """ Test Class.all().full(). 
+        
+        all() and get_by() on Classes should behave the same as on Resources.
+        
+        """
+
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        self.assertEquals(len(Person.all().full()), 3)
+
+    def test_class_attrs_order(self):
+        """ Test operations on Class.some_attr. 
+
+        Class attributes should be ResourceValue instances and behave the
+        same as with Resources.
+        
+        """
+        
+        _, session = self._get_store_session()
+        person_instance = session.get_resource(surf.ns.FOAF["Person"], surf.ns.OWL["Class"])
+        person_instance.rdfs_comment = "Comment"
+        person_instance.save()
+        
+        Person = session.get_class(surf.ns.FOAF["Person"])
+        self.assertEqual(len(Person.rdfs_comment.order()), 1)
+
