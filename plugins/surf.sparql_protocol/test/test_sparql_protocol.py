@@ -230,3 +230,14 @@ class TestSparqlProtocol(TestCase):
         self.assertEquals(john.foaf_name.limit(1).first(), "John")
         # Access as attribute
         self.assertEquals(john.foaf_name.first, "John")
+
+    def test_result_proxy_len(self):
+        """ Test len(result_proxy). """
+
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        self.assertEquals(len(Person.all()), 2)
+
+        john = session.get_resource("http://John", Person)
+        self.assertEquals(len(john.all()), 2)
+

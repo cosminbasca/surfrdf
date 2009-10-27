@@ -22,7 +22,7 @@ class ResultProxy(object):
     
     def __init__(self, params = {}, store = None, instancemaker = None):
         self.__params = params
-        self.__data_cache = None
+        self.__get_by_response = None
         
         if store:
             self.__params["store"] = store
@@ -96,31 +96,38 @@ class ResultProxy(object):
         params["context"] = context
         return ResultProxy(params)
     
-    def __get_data_cache(self):
-        if self.__data_cache is None:
-            self.__execute()
-        
-        return self.__data_cache
+    def __execute_get_by(self):
+        if self.__get_by_response is None:
+            self.__get_by_args = {}
+
+            for key in ["limit", "offset", "full", "order", "desc", "get_by", 
+                        "only_direct", "context"]:
+                if key in self.__params:
+                    self.__get_by_args[key] = self.__params[key]
+
+            store = self.__params["store"]
+            self.__get_by_response = store.get_by(self.__get_by_args)
+
+        return self.__get_by_args, self.__get_by_response
     
-    def __execute(self):
-        store = self.__params["store"]
-
-        get_by_args = {}
-        for key in ["limit", "offset", "full", "order", "desc", "get_by", 
-                    "only_direct", "context"]:
-            if key in self.__params:
-                get_by_args[key] = self.__params[key]
+    def __iterator(self):
+        get_by_args, get_by_response = self.__execute_get_by()
         
-        if self.__data_cache is None:
-            self.__data_cache = store.get_by(get_by_args)
-
         instancemaker = self.__params["instancemaker"]
-        for instance_data in self.__get_data_cache():
+        for instance_data in get_by_response:
             yield instancemaker(get_by_args, instance_data)
 
         
     def __iter__(self):
-        return self.__execute()
+        """ Return iterator over resources in this collection. """
+        
+        return self.__iterator()
+
+    def __len__(self):
+        """ Return count of resources in this collection. """
+         
+        _, get_by_response = self.__execute_get_by()
+        return len(get_by_response)
 
     def first(self):
         """ Return first resource or None if there aren't any. """
