@@ -1,5 +1,6 @@
 """ Module for ResultProxy. """
 
+from rdflib.Literal import Literal
 from surf.util import attr2rdf
 
 class CardinalityException(Exception):
@@ -85,9 +86,15 @@ class ResultProxy(object):
     
     def get_by(self, **kwargs):
         params = self.__params.copy()
-        params["get_by"] = []
+        # Don't overwrite existing get_by parameters, just append new ones.
+        # Overwriting get_by params would cause resource.some_attr.get_by()
+        # to work incorrectly.
+        params.setdefault("get_by", [])
         for name, value in kwargs.items():
             attr, direct = attr2rdf(name)
+            # Assume by plain strings user means literals
+            if type(value) in [str, unicode]:
+                value = Literal(value)
             params["get_by"].append((attr, value, direct))
         return ResultProxy(params)
 

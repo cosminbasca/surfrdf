@@ -36,7 +36,7 @@ class TestSparqlProtocol(TestCase):
             store.clear("http://surf_test_graph/dummy2")
         
         Person = session.get_class(surf.ns.FOAF + "Person")
-        for name in ["John", "Mary"]:
+        for name in ["John", "Mary", "Jane"]:
             # Some test data.
             person = session.get_resource("http://%s" % name, Person)
             person.foaf_name = name
@@ -236,8 +236,21 @@ class TestSparqlProtocol(TestCase):
 
         _, session = self._get_store_session()
         Person = session.get_class(surf.ns.FOAF + "Person")
-        self.assertEquals(len(Person.all()), 2)
+        self.assertEquals(len(Person.all()), 3)
 
         john = session.get_resource("http://John", Person)
-        self.assertEquals(len(john.all()), 2)
+        self.assertEquals(len(john.all()), 3)
 
+    def test_atrribute_get_by(self):
+        """ Test resource.some_attr.get_by(). """
+
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        john = session.get_resource("http://John", Person)
+        mary = session.get_resource("http://Mary", Person)
+        jane = session.get_resource("http://Jane", Person)
+        
+        john.foaf_knows = mary
+        john.save()
+
+        self.assertEquals(len(john.foaf_knows.get_by(foaf_name = "Jane")), 0)
