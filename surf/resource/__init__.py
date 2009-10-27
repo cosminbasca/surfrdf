@@ -99,7 +99,7 @@ class ResourceMeta(type):
             return None
     
     @classmethod
-    def _lazy(cls,value):
+    def _lazy(cls, value):
         """
         Do `lazy` instantiation of rdf predicates
         value is a dictionary {val:[concept,concept,...]},
@@ -231,6 +231,9 @@ class Resource(object):
         self.__rdf_direct[a] = [self.uri]
         self.__rdf_inverse = {}
         self.__namespaces = {}
+        # __full is set to true after doing full load. This is used by 
+        # __getattr__ to decide if it's worth to query triplestore. 
+        self.__full = False
         if self.session:
             if not self.store_key: self.store_key = self.session.default_store_key
             if self.session.auto_load and not block_outo_load: self.load()
@@ -408,10 +411,11 @@ class Resource(object):
     # TODO: reuse already existing instances - CACHED
     # TODO: shoud we raise an error when predicate not foud ? or just return an empty list ? hmmm --- error :]
     def __getattr__(self, attr_name):
-        """
-        The `get` method - responsible for retrieving and caching using 
-        `__setattr__` the value(s) of the specified `attr_name` 
-        (object attribute).
+        """ Retrieve and cache attribute values.
+        
+        If attribute name is not in the "ns_predicate" form, an 
+        `AttributeError` will be raised.
+        
         
         This method has no impact on the *dirty* state of the object.
         
@@ -419,20 +423,41 @@ class Resource(object):
         
         predicate, direct = attr2rdf(attr_name)
         if not predicate:
-            raise ValueError('not a predicate: %s' % attr_name)
-            
+            raise AttributeError('Not a predicate: %s' % attr_name)
+
         # Closure for lazy execution.
-        def make_values_source(resource, predicate, direct):
+        def make_values_source(resource, predicate, direct, do_query):
+            """ Return callable that loads and returns values. """
+            
             def getattr_values_source():
-                store = resource.session[resource.store_key]
-                values = store.get(resource, predicate, direct)
-                surf_values = resource._lazy(values)
-                rdf_dict = resource.__rdf_direct if direct else resource.__rdf_inverse
-                return surf_values, rdf_dict.get(predicate, {})
+                if do_query:
+                    store = resource.session[resource.store_key]
+                    # Request to triple store
+                    values = store.get(resource, predicate, direct)
+                    # Instantiate SuRF objects
+                    surf_values = resource._lazy(values)
+                else:
+                    surf_values = []
+
+                # Select triple dictionary for synchronization 
+                if direct:
+                    rdf_dict = resource.__rdf_direct 
+                else:
+                    rdf_dict = resource.__rdf_inverse
+
+                # Initial synchronization
+                rdf_dict[predicate] = [resource.to_rdf(value) for value in surf_values]
+                
+                return surf_values, rdf_dict[predicate] 
             
             return getattr_values_source
             
-        values_source = make_values_source(self, predicate, direct)
+        # If resource is fully loaded and still we're here 
+        # at __getattr__, this must be an empty attribute, so 
+        # no point querying triple store.
+        do_query = not self.__full 
+        values_source = make_values_source(self, predicate, direct, do_query)
+        
         attr_value = ResourceValue(values_source, self, attr_name)
         
         # Not using self.__setattr__, that would trigger loading of attributes
@@ -456,6 +481,7 @@ class Resource(object):
         self.__set_predicate_values(results_d, True)
         self.__set_predicate_values(results_i, False)
         self.__dirty = False
+        self.__full = True
         
     def __set_predicate_values(self, results, direct):
         """ set the prediate - value(s) to the resource using lazy loading,
@@ -468,7 +494,7 @@ class Resource(object):
             attr = rdf2attr(p,direct)
             value = self._lazy(v)
             if value or (type(value) is list and len(value) > 0):
-                self.__setattr__(attr,value)
+                self.__setattr__(attr, value)
     
         
     @classmethod
@@ -520,6 +546,7 @@ class Resource(object):
 
         instance.__set_predicate_values(data.get("direct", {}), True)
         instance.__set_predicate_values(data.get("inverse", {}), False)
+        instance.__full = bool(params.get("full"))
 
         return instance
       
