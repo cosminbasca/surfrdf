@@ -62,6 +62,7 @@ Examples
    :maxdepth: 2
    
    examples/dbpedia
+   examples/rdflib
    examples/allegro
    
 Integration with web frameworks

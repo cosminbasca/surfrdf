@@ -1,7 +1,7 @@
 Example using AllegroGraph from Franz
 =====================================
 
-.. code-block:: python
+.. testcode::
 
     from surf import *
     import threading
@@ -91,3 +91,10 @@ Example using AllegroGraph from Franz
     print actors[0].serialize('n3')
     
     print 'done'
+
+.. testoutput::
+   :hide:
+   :options: +ELLIPSIS
+
+   ...
+    
