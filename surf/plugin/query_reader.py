@@ -256,8 +256,9 @@ class RDFQueryReader(RDFReader):
         self.__apply_limit_offset_order_get_by(params, query)
         query.optional_group(("?s", a, "?c"))
 
-        if "context" in params:
-            query.from_(params["context"])
+        context = params.get("context", None)
+        if not (context is None):
+            query.from_(context)
 
         # Load just subjects and their types
         table = self._to_table(self._execute(query))
@@ -283,7 +284,8 @@ class RDFQueryReader(RDFReader):
         context = params.get("context", None)
             
         query = select("?s")
-        query.from_(context)
+        if not (context is None):
+            query.from_(context)
 
         self.__apply_limit_offset_order_get_by(params, query)
                 
@@ -319,7 +321,8 @@ class RDFQueryReader(RDFReader):
         query = select("?s", "?p", "?v", "?c").distinct()
         query.group(('?s', '?p', '?v'), optional_group(('?v',a,'?c')))
         query.where(inner_query)
-        query.from_(context)
+        if not (context is None):
+            query.from_(context)
 
         # Need ordering in outer query
         if "order" in params:

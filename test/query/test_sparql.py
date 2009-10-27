@@ -97,5 +97,8 @@ class TestSparqlTranslator(TestCase):
         
         self.assertEqual(expected, result)
         
+    def test_from_none(self):
+        """ Check that .from_(None) raises. """
         
-        
+        query = select("?s")
+        self.assertRaises(ValueError, lambda: query.from_(None))

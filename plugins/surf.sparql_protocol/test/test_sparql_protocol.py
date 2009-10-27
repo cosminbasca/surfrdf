@@ -26,7 +26,7 @@ class TestSparqlProtocol(TestCase):
         # maybe we can mock SPARQL endpoint.
         store = surf.Store(reader = "sparql_protocol",
                            writer = "sparql_protocol",
-                           endpoint = "http://localhost:8890/sparql",
+                           endpoint = "http://localhost:9980/sparql",
                            default_context = "http://surf_test_graph/dummy2",
                            use_subqueries = True)
 

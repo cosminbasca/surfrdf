@@ -172,7 +172,11 @@ class Query(object):
         Each argument can be either `string` or :class:`URIRef`.
         
         """
-
+        
+        for uri in uris:
+            if uri is None:
+                raise ValueError("Invalid graph URI")
+        
         self._from += uris
         return self
         

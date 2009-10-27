@@ -51,6 +51,17 @@ class TestRdfLib(TestCase):
         self.assertTrue(isinstance(another_p2, surf.Resource))
         self.assertTrue(isinstance(another_p2.foaf_knows.first, surf.Resource))
         
+    def test_all(self):
+        """ Test that resource.all() works. """
+        
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF["Person"])
+        p1 = session.get_resource("http://p1", Person)
+
+        list(Person.all())
+        list(p1.all())
+
+        
         
         
         
