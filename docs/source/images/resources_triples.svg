@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.46"
+   sodipodi:docname="johnjane.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   inkscape:export-filename="/home/petcau/johnjane.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs4">
+    <marker
+       inkscape:stockid="Arrow1Lstart"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lstart"
+       style="overflow:visible">
+      <path
+         id="path3343"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none"
+         transform="scale(0.8) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lend"
+       style="overflow:visible;">
+      <path
+         id="path3346"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       inkscape:vp_y="6.1230318e-14 : 1000 : 0"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       id="perspective10" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     gridtolerance="10000"
+     guidetolerance="10"
+     objecttolerance="10"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.4"
+     inkscape:cx="345.37381"
+     inkscape:cy="817.31247"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1600"
+     inkscape:window-height="1124"
+     inkscape:window-x="0"
+     inkscape:window-y="25" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#f8fdf9;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:4, 8;stroke-dashoffset:2.6;stroke-opacity:1"
+       id="rect6218"
+       width="817.14288"
+       height="254.28572"
+       x="-28.571428"
+       y="218.21933"
+       ry="7.3917975" />
+    <rect
+       style="fill:#f8f9fd;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:4, 8;stroke-dashoffset:2.6;stroke-opacity:1"
+       id="rect6216"
+       width="816.42859"
+       height="225.71428"
+       x="-27.857134"
+       y="-6.923533"
+       ry="7.3917975" />
+    <rect
+       style="fill:#0000ff;fill-opacity:0;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect2383"
+       width="531.42859"
+       height="157.14285"
+       x="51.42857"
+       y="493.79074"
+       ry="19.430965" />
+    <g
+       id="g3320"
+       transform="translate(-10.714286,-1.4285714)">
+      <rect
+         ry="7.3917975"
+         y="71.790611"
+         x="90.856995"
+         height="105.42883"
+         width="185.42883"
+         id="rect2385"
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.85687876;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <text
+         id="text3157"
+         y="103.43361"
+         x="102.5"
+         style="font-size:18px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           y="103.43361"
+           x="102.5"
+           id="tspan3159"
+           sodipodi:role="line">FoafPerson &quot;john&quot;</tspan></text>
+      <path
+         id="path3205"
+         d="M 90.714286,111.29075 C 276.42857,111.29075 275.71429,111.6479 275.71429,111.6479"
+         style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <text
+         id="text3207"
+         y="133.07646"
+         x="102.5"
+         style="font-size:40px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           style="font-size:14px"
+           y="133.07646"
+           x="102.5"
+           id="tspan3209"
+           sodipodi:role="line">foaf_name</tspan><tspan
+           id="tspan3211"
+           style="font-size:14px"
+           y="150.57646"
+           x="102.5"
+           sodipodi:role="line">foaf_knows</tspan></text>
+    </g>
+    <g
+       id="g3329"
+       transform="translate(73.571429,5)">
+      <rect
+         ry="7.3917975"
+         y="68.933479"
+         x="382.39273"
+         height="105.42883"
+         width="185.42883"
+         id="rect3213"
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.85687876;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <text
+         id="text3215"
+         y="100.57648"
+         x="394.03574"
+         style="font-size:18px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           y="100.57648"
+           x="394.03574"
+           id="tspan3217"
+           sodipodi:role="line">FoafPerson &quot;jane&quot;</tspan></text>
+      <path
+         id="path3219"
+         d="M 382.25001,108.43362 C 567.9643,108.43362 567.25002,108.79077 567.25002,108.79077"
+         style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <text
+         id="text3221"
+         y="130.21933"
+         x="394.03574"
+         style="font-size:40px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           style="font-size:14px"
+           y="130.21933"
+           x="394.03574"
+           id="tspan3223"
+           sodipodi:role="line">foaf_name</tspan><tspan
+           id="tspan3225"
+           style="font-size:14px"
+           y="147.71933"
+           x="394.03574"
+           sodipodi:role="line">is_foaf_knows_of</tspan></text>
+    </g>
+    <g
+       id="g3268"
+       transform="translate(-52.142857,-33.928551)">
+      <rect
+         ry="4.9424257"
+         y="333.6344"
+         x="76.986526"
+         height="25.312668"
+         width="312.45554"
+         id="rect3247"
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1.10832703;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3227"
+         y="350.51019"
+         x="241.22258"
+         style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           y="350.51019"
+           x="241.22258"
+           id="tspan3229"
+           sodipodi:role="line">samplens:john foaf:name &quot;John&quot;.</tspan></text>
+    </g>
+    <g
+       id="g3263"
+       transform="translate(-25.357132,-20.714272)">
+      <rect
+         ry="4.9424257"
+         y="287.56299"
+         x="50.200802"
+         height="25.312668"
+         width="312.45554"
+         id="rect3251"
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1.10832703;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3253"
+         y="304.43878"
+         x="214.43686"
+         style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           y="304.43878"
+           x="214.43686"
+           id="tspan3255"
+           sodipodi:role="line">samplens:john rdf:type foaf:Person.</tspan></text>
+    </g>
+    <g
+       id="g3315"
+       transform="translate(165.71429,-105)">
+      <rect
+         ry="4.9424257"
+         y="464.70584"
+         x="46.629375"
+         height="25.312668"
+         width="312.45554"
+         id="rect3257"
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1.10832703;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3259"
+         y="481.58163"
+         x="210.86543"
+         style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           y="481.58163"
+           x="210.86543"
+           id="tspan3261"
+           sodipodi:role="line">samplens:john foaf:knows samplens:jane.</tspan></text>
+    </g>
+    <g
+       id="g3285"
+       transform="translate(115.71429,-102.85714)">
+      <rect
+         ry="4.9424257"
+         y="402.56299"
+         x="274.48651"
+         height="25.312668"
+         width="312.45554"
+         id="rect3273"
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1.10832703;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3275"
+         y="419.43878"
+         x="438.72256"
+         style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           y="419.43878"
+           x="438.72256"
+           id="tspan3277"
+           sodipodi:role="line">samplens:jane foaf:name &quot;Jane&quot;.</tspan></text>
+    </g>
+    <g
+       id="g3310"
+       transform="translate(63.571437,-89.285714)">
+      <rect
+         ry="4.9424257"
+         y="356.13443"
+         x="326.62936"
+         height="25.312668"
+         width="312.45554"
+         id="rect3279"
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1.10832703;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3281"
+         y="373.01022"
+         x="490.86542"
+         style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           y="373.01022"
+           x="490.86542"
+           id="tspan3283"
+           sodipodi:role="line">samplens:jane rdf:type foaf:Person.</tspan></text>
+    </g>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="M 23.571429,312.36218 C -2.1428571,271.64789 24.187673,181.64789 89.285715,125.93361"
+       id="path3338"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="M 25,278.79075 C -12.142858,178.07647 69.999999,113.79076 92.142857,95.219325"
+       id="path5162"
+       sodipodi:nodetypes="cc" />
+    <text
+       xml:space="preserve"
+       style="font-size:14px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="16.428572"
+       y="38.790756"
+       id="text6206"><tspan
+         sodipodi:role="line"
+         id="tspan6208"
+         x="16.428572"
+         y="38.790756"
+         style="font-size:36px">Resources</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:36px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="20.067244"
+       y="418.07648"
+       id="text6210"><tspan
+         sodipodi:role="line"
+         id="tspan6212"
+         x="20.067244"
+         y="418.07648">Triples</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:4,8;stroke-dashoffset:2.6"
+       d="M -0.71428572,219.50504 L 745,219.50504"
+       id="path6214"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="M 703.57143,278.79075 C 742.85714,196.64789 658.57143,118.79075 633.57143,95.933609"
+       id="path6220"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="M 702.14286,312.36218 C 823.57143,99.505037 601.42857,133.79075 554.28571,130.21932"
+       id="path6743"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="M 359.28571,359.50504 C 360.71428,121.6479 232.85714,146.6479 174.28571,145.93361"
+       id="path7268"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="M 369.28571,359.50504 C 372.85713,193.07647 412.85715,150.93361 464.28572,149.50504"
+       id="path7791"
+       sodipodi:nodetypes="cc" />
+  </g>
+</svg>
