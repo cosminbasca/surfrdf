@@ -263,8 +263,11 @@ class RDFQueryReader(RDFReader):
         subjects = {} 
         results = []
         for match in table:
-            subject = match["s"]
-            predicate = match["p"]
+            # Make sure subject and predicate are URIs (they have to be!),
+            # this works around bug in Virtuoso -- it sometimes returns
+            # URIs as Literals. 
+            subject = URIRef(match["s"])
+            predicate = URIRef(match["p"])
             value = match["v"]
 
             # Add subject to result list if it's not there
