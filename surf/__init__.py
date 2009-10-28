@@ -58,11 +58,15 @@ import sys
 import os
 import re
 
+# get_svn_revision comes  from Django Project:
+# http://code.djangoproject.com/browser/django/trunk/django/utils/version.py
 def get_svn_revision(path=None):
-    '''
-    returns the `svn revision number` of the current surf source folder
-    the rev. number is used by the `__version__` property
-    '''
+    """ Return the `svn revision number` of the current surf source folder.
+        
+    The revision number is used by the `__version__` property.
+    
+    """
+    
     rev = None
     if path is None:
         path = sys.modules[__name__].__path__[0]
@@ -87,4 +91,4 @@ def get_svn_revision(path=None):
         return u'r%s' % rev
     return u'Sunknown'
 
-__version__ = (0,5,0,get_svn_revision())
+__version__ = (0, 99, 0, get_svn_revision())

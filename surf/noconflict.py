@@ -34,24 +34,27 @@
 
 # -*- coding: utf-8 -*-
 
+# Recipe 204197: SOLVING THE METACLASS CONFLICT
+# http://code.activestate.com/recipes/204197/ 
+
 import inspect, types, __builtin__
 
 ############## preliminary: two utility functions #####################
 
 def skip_redundant(iterable, skipset=None):
-   "Redundant items are repeated items or items in the original skipset."
-   if skipset is None: skipset = set()
-   for item in iterable:
-       if item not in skipset:
-           skipset.add(item)
-           yield item
+    "Redundant items are repeated items or items in the original skipset."
+    if skipset is None: skipset = set()
+    for item in iterable:
+        if item not in skipset:
+            skipset.add(item)
+            yield item
 
 
 def remove_redundant(metaclasses):
-   skipset = set([types.ClassType])
-   for meta in metaclasses: # determines the metaclasses to be skipped
-       skipset.update(inspect.getmro(meta)[1:])
-   return tuple(skip_redundant(metaclasses, skipset))
+    skipset = set([types.ClassType])
+    for meta in metaclasses: # determines the metaclasses to be skipped
+        skipset.update(inspect.getmro(meta)[1:])
+    return tuple(skip_redundant(metaclasses, skipset))
 
 ##################################################################
 ## now the core of the module: two mutually recursive functions ##
@@ -68,12 +71,12 @@ def get_noconflict_metaclass(bases, left_metas, right_metas):
 
     # return existing confict-solving meta, if any
     if needed_metas in memoized_metaclasses_map:
-      return memoized_metaclasses_map[needed_metas]
+        return memoized_metaclasses_map[needed_metas]
     # nope: compute, memoize and return needed conflict-solving meta
     elif not needed_metas:         # wee, a trivial case, happy us
         meta = type
     elif len(needed_metas) == 1: # another trivial case
-       meta = needed_metas[0]
+        meta = needed_metas[0]
     # check for recursion, can happen i.e. for Zope ExtensionClasses
     elif needed_metas == bases: 
         raise TypeError("Incompatible root metatypes", needed_metas)
@@ -84,7 +87,7 @@ def get_noconflict_metaclass(bases, left_metas, right_metas):
     return meta
 
 def classmaker(left_metas=(), right_metas=()):
-   def make_class(name, bases, adict):
-       metaclass = get_noconflict_metaclass(bases, left_metas, right_metas)
-       return metaclass(name, bases, adict)
-   return make_class
+    def make_class(name, bases, adict):
+        metaclass = get_noconflict_metaclass(bases, left_metas, right_metas)
+        return metaclass(name, bases, adict)
+    return make_class
