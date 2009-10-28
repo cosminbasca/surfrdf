@@ -1,4 +1,4 @@
-Example using AllegroGraph from Franz
+Using AllegroGraph from Franz
 =====================================
 
 .. testcode::

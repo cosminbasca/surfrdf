@@ -1,7 +1,4 @@
-Inegrating :mod:`surf` with `Pylons`
-------------------------------------
-
-Creating a `Pylons` Blog, on `SuRF`
+Creating a Pylons Blog, on SuRF
 ===================================
 
 The example is an adaptation of the following example

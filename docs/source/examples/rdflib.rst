@@ -1,5 +1,5 @@
-Example using the rdflib to load remote public RDF file
-=======================================================
+Loading public remote RDF file using rdflib 
+===========================================
 
 Print all persons mentioned in Tim Berners-Lee's FOAF document:
 

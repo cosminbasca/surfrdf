@@ -1,5 +1,5 @@
 The `allegro_franz` Plugin
---------------------------
+==========================
 
 .. csv-table:: Input Parameters
     :header: "Parameter", "Default Value", "Description"
@@ -21,3 +21,12 @@ the parameters are passed as key-value arguments to the :class:`surf.store.Store
                 catalog     = 'repositories',
                 repository  = 'test_surf')
         
+        
+Setting up `AllegroGraph` RDF Store
+-----------------------------------
+
+.. toctree::
+   :maxdepth: 2
+   
+   /integration/allegro
+           

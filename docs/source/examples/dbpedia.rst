@@ -1,4 +1,4 @@
-Example using the public SPARQL-endpoint from DBpedia
+Using the public SPARQL-endpoint from DBpedia
 =====================================================
 
 Getting Phil Collins albums and covers:

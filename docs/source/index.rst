@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to SuRF's documentation!
-================================
+SuRF – Object RDF mapper
+========================
 
 .. image:: images/surf-logo.png
    :scale: 70
@@ -12,23 +12,25 @@ Welcome to SuRF's documentation!
    :align: center
 
 `SuRF` is an Object - RDF Mapper based on the popular `rdflib` python library.
-It exposes the RDF triple sets as sets of resources and seamlessly integrates them
-into the Object Oriented paradigm of python in a similar manner as `ActiveRDF` does for ruby.
+It exposes the RDF triple sets as sets of resources and seamlessly integrates 
+them into the Object Oriented paradigm of python in a similar manner 
+as `ActiveRDF` does for ruby.
 
 
-Installation and Configuration
-==============================
+Documentation
+-------------
 
 .. toctree::
    :maxdepth: 2
    
    install
+   examples
+   store_session 
+   resources_classes
    plugins
-   build
-   integration/allegro
 
-Modules
-=======
+API reference
+-------------
 
 .. toctree::
    :maxdepth: 2
@@ -44,38 +46,8 @@ Modules
    modules/plugin
    modules/rest
    
-The Plugins
-===========
-
-.. toctree::
-   :maxdepth: 2
-   
-   plugins/allegro_franz
-   plugins/rdflib
-   plugins/sesame2
-   plugins/sparql_protocol
-
-Examples
-========
-
-.. toctree::
-   :maxdepth: 2
-   
-   examples/dbpedia
-   examples/rdflib
-   examples/allegro
-   
-Integration with web frameworks
-===============================
-   
-
-.. toctree::
-   :maxdepth: 2
-   
-   integration/pylons
-   
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
