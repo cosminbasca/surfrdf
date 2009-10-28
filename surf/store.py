@@ -176,14 +176,6 @@ class Store(object):
         
         return self.reader.is_present(resource)
         
-    def all(self, concept, limit = None, offset = None, 
-            full = False, context = None):
-        """ :func:`surf.plugin.reader.RDFReader.all` method. """
-        
-        context = self.__add_default_context(context)
-        return self.reader.all(concept, limit = limit, offset = offset,
-                               full = full, context = context)
-        
     def concept(self, resource):
         """ :func:`surf.plugin.reader.RDFReader.concept` method. """
         
@@ -196,21 +188,10 @@ class Store(object):
         return self.reader.instances_by_attribute(resource, attributes, 
                                                   direct, context)
         
-    def instances(self, resource, direct, filter, predicates, context):
-        """ :func:`surf.plugin.reader.RDFReader.instances` method. """
-        
-        context = self.__add_default_context(context)
-        return self.reader.instances(resource, direct, filter, predicates, 
-                                     context)
-
     def get_by(self, params):
         params["context"] = self.__add_default_context(params.get("context"))
         return self.reader.get_by(params)
         
-    def instances_by_value(self, resource, direct, attributes):
-        """ :func:`surf.plugin.reader.RDFReader.instances_by_value` method. """
-        return self.reader.instances_by_value(resource, direct, attributes)
-    
     #---------------------------------------------------------------------------
     # the query reader interface
     #---------------------------------------------------------------------------

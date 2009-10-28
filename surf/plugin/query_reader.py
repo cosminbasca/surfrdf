@@ -36,7 +36,7 @@
 __author__ = 'Cosmin Basca'
 
 from surf.plugin.reader import RDFReader
-from surf.query import Query, a, ask, select, Filter, optional_group, named_group
+from surf.query import Query, a, ask, select, optional_group, named_group
 
 from rdflib.URIRef import URIRef
 
@@ -75,37 +75,6 @@ def query_Ask(subject, context):
 
     return query
     
-def query_All(concept, limit = None, offset = None, context = None):
-    """ Construct :class:`surf.query.Query` with `?s` as the unknown. """ 
-
-    query = select('?s').distinct()
-    query.where(('?s', a, concept)).limit(limit).offset(offset)
-    if context:
-        query.from_(context)
-    
-    return query 
-
-def query_AllRelated(concept, limit = None, offset = None, context = None):
-    """ Return Query that selects subjects and related triples.
-        
-    First, in subquery, select resource `URIs` that have type matching concept 
-    argument. Then, in main query, select all triples that have previously
-    selected `URIs` as subjects.  
-    
-    """
-    
-    inner_query = select('?s').where(('?s', a, concept))
-    inner_query.limit(limit).offset(offset)
-    
-    query = select('?s', '?p', '?v', '?c').distinct()
-    query.group(('?s', '?p', '?v'), optional_group(('?v',a,'?c')))
-    query.where(inner_query)
-    
-    if context:
-        query.from_(context)
-    
-    return query
-    
 #Resource class level
 def query_P_S(c, p, direct, context):
     """ Construct :class:`surf.query.Query` with `?s` and `?c` as unknowns. """ 
@@ -121,36 +90,6 @@ def query_P_S(c, p, direct, context):
     
     return query
 
-def query_PO(c, direct, filter = "", preds = {}, context = None):
-    """ Construct :class:`surf.query.Query` with filters. 
-    
-    Filters have to follow SPARQL syntax.
-    
-    """ 
-
-    query = select('?s', '?c').distinct().where(('?s', a, c))
-    if context:
-        query.from_(context)
-    
-    i = 0 
-    for p, v in preds.items():
-        f = Filter.regex('?v%d' % (i), v) if filter == 'regex' and direct else None
-        s, v = ('?s', v) if direct else (v, '?s')
-        query.where((s, p, v)).filter(f)
-        i += 1
-    query.optional_group(('?s', a, '?c'))
-    return query
-
-def query_P_V(c, direct, p = []):
-    """ Construct :class:`surf.query.Query` with `?v` and `?c` as unknowns. """ 
-
-    query = select('?v', '?c').distinct()
-    for i in range(len(p)):
-        s, v= (c, '?v') if direct else ('?v', c)
-        query.where((s, p[i], v))
-    query.optional_group(('?v', a, '?c'))
-    return query
-    
 def query_Concept(subject):
     """ Construct :class:`surf.query.Query` with `?c` as the unknown. """ 
 
@@ -183,22 +122,6 @@ class RDFQueryReader(RDFReader):
         result = self._execute(query)
         return self._ask(result)
     
-    def _all(self, concept, limit = None, offset = None, full = False,
-             context = None):
-        
-        if full and self.use_subqueries:
-            query = query_AllRelated(concept, limit = limit, offset = offset,
-                                     context = context)
-                        
-            result = self._execute(query)
-            return self.convert(result, 's', 'p', 'v', 'c')
-        else:
-            query = query_All(concept, limit = limit, offset = offset, 
-                              context = context)
-            
-            result = self._execute(query)
-            return self.convert(result,'s')
-    
     def _concept(self,subject):
         query = query_Concept(subject)
         result = self._execute(query)
@@ -209,14 +132,7 @@ class RDFQueryReader(RDFReader):
         result = self._execute(query)
         return self.convert(result, 's', 'c')
         
-    def _instances(self, concept, direct, filter, predicates, context):
-        query = query_PO(concept, direct, filter = filter, preds = predicates,
-                         context = context)
-        
-        result = self._execute(query)
-        return self.convert(result, 's', 'c')
-
-    def __apply_limit_offset_order_get_by(self, params, query):
+    def __apply_limit_offset_order_get_by_filter(self, params, query):
         """ Apply limit, offset, order parameters to query. """
         
         if "limit" in params:
@@ -241,6 +157,15 @@ class RDFQueryReader(RDFReader):
                 else:
                     query.where((value, attribute, "?s"))
         
+        if "filter" in params:
+            filter_idx = 0
+            for attribute, value, direct  in params["filter"]:
+                filter_idx += 1
+                filter_variable = "?f%d" % filter_idx
+                query.where(("?s", attribute, filter_variable))
+                query.filter(value % filter_variable)
+                
+        
         return query
         
     def _get_by(self, params):
@@ -253,7 +178,7 @@ class RDFQueryReader(RDFReader):
 
         # No details, just subjects and classes
         query = select("?s", "?c")
-        self.__apply_limit_offset_order_get_by(params, query)
+        self.__apply_limit_offset_order_get_by_filter(params, query)
         query.optional_group(("?s", a, "?c"))
 
         context = params.get("context", None)
@@ -287,7 +212,7 @@ class RDFQueryReader(RDFReader):
         if not (context is None):
             query.from_(context)
 
-        self.__apply_limit_offset_order_get_by(params, query)
+        self.__apply_limit_offset_order_get_by_filter(params, query)
                 
         # Load details, for now the simplest approach with N queries. 
         # Use _to_table instead of convert to preserve order.
@@ -316,7 +241,7 @@ class RDFQueryReader(RDFReader):
         inner_params = params.copy()
         if "order" in inner_params:
             del inner_params["order"]
-        self.__apply_limit_offset_order_get_by(inner_params, inner_query)
+        self.__apply_limit_offset_order_get_by_filter(inner_params, inner_query)
         
         query = select("?s", "?p", "?v", "?c").distinct()
         query.group(('?s', '?p', '?v'), optional_group(('?v',a,'?c')))
@@ -363,11 +288,6 @@ class RDFQueryReader(RDFReader):
                 predicate_values[value].append(match["c"])
             
         return results
-        
-    def _instances_by_value(self, concept, direct, attributes):
-        query = query_P_V(concept, direct, p = attributes)
-        result = self._execute(query)
-        return self.convert(result, 'v', 'c')
     
     # to implement
     def _ask(self, result):

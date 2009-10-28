@@ -68,16 +68,6 @@ class RDFReader(Plugin):
         
         return False
     
-    def _all(self, concept, limit = None, offset = None, 
-             full = False, context = None):
-        """ To be implemented by classes that inherit `RDFReader`.
-        
-        This method is called directly by :meth:`all`.
-        
-        """
-        
-        return []
-        
     def _concept(self,subject):
         """ To be implemented by classes that inherit `RDFReader`.
         
@@ -95,30 +85,11 @@ class RDFReader(Plugin):
         """
         
         return []
-        
-    def _instances(self, concept, direct, filter, predicates, context):
-        """ To be implemented by classes that inherit `RDFReader`.
-        
-        This method is called directly by :meth:`instances`.
-        
-        """
-        
-        return []
     
     def _get_by(self, params):
         
         return []    
         
-    def _instances_by_value(self,concept,direct,attributes):
-        """ To be implemented by classes that inherit `RDFReader`.
-        
-        This method is called directly by `instances_by_value`. 
-        
-        """
-        
-        return []
-    
-    
     #public interface
     def get(self, resource, attribute, direct):
         """ Return the `value(s)` of the corresponding `attribute`.
@@ -150,36 +121,6 @@ class RDFReader(Plugin):
         subj = resource.subject if hasattr(resource, 'subject') else resource
         return self._is_present(subj, resource.context)
         
-    def all(self, concept, limit = None, offset = None, 
-            full = False, context = None):
-        """ Return information about instances of `concept`. 
-        
-        This method would normally return list of URIs. For example::
-        
-            >>> Person = surf.ns.FOAF["Person"]
-            >>> reader = session.default_store.reader
-            >>> reader.all(Person)
-            [rdflib.URIRef('http://p1'), rdflib.URIRef('http://p2')]
-        
-        If parameter ``full`` is set to `True` and reader plugin is instructed
-        to use sub queries (:attr:`surf.store.Store.use_subqueries` is 
-        set to `True`), then this method will return 
-        {subject : attrs_values, ... } dictionary::
-        
-            >>> Person = surf.ns.FOAF["Person"]
-            >>> reader = session.default_store.reader
-            >>> reader.all(Person, full = True)
-            {rdflib.URIRef('http://p1'): { pred  : { value  : class, value2 : class2 },
-                                           pred2 : { value3 : class3 }},
-             ...
-            }   
-                                        
-        """
-        
-        con = concept.uri if hasattr(concept, 'uri') else concept
-        return self._all(con, limit = limit, offset = offset, 
-                         full = full, context = context)
-        
     def concept(self, resource):
         """ Return the `concept` URI of the following `resource`.
         
@@ -204,38 +145,5 @@ class RDFReader(Plugin):
         return self._instances_by_attribute(concept, attributes, direct, 
                                             context)
         
-    def instances(self, resource, direct, filter, predicates, context):
-        """ 
-        Return all `URIs` that are instances of ``resource`` and have the
-        specified `predicates` - a `dict` where the key is the shorthand 
-        notation, and the value is the predicate value.
-        
-        If ``direct`` is `False`, than the subject of the ``resource`` is 
-        considered the object of the query.
-        
-        .. code-block:: python
-            
-            store.instances(resource, True, None, {'foaf_name' : 'John Doe'})
-            
-        """
-        
-        concept = resource.uri if hasattr(resource, 'uri') else resource
-        #TODO: make sure uri's are passed further
-        return self._instances(concept, direct, filter, predicates, context)
-
     def get_by(self, params):
         return self._get_by(params)
-        
-    def instances_by_value(self, resource, direct, attributes):
-        """
-        Return all `URIs` that are instances of ``resource`` as values and
-        that have the specified ``attributes``.
-        
-        If ``direct`` is `False`, than the subject of the ``resource`` is 
-        considered the object of the query.
-        
-        """
-        
-        concept = resource.uri if hasattr(resource, 'uri') else resource
-        return self._instances_by_value(concept,direct,attributes)
-        

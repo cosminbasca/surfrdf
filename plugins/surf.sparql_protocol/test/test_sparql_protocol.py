@@ -263,7 +263,7 @@ class TestSparqlProtocol(TestCase):
         """
 
         _, session = self._get_store_session()
-        Person = session.get_class(surf.ns.FOAF + "Person")
+        Person = session.get_class(surf.ns.FOAF["Person"])
         self.assertEquals(len(Person.all().full()), 3)
 
     def test_class_attrs_order(self):
@@ -282,3 +282,15 @@ class TestSparqlProtocol(TestCase):
         Person = session.get_class(surf.ns.FOAF["Person"])
         self.assertEqual(len(Person.rdfs_comment.order()), 1)
 
+    def test_filter(self):
+        """ Test filter on ResultProxy. """
+        
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF["Person"])
+        
+        # Select persons which have names starting with "J"
+        js = Person.all().filter(foaf_name = "(%s LIKE 'J%%')") 
+        self.assertEqual(len(js), 2)
+        
+        
+         

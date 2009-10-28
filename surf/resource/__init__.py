@@ -437,7 +437,8 @@ class Resource(object):
                     # Instantiate SuRF objects
                     surf_values = resource._lazy(values)
                 else:
-                    surf_values = []
+                    surf_values = []        
+
 
                 # Select triple dictionary for synchronization 
                 if direct:
@@ -564,40 +565,6 @@ class Resource(object):
         return proxy.get_by(rdf_type = cls.uri)
         
     @classmethod
-    def __get(cls, filter, context, *objects, **symbols):
-        """
-        
-        For *internal* use only! Retrieve `instances` of the `rdf:type` as 
-        the resource class, that have triples that match the `attr_name:value` 
-        pair specified using `**symbols`, the method also supports `filters`.
-        
-        """
-        
-        predicates_d = {}
-        predicates_d.update( [(attr2rdf(name)[0],symbols[name]) for name in symbols if is_attr_direct(name)])
-        predicates_i = {}
-        predicates_i.update( [(attr2rdf(name)[0],symbols[name]) for name in symbols if not is_attr_direct(name)])
-        
-        
-        subjects = {}
-        if len(symbols) > 0:
-            if len(predicates_d) > 0:
-                subjects.update(cls.session[cls.store_key].instances(cls, True, filter, predicates_d, context))
-            if len(predicates_i) > 0:
-                subjects.update(cls.session[cls.store_key].instances(cls, False, filter, predicates_i, context))
-        
-        instances = []
-        for s, types in subjects.items():
-            if type(s) is not URIRef:
-                continue
-                
-            instance = cls._instance(s, [cls.uri] if cls.uri else types,
-                                     context = context)
-            instances.append(instance)
-            
-        return instances if len(instances) > 0 else []
-        
-    @classmethod
     def get_by(cls, **filters):
         """ Retrieve all instances that match specified filters and class.
         
@@ -638,17 +605,6 @@ class Resource(object):
         kwargs = {inverse_attribute_name : self.subject}
         return proxy.get_by(**kwargs)
          
-    
-    @classmethod
-    def get_like(cls, context = None, *objects, **symbols):
-        """ Retrieve all `instances` that match specified regex. 
-        
-        .. note:: Currently regex is slow, try to avoid the use of this method.
-        
-        """
-        
-        return cls.__get('regex', context, *objects, **symbols)
-    
     def serialize(self, format = 'xml', direct = False):
         """
         Return a serialized version of the internal graph represenatation

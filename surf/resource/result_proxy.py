@@ -98,6 +98,45 @@ class ResultProxy(object):
             params["get_by"].append((attr, value, direct))
         return ResultProxy(params)
 
+    def filter(self, **kwargs):
+        """ Add filter conditions. 
+        
+        Expects arguments in form::
+        
+            ns_predicate = "(%s > 15)"
+        
+        ``ns_predicate`` specifies which predicate will be used for 
+        filtering, a query variable will be bound to it. `%s` is a placeholder 
+        for this variable. 
+        
+        Filter expression (in example: "(%s > 15)") must follow SPARQL
+        specification, on execution "%s" will be substituted with variable
+        and the resulting string will be placed in query as-is. Because of
+        string substitution percent signs need to be escaped. For example::
+        
+            Person.all().filter(foaf_name = "(%s LIKE 'J%%')")
+
+        This Virtuoso-specific filter is intended to select persons with names starting with
+        "J". In generated query it will look like this::
+        
+            ...
+            ?s <http://xmlns.com/foaf/0.1/name> ?f1 .  
+            FILTER (?f1 LIKE 'J%')
+            ... 
+            
+        """
+        
+        params = self.__params.copy()
+        params.setdefault("filter", [])
+        for name, value in kwargs.items():
+            attr, direct = attr2rdf(name)
+            assert direct, "Only direct attributes can be used for filters"
+            # Assume by plain strings user means literals
+            if type(value) in [str, unicode]:
+                value = Literal(value)
+            params["filter"].append((attr, value, direct))
+        return ResultProxy(params)
+
     def context(self, context):
         params = self.__params.copy()
         params["context"] = context
@@ -108,7 +147,7 @@ class ResultProxy(object):
             self.__get_by_args = {}
 
             for key in ["limit", "offset", "full", "order", "desc", "get_by", 
-                        "only_direct", "context"]:
+                        "only_direct", "context", "filter"]:
                 if key in self.__params:
                     self.__get_by_args[key] = self.__params[key]
 
