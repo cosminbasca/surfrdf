@@ -3,7 +3,7 @@ Installing SuRF
 
 SuRF is can be most easily installed with setuptools 
 (`setuptools installation <http://peak.telecommunity.com/DevCenter/EasyInstall#installation-instructions>`_).
-Run this command-line::
+Run this from the command-line::
 
     easy_install surf
 
