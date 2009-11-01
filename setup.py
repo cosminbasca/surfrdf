@@ -46,7 +46,10 @@ setup(
       name='SuRF',
       version='0.99.0',
       description='Object RDF Resource Mapper',
-      long_description = 'This is RDF Resource Mapper to python objects, allows one to connect to various triple stores or arbitrary SPARQL endpoints. It is inspired by the work on ActiveRDF for ruby',
+      long_description = '''SuRF is an Object - RDF Mapper based on the popular
+      rdflib python library. It exposes the RDF triple sets as sets of
+      resources and seamlessly integrates them into the Object Oriented
+      paradigm of python in a similar manner as ActiveRDF does for ruby.''',
       license = 'New BSD SOFTWARE', 
       author="Cosmin Basca",
       author_email="cosmin.basca at google.com",
@@ -56,9 +59,9 @@ setup(
       packages=find_packages(exclude=['ez_setup']),
       requires=['simplejson'], # Used by distutils to create metadata PKG-INFO
       install_requires=['rdflib>=2.4.2',
-                        'simplejson==2.0.9',], #Used by setuptools to install the dependencies
+                        'simplejson>=2.0.9',], #Used by setuptools to install the dependencies
       classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
