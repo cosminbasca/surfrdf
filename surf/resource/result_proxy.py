@@ -64,27 +64,74 @@ class ResultProxy(object):
         return ResultProxy(params)
 
     def offset(self, value):
+        """ Set the limit for returned results. """
+
         params = self.__params.copy()
         params["offset"] = value
         return ResultProxy(params)
     
     def full(self, only_direct = False):
+        """ Enable eager-loading of resource attributes. 
+        
+        If ``full`` is set to `True`, returned resources will have attributes
+        already loaded. 
+        
+        Whether setting this will bring performance 
+        improvements depends on reader plugin implementation. 
+        For example, sparql_protocol plugin is capable of using SPARQL
+        subqueries to fully load multiple resources in one request.    
+        
+         """
+        
         params = self.__params.copy()
         params["full"] = True
         params["only_direct"] = only_direct
         return ResultProxy(params)
     
     def order(self, value = True):
+        """ Request results to be ordered. 
+        
+        If no arguments are specified, resources will be ordered by their
+        subject URIs.
+        
+        If ``value`` is set to an URIRef, corresponding attribute will be
+        used for sorting. For example, sorting persons by surname::
+        
+            FoafPerson = session.get_class(surf.ns.FOAF.Person)
+            for person in FoafPerson.all().order(surf.ns.FOAF.surname):
+                print person.foaf_name.first, person.foaf_surname.first
+        
+        Currently only one sorting key is supported.
+        
+        """ 
+        
         params = self.__params.copy()
         params["order"] = value
         return ResultProxy(params)
     
     def desc(self):
+        """ Set sorting order to descending. """
+        
         params = self.__params.copy()
         params["desc"] = True
         return ResultProxy(params)
     
     def get_by(self, **kwargs):
+        """ Add filter conditions.
+        
+        Arguments are expected in form::
+        
+            foaf_name = "John"
+            
+        Multiple arguments are supported. 
+        An example that retrieves all persons named "John Smith"::
+        
+            FoafPerson = session.get_class(surf.ns.FOAF.Person)
+            for person in FoafPerson.get_by(foaf_name = "John", foaf_surname = "Smith"):
+                print person.subject
+        
+        """
+        
         params = self.__params.copy()
         # Don't overwrite existing get_by parameters, just append new ones.
         # Overwriting get_by params would cause resource.some_attr.get_by()
@@ -138,6 +185,8 @@ class ResultProxy(object):
         return ResultProxy(params)
 
     def context(self, context):
+        """ Specify context/graph that resources should be loaded from. """
+        
         params = self.__params.copy()
         params["context"] = context
         return ResultProxy(params)
