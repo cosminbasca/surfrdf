@@ -34,10 +34,20 @@
 
 # -*- coding: utf-8 -*-
 
+# Copyright, Sat, 7 Jun 2003
+# by:	Michele Simionato
 # Recipe 204197: SOLVING THE METACLASS CONFLICT
 # http://code.activestate.com/recipes/204197/ 
 
 import inspect, types, __builtin__
+
+'''
+.. note:: This module appears `as is` and is based on the `Recipe 204197:
+SOLVING THE METACLASS CONFLICT`, solution contributed by Michele Simionato on Sat, 7 Jun 2003
+copyright held by Michele Simionata, Jun 2003,
+
+see: http://code.activestate.com/recipes/204197/ 
+'''
 
 ############## preliminary: two utility functions #####################
 

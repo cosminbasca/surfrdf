@@ -65,6 +65,9 @@ def get_svn_revision(path=None):
         
     The revision number is used by the `__version__` property.
     
+    .. note:: This function is used `as is` from the `django` project
+                see http://code.djangoproject.com/browser/django/trunk/django/utils/version.py
+        
     """
     
     rev = None
@@ -91,4 +94,4 @@ def get_svn_revision(path=None):
         return u'r%s' % rev
     return u'Sunknown'
 
-__version__ = (0, 99, 0, get_svn_revision())
+__version__ = (1, 0, 0, get_svn_revision())

@@ -44,7 +44,7 @@ from setuptools import setup, find_packages
 
 setup(
       name='SuRF',
-      version='0.99.0',
+      version='1.0.0',
       description='Object RDF Resource Mapper',
       long_description = '''SuRF is an Object - RDF Mapper based on the popular
       rdflib python library. It exposes the RDF triple sets as sets of
