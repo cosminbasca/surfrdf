@@ -58,6 +58,7 @@ Documentation
    store_session 
    resources_classes
    plugins
+   integration
 
 API reference
 -------------

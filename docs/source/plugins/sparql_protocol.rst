@@ -18,3 +18,10 @@ the parameters are passed as key-value arguments to the :class:`surf.store.Store
                 default_graph   =   "http://dbpedia.org")
         
         
+Setting up `OpenLink Virtuoso` RDF Store
+----------------------------------------
+
+.. toctree::
+   :maxdepth: 2
+   
+   /integration/virtuoso
