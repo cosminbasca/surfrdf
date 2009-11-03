@@ -1,5 +1,5 @@
-Using AllegroGraph from Franz
-=====================================
+Connecting :class:`surf.store.Store` to `AllegroGraph <http://www.franz.com/agraph/allegrograph/>`_ 
+===================================================================================================
 
 .. testcode::
 

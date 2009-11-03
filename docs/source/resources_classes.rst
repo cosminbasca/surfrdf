@@ -1,9 +1,9 @@
 Resources and Classes
 =====================
  
-SuRF Resource objects are the core part of SuRF. In SuRF, RDF data is queried, 
-accessed and modified by working with attributes of Resource objects.
-Here's how SuRF Resource maps to RDF triples at conceptual level:
+`SuRF` :class:`surf.resource.Resource` objects are the core part of `SuRF`. In `SuRF`,
+`RDF` data is queried, accessed and modified by working with attributes of `Resource` objects.
+Here's how the `SuRF` `Resource` maps to the RDF triples conceptual level:
 
 .. image:: images/resources_triples.png
    :alt: Resource - Triple mapping
@@ -19,7 +19,9 @@ If type and URI of resource is known, resource can be loaded using session's
 	# Create FoafPerson class:
 	FoafPerson = session.get_class(surf.ns.FOAF.Person)
 	# Create instance of FoafPerson class:
-	john = session.get_resource("http://john.com/me", FoafPerson) 
+	john = session.get_resource("http://john.com/me", FoafPerson)
+        # or simply like this
+        john = FoafPerson("http://john.com/me")
 
 Loading multiple resources
 --------------------------

@@ -64,19 +64,19 @@ just some of the plugins. Currently available plugins are:
 
     easy_install -U surf.sesame2
 
-Setting up development version
-------------------------------
+Setting up `SuRF` in development mode
+-------------------------------------
 
-To get latest development version of SuRF, checkout it from subversion and 
-install it using `setup.py` script. Plugins live in the same subversion 
-tree but each has separate `setup.py` script so needs to be 
+To get latest development version of SuRF, check it out from subversion and 
+install it using the `setup.py` script. Plugins live in the same subversion 
+tree but each has it's separate `setup.py` script, so they need to be 
 installed separately. 
 
-Instructions for getting code from subversion are here:
+Instructions for getting the code from subversion can be found here:
     
     http://code.google.com/p/surfrdf/source/checkout
     
-Commands for building eggs, installing in development mode, generating 
+A brief list of **commands** for building eggs, installing in development mode, generating 
 documentation: 
     
     .. csv-table:: 

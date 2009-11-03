@@ -1,22 +1,22 @@
-Store and Session
-=================
+The `Store` and the `Session`
+=============================
 
-What do store and session do?
------------------------------
+What do :class:`surf.store.Store` and :class:`surf.store.Session` do?
+---------------------------------------------------------------------
 
-Session establishes all conversations to backend storage service. Resources 
-use it to load and save their constituting triples. Session keeps  
-cache of already loaded data, and it uses one or more stores to do actual  
-loading and saving of data. 
+The `Session` establishes all conversations to the backend storage service. Resources 
+use it to load and save their constituting triples. `Session` keeps  
+a cache of already loaded data, and it uses one or more stores to do actual  
+loading and presistence of data. 
 
-Store provides functions for loading and saving data, these are divided 
-into "reader" and "writer" parts. Readers and writers are provided by plugins.
+The `Store` provides functions for loading and saving data, these are divided 
+into **reader** and **writer** sub-components. `Readers` and `writers` are provided by plugins.
 
-Preparing store and session
--------------------------------
+Preparing the `store` and the `session`
+---------------------------------------
 
-Store and Session can be instantiated as any regular Python object. 
-Instantiation of store and session is illustrated below:
+The `Store` and the `Session` objects can be instantiated as any regular Python object. 
+Instantiation of `store` and `session` objects is illustrated below:
 
 .. testcode::
 
@@ -24,7 +24,7 @@ Instantiation of store and session is illustrated below:
     store = surf.Store(reader = "rdflib", writer = "rdflib")
     session = surf.Session(store)
     
-Store is configured using its constructor arguments. ``reader`` and ``writer``
+the `Store` is configured using its constructor arguments. ``reader`` and ``writer``
 arguments specify which plugin is to be used for reading and writing RDF
 data. Possible values for these two arguments are `sparql_protocol`, 
 `rdflib`, `allegro_franz` and `sesame2`. Plugin-specific configuration options 
@@ -47,8 +47,8 @@ the following contents::
     reader=sparql_protocol
     endpoint=http://dbpedia.org/sparql 
 
-This snippet loads all keys from "[surf]" section of that file and passes them
-to Store constructor::
+The following snippet loads all configuration keys from the **[surf]** section of the **ini** file
+and passes them to `Store` constructor::
 
     import ConfigParser
     import surf

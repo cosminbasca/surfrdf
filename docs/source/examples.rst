@@ -6,5 +6,6 @@ Quick Start examples
    
    examples/dbpedia
    examples/rdflib
+   examples/rdflib_mysql
    examples/allegro
    integration/pylons

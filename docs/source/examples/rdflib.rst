@@ -1,5 +1,5 @@
-Loading public remote RDF file using rdflib 
-===========================================
+Loading a public remote RDF file using `rdflib <http://www.rdflib.net/>`_ 
+=========================================================================
 
 Print all persons mentioned in Tim Berners-Lee's FOAF document:
 
