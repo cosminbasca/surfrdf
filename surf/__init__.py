@@ -50,7 +50,7 @@ if ('Memory',rdf.store.Store) not in _plugins:
 
 from surf.query import Query, select, ask, describe, construct, OptionalGroup, Group, NamedGroup, Filter
 
-from resource import Resource, a
+from surf.resource import Resource, a
 import namespace as ns
 from store import Store, PluginNotFoundException, NO_CONTEXT
 from session import Session

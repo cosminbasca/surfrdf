@@ -109,7 +109,7 @@ YAGO          = Namespace('http://dbpedia.org/class/yago/')
 __inverted_dict__ = {}
 for k,v in sys.modules[__name__].__dict__.items():
     if type(v) in [Namespace, ClosedNamespace]:
-         __inverted_dict__[v.__str__()] = k
+        __inverted_dict__[v.__str__()] = k
          
 def __add_inverted(prefix):
     ns_dict = sys.modules[__name__].__dict__

@@ -70,7 +70,7 @@ class Rest(object):
     def new(self, json_params):
         '''**REST** : GET /new: Form to create a new item.
         creates a new instance of the current `Resource` type'''
-        self.create(concept, json_params)
+        self.create(json_params)
     
     def update(self, id, json_params):
         '''**REST** : PUT /id: Update an existing item.,
@@ -83,7 +83,7 @@ class Rest(object):
     def edit(self, id, json_params):
         '''**REST** : GET /id;edit:
         updates an instances attributes with the supplied parameters'''
-        self.update(concept, id, json_params)
+        self.update(id, json_params)
     
     def delete(self, id):
         '''**REST** : DELETE /id: Delete an existing item.
