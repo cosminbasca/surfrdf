@@ -88,10 +88,8 @@ class ResourceMeta(type):
         
         if cls.session:
             uri = vals[0] if len(vals) > 0 else None
-            classes = map(uri_to_class,vals[1:]) if len(vals) > 1 else []
-            session_classes = cls.session.get(uri,[])
-            if type(session_classe) not in [list, tuple, set]: session_classes = [session_classes]
-            classes.exetend(session_classes)
+            classes = map(uri_to_class, vals[1:]) if len(vals) > 1 else []
+            
             if uri:
                 return cls.session.map_instance(uri, subject, classes = classes,
                                                 block_outo_load = True,

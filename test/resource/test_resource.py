@@ -47,3 +47,29 @@ class TestResource(TestCase):
         # rdf_direct should contain two attributes now
         self.assertEquals(len(instance.rdf_direct), 2)
         self.assertEquals(len(instance.rdf_direct[surf.ns.FOAF["name"]]), 1)
+
+    def test_class_mapping(self):
+        """ Test class mapping. """
+        
+        class MyPerson(object):
+            def get_something(self):
+                pass
+        
+        _, session = self._get_store_session()
+        session.mapping[surf.ns.FOAF.Person] = [MyPerson]
+
+        # Class-level tests.
+        cls = session.get_class(surf.ns.FOAF.Person)
+        
+        assert issubclass(cls, surf.Resource)
+        assert issubclass(cls, MyPerson)
+        assert hasattr(cls, "get_something")
+        
+        # Instance-level tests.
+        
+        instance = session.get_resource("http://someuri", surf.ns.FOAF.Person)
+        
+        assert isinstance(instance, surf.Resource)
+        assert isinstance(instance, MyPerson)
+        assert hasattr(instance, "get_something")
+        

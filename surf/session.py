@@ -36,7 +36,7 @@
 __author__ = 'Cosmin Basca'
 
 from store import Store, NO_CONTEXT
-from resource import Resource, ResourceMeta
+from surf.resource import Resource, ResourceMeta
 from util import *
 
 # the rdf way
@@ -309,9 +309,15 @@ class Session(object):
         
         base_classes = [Resource]
         base_classes.extend(list(classes) if classes != None else [])
+
+        # Also take classes from session.mapping
+        session_classes = self.mapping.get(uri, [])
+        if type(session_classes) not in [list, tuple, set]: 
+            session_classes = [session_classes]
+        base_classes.extend(session_classes)        
+        
         return new.classobj(str(name), tuple(base_classes),
-                            {'uri' : uri, 
-                             'store_key' : store})
+                            {'uri' : uri, 'store_key' : store})
         
     def get_class(self, uri, store = None, context = None, *classes):
         """ 
