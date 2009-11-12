@@ -61,7 +61,20 @@ class TestRdfLib(TestCase):
         list(Person.all())
         list(p1.all())
 
+    def test_all_limit_order(self):
         
+        _, session = self._get_store_session()
+
+        FoafPerson = session.get_class(surf.ns.FOAF.Person)
+        # John
+        john = session.get_resource("http://john.com/me", FoafPerson)
+        john.foaf_name = "John"
+        john.save()
+        # Jane
+        jane = session.get_resource("http://jane.com/me", FoafPerson)
+        jane.foaf_name = "Jane"
+        jane.save()
         
-        
-        
+        names = map(str, FoafPerson.all().limit(10).order(surf.ns.FOAF.name))
+        assert "John" in names
+        assert "Jane" in names
