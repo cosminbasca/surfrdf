@@ -38,7 +38,7 @@ __author__ = 'Cosmin Basca'
 from surf.plugin.reader import RDFReader
 from surf.query import Query, a, ask, select, optional_group, named_group
 
-from rdflib.URIRef import URIRef
+from surf.rdf import URIRef
 
 def query_SP(s, p, direct, context):
     """ Construct :class:`surf.query.Query` with `?v` and `?c` as unknowns. """ 

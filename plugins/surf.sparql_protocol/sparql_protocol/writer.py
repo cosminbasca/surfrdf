@@ -33,9 +33,6 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca, Adam Gzella'
     
-from rdflib.URIRef import URIRef
-from rdflib.BNode import BNode
-from rdflib.Literal import Literal
 from SPARQLWrapper import SPARQLWrapper, JSON
 from SPARQLWrapper.SPARQLExceptions import EndPointNotFound, QueryBadFormed, SPARQLWrapperException
 
@@ -43,6 +40,7 @@ from reader import ReaderPlugin
 from surf.plugin.writer import RDFWriter
 from surf.query.translator.sparul import SparulTranslator
 from surf.query.update import insert, delete, clear
+from surf.rdf import BNode, Literal, URIRef
 
 class WriterPlugin(RDFWriter):
     def __init__(self,reader,*args,**kwargs):

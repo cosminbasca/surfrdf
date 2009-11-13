@@ -1,7 +1,5 @@
 """ Module for sparql_protocol plugin tests. """
 
-from rdflib.URIRef import URIRef
-from rdflib.Literal import Literal
 from unittest import TestCase
 
 import surf

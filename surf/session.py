@@ -35,16 +35,13 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-from store import Store, NO_CONTEXT
+import new 
+
+from surf.rdf import URIRef
 from surf.resource import Resource, ResourceMeta
-from util import *
-
-# the rdf way
-#from rdf.term import URIRef
-# the rdflib 2.4.x way
-from rdflib.URIRef import URIRef
-
-
+from surf.store import Store, NO_CONTEXT
+from surf.util import DE_CAMEL_CASE_DEFAULT
+from surf.util import attr2rdf, de_camel_case, is_uri, uri_to_classname
 
 '''
 TODO:

@@ -35,14 +35,14 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-from namespace import *
-import re
-import new
-from uuid import uuid4
-from urlparse import urlparse
-from rdflib.URIRef import URIRef
-from rdflib.Literal import Literal
 from datetime import datetime, date, time
+import new
+import re
+from urlparse import urlparse
+from uuid import uuid4
+
+from surf.namespace import get_namespace, get_namespace_url, SURF
+from surf.rdf import Literal, URIRef
 
 pattern_direct = re.compile('^[a-z0-9]{1,}_[a-zA-Z0-9_]{1,}$', re.DOTALL)
 pattern_inverse = re.compile('^is_[a-z0-9]{1,}_[a-zA-Z0-9_]{1,}_of$', re.DOTALL)

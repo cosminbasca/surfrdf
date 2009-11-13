@@ -39,7 +39,7 @@ import logging
 import pkg_resources
 from plugin.reader import RDFReader
 from plugin.writer import RDFWriter
-from rdflib.URIRef import URIRef
+from surf.rdf import URIRef
 
 from surf.query import Query
 

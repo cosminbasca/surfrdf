@@ -3,10 +3,9 @@
 import re 
 from unittest import TestCase
 
-from rdflib.URIRef import URIRef
-
 from surf.query import select, describe
 from surf.query.translator.sparql import SparqlTranslator 
+from surf.rdf import URIRef
 
 def canonical(sparql_string):
     """ Strip extra whitespace, convert to lowercase.

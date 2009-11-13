@@ -38,13 +38,7 @@ __author__ = 'Cosmin Basca'
 
 import sys
 
-#the rdf way (rdflib 2.5.x, 3x)
-#from rdf.namespace import Namespace, ClosedNamespace, RDF, RDFS
-#the rdflib 2.4.x way
-from rdflib.Namespace import Namespace
-from rdflib.Namespace import Namespace as ClosedNamespace
-from rdflib.RDF import RDFNS as RDF
-from rdflib.RDFS import RDFSNS as RDFS
+from surf.rdf import ClosedNamespace, Namespace, RDF, RDFS 
 
 __anonymous = 'NS'
 __anonymous_count = 0
@@ -107,29 +101,30 @@ YAGO          = Namespace('http://dbpedia.org/class/yago/')
 
 # an internal inverted dict - for fast access 
 __inverted_dict__ = {}
-for k,v in sys.modules[__name__].__dict__.items():
+for k, v in sys.modules[__name__].__dict__.items():
     if type(v) in [Namespace, ClosedNamespace]:
-        __inverted_dict__[v.__str__()] = k
+        __inverted_dict__[str(v)] = k
          
 def __add_inverted(prefix):
     ns_dict = sys.modules[__name__].__dict__
-    __inverted_dict__[ns_dict[prefix].__str__()] = prefix
+    __inverted_dict__[str(ns_dict[prefix])] = prefix
 
 def base(property):
-    '''returns the base part of a URI, `property` is a string denoting a URI
+    """ Return the base part of a URI, `property` is a string denoting a URI.
     
     .. code-block:: python
     
         >>> print ns.base('http://sometest.ns/ns#symbol')
         http://sometest.ns/ns#
         
-    '''
+    """
+    
     if '#' in property:
         return '%s#'%property.rsplit('#',1)[0]
     return '%s/'%property.rsplit('/',1)[0]
 
 def symbol(property):
-    '''returns the part of a URI after the last **/** or *#*, `property` is a
+    """ Return the part of a URI after the last **/** or *#*, `property` is a
     string denoting a URI
     
     .. code-block:: python
@@ -137,14 +132,15 @@ def symbol(property):
         >>> print ns.symbol('http://sometest.ns/ns#symbol')
         symbol
         
-    '''
+    """
+    
     if '#' in property:
         return property.rsplit('#',1)[-1]
     return property.rsplit('/',1)[-1]
 
 def register(**namespaces):
-    '''registers a namespace with a shorthand notation with the `namespace` manager
-    the arguments are passed in as key-value pairs
+    """ Register a namespace with a shorthand notation with the 
+    `namespace` manager. The arguments are passed in as key-value pairs.
     
     .. code-block:: python
     
@@ -152,17 +148,19 @@ def register(**namespaces):
         >>> print ns.TEST 
         http://sometest.ns/ns#
         
-    '''
+    """
+    
     ns_dict = sys.modules[__name__].__dict__
     for key in namespaces:
         uri = namespaces[key]
         prefix = key.upper()
         ns_dict[prefix] = uri if type(uri) in [Namespace, ClosedNamespace] else Namespace(uri)
-        # also keep inverted dict presistent
+        # also keep inverted dict up-to-date
         __add_inverted(prefix)
         
 def get_namespace(base):
-    '''returns the `namespace` short hand notation and the uri based on the uri `base`.
+    """ Returns the `namespace` short hand notation and the uri based on the  
+    uri `base`.
     The namespace is a `rdf.namespace.Namespace`
     
     .. code-block:: python
@@ -171,10 +169,12 @@ def get_namespace(base):
         >>> print key, namespace
         TEST, http://sometest.ns/ns#
         
-    '''
+    """
+    
     global __anonymous_count
     ns_dict = sys.modules[__name__].__dict__
-    base = base if type(base) in [str, unicode] else base.__str__()
+    base = base if type(base) in [str, unicode] else str(base)
+
     try:
         prefix = __inverted_dict__[base]
         uri = ns_dict[prefix]
@@ -186,7 +186,7 @@ def get_namespace(base):
     return prefix, uri
 
 def get_namespace_url(prefix):
-    '''returns the `namespace` URI registered under the specified `prefix`
+    """ Return the `namespace` URI registered under the specified `prefix`
     
     .. code-block:: python
     
@@ -194,7 +194,8 @@ def get_namespace_url(prefix):
         >>> print url 
         http://sometest.ns/ns#
         
-    '''
+    """
+    
     ns_dict = sys.modules[__name__].__dict__
     try:
         return ns_dict[prefix.__str__().upper()]
@@ -203,8 +204,8 @@ def get_namespace_url(prefix):
     
     
 def get_prefix(uri):
-    '''the inverse function of `get_namespace_url(prefix)`, returns the `prefix`
-    of a `namespace` based on its URI
+    """ The inverse function of `get_namespace_url(prefix)`, return  
+    the `prefix` of a `namespace` based on its URI. 
     
     .. code-block:: python
     
@@ -213,7 +214,8 @@ def get_prefix(uri):
         >>> print name 
         TEST
         
-    '''
+    """
+    
     try:
         return __inverted_dict__[uri.__str__()]
     except:

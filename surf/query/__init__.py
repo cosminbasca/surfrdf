@@ -38,13 +38,8 @@ __author__ = 'Cosmin Basca'
 import logging
 import re
 
-from rdflib.Namespace import Namespace
-from rdflib.Graph import Graph, ConjunctiveGraph
-from rdflib.URIRef import URIRef
-from rdflib.BNode import BNode
-from rdflib.Literal import Literal
-from rdflib.RDF import RDFNS as RDF
-from rdflib.RDFS import RDFSNS as RRDFS
+from surf.rdf import BNode, Graph, ConjunctiveGraph, Literal, Namespace
+from surf.rdf import RDF, URIRef 
 
 a = RDF['type']
 

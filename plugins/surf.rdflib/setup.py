@@ -46,7 +46,7 @@ from setuptools import setup
 
 setup(
     name='surf.rdflib',
-    version='0.3.1',
+    version='1.0.0',
     description='surf RDFlib wrapper plugin',
     long_description = 'Allows the retrieval / persistence of surf resources from / to RDFlib supported persistent stores',
     license = 'New BSD SOFTWARE', 
@@ -66,7 +66,7 @@ setup(
     keywords = 'python SPARQL RDF resource mapper',
     requires_python = '>=2.5', # Future in PEP 345
     packages=['surf_rdflib'],
-    install_requires=['surf>=0.5.0',],
+    install_requires=['surf>=1.0.0',],
     entry_points={
     'surf.plugins.reader': 'rdflib = surf_rdflib.reader:ReaderPlugin',
     'surf.plugins.writer': 'rdflib = surf_rdflib.writer:WriterPlugin',

@@ -35,21 +35,12 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-from urllib import urlencode
 import httplib
 import logging
+from urllib import urlencode
 from xml.dom.minidom import parseString, getDOMImplementation
 
-# the rdf way
-#from rdf.graph import Graph, ConjunctiveGraph
-#from rdf.term import URIRef, Literal, BNode
-#from rdf.namespace import Namespace
-# the rdflib 2.4.x way
-from rdflib.Graph import Graph, ConjunctiveGraph
-from rdflib.URIRef import URIRef
-from rdflib.BNode import BNode
-from rdflib.Literal import Literal
-from rdflib.Namespace import Namespace
+from surf.rdf import BNode, ConjunctiveGraph, Graph, Literal, Namespace, URIRef
 
 def parse_sparql_xml(response):
         def get_text(node):

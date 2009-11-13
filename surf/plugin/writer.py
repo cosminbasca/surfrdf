@@ -37,18 +37,7 @@ __author__ = 'Cosmin Basca'
 
 from surf.plugin import Plugin
 from surf.plugin.reader import RDFReader
-import logging
-from surf.query import Query
-
-# the rdf way
-#from rdf.graph import ConjunctiveGraph
-#from rdf.term import URIRef, BNode, Literal, RDF
-# the rdflib 2.4.x way
-from rdflib.Graph import ConjunctiveGraph
-from rdflib.URIRef import URIRef
-from rdflib.BNode import BNode
-from rdflib.Literal import Literal
-from rdflib.RDF import RDFNS as RDF
+from surf.rdf import BNode, ConjunctiveGraph, Literal, RDF, URIRef 
 
 class InvalidResourceException(Exception):
     def __init__(self,*args,**kwargs):

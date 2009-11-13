@@ -1,6 +1,6 @@
 """ Module for ResultProxy. """
 
-from rdflib.Literal import Literal
+from surf.rdf import Literal
 from surf.util import attr2rdf
 
 class CardinalityException(Exception):

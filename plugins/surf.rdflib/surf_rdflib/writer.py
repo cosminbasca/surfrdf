@@ -35,14 +35,11 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
     
+import warnings
 
 from surf.plugin.writer import RDFWriter
-from rdflib.Graph import ConjunctiveGraph
-from rdflib.URIRef import URIRef
-from rdflib.Literal import Literal
-from rdflib.BNode import BNode
+from surf.rdf import BNode, ConjunctiveGraph, Literal, URIRef
 from reader import ReaderPlugin
-import warnings
 
 class WriterPlugin(RDFWriter):
     def __init__(self,reader,*args,**kwargs):

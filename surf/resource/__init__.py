@@ -37,28 +37,20 @@ __author__ = 'Cosmin Basca'
 
 import re
 import new
-from surf.namespace import *
-from surf.query import Query
-from surf.store import Store
-from surf.resource.value import ResourceValue
-from surf.resource.result_proxy import ResultProxy
-from surf.util import *
-from surf.rest import *
-from surf.serializer import to_json
 from weakref import WeakKeyDictionary
 
-# the rdf way
-#from rdf.term import URIRef, Literal, BNode, RDF, RDFS, XSD
-#from rdf.namespace import Namespace, ClosedNamespace
-#from rdf.graph import Graph, ConjunctiveGraph
-# the rdflib 2.4.x way
-from rdflib.Namespace import Namespace
-from rdflib.Graph import Graph, ConjunctiveGraph
-from rdflib.URIRef import URIRef
-from rdflib.BNode import BNode
-from rdflib.Literal import Literal
-from rdflib.RDF import RDFNS as RDF
-from rdflib.RDFS import RDFSNS as RRDFS
+from surf.namespace import get_namespace_url, get_prefix, OWL
+from surf.query import Query
+from surf.rdf import BNode, ClosedNamespace, ConjunctiveGraph, Graph, Literal
+from surf.rdf import Namespace, RDF, RDFS, URIRef
+from surf.resource.value import ResourceValue
+from surf.resource.result_proxy import ResultProxy
+from surf.rest import Rest
+from surf.serializer import to_json
+from surf.store import Store
+from surf.util import attr2rdf, namespace_split, rdf2attr
+from surf.util import uri_to_class, uuid_subject, value_to_rdf
+
 
 a = RDF['type']
 

@@ -37,18 +37,7 @@ __author__ = 'Cosmin Basca'
 
 from simplejson import dumps
 
-# the rdf way
-#from rdf.graph import ConjunctiveGraph, Graph
-#from rdf.term import URIRef, Literal, BNode
-# the rdflib 2.4.x way
-from rdflib.Namespace import Namespace
-from rdflib.Graph import Graph, ConjunctiveGraph
-from rdflib.URIRef import URIRef
-from rdflib.BNode import BNode
-from rdflib.Literal import Literal
-from rdflib.RDF import RDFNS as RDF
-from rdflib.RDFS import RDFSNS as RRDFS
-
+from surf.rdf import BNode, Literal, URIRef
 
 def to_json(graph):
     '''

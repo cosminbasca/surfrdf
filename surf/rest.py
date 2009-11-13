@@ -34,8 +34,8 @@
 
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
-from util import attr2rdf
-from rdflib.Namespace import Namespace
+
+from surf.rdf import Namespace
 
 # TODO lazy loading ... not implemented when setting the resource from the json_dict ...
 class Rest(object):

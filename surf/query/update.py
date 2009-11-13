@@ -41,11 +41,8 @@ __author__ = 'Cosmin Basca'
 #from rdf.namespace import Namespace
 
 from surf.query import Query, Group, NamedGroup, Filter, OptionalGroup, validate_statement
+from surf.rdf import RDF, URIRef
 from surf.util import is_uri
-
-# the rdflib 2.4.x way
-from rdflib.URIRef import URIRef
-from rdflib.RDF import RDFNS as RDF
 
 a = RDF['type']
 

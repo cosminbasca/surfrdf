@@ -37,10 +37,7 @@ __author__ = 'Cosmin Basca'
 
 from surf.plugin.query_reader import RDFQueryReader
 from surf.query.translator.sparql import SparqlTranslator
-from rdflib.Graph import ConjunctiveGraph
-from rdflib.URIRef import URIRef
-from rdflib.Literal import Literal
-from rdflib.BNode import BNode
+from surf.rdf import BNode, ConjunctiveGraph, Literal, URIRef 
 
 class ReaderPlugin(RDFQueryReader):
     def __init__(self, *args, **kwargs):

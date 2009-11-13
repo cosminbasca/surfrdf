@@ -1,10 +1,9 @@
 """ Module for rdflib plugin tests. """
 
-from rdflib.URIRef import URIRef
 from unittest import TestCase
 
 import surf
-from sparql_protocol.reader import ReaderPlugin
+from surf.rdf import URIRef
 
 class TestRdfLib(TestCase):
     """ Tests for sparql_protocol plugin. """

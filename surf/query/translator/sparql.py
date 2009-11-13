@@ -37,18 +37,9 @@ __author__ = 'Cosmin Basca'
 
 #TODO: move the translators in the future in a pluggable architecture
 
-# the rdf way
-#from rdf.graph import Graph, ConjunctiveGraph
-#from rdf.term import URIRef, Literal, BNode, RDF, RDFS
-#from rdf.namespace import Namespace
-# the rdflib 2.4.x way
-from rdflib.URIRef import URIRef
-from rdflib.BNode import BNode
-from rdflib.Literal import Literal
-
-
 from surf.query.translator import QueryTranslator 
 from surf.query import Query, SELECT, ASK, DESCRIBE, CONSTRUCT, Group, NamedGroup, OptionalGroup, Filter
+from surf.rdf import BNode, Literal, URIRef
 from surf.util import is_uri
 
 class SparqlTranslator(QueryTranslator):

@@ -1,10 +1,9 @@
 """ Module for sparql_protocol plugin tests. """
 
-from rdflib.URIRef import URIRef
-from rdflib.Literal import Literal
 from unittest import TestCase
 
 import surf
+from surf.rdf import Literal, URIRef
 from surf.resource.result_proxy import CardinalityException
 
 class TestSparqlProtocol(TestCase):

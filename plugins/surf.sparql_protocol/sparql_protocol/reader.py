@@ -35,19 +35,12 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-
-from surf.plugin.query_reader import RDFQueryReader
-from surf.query.translator.sparql import SparqlTranslator
 from SPARQLWrapper import SPARQLWrapper, jsonlayer, JSON
 from SPARQLWrapper.SPARQLExceptions import EndPointNotFound, QueryBadFormed, SPARQLWrapperException
 
-# the rdf way
-#from rdf.term import URIRef, BNode, Literal
-# the rdflib 2.4.x way
-from rdflib import ConjunctiveGraph
-from rdflib.URIRef import URIRef
-from rdflib.BNode import BNode
-from rdflib.Literal import Literal
+from surf.plugin.query_reader import RDFQueryReader
+from surf.query.translator.sparql import SparqlTranslator
+from surf.rdf import BNode, ConjunctiveGraph, Literal, URIRef
 
 class ReaderPlugin(RDFQueryReader):
     def __init__(self, *args, **kwargs):

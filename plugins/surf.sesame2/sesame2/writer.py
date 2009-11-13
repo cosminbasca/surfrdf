@@ -39,12 +39,7 @@ __author__ = 'Cosmin Basca'
 from surf.plugin.writer import RDFWriter
 from allegro import Allegro
 
-# the rdf way
-#from rdf.term import URIRef, BNode, Literal
-# the rdflib 2.4.x way
-from rdflib.URIRef import URIRef
-from rdflib.BNode import BNode
-from rdflib.Literal import Literal
+from surf.rdf import BNode, Literal, URIRef
 from reader import ReaderPlugin
 
 class WriterPlugin(RDFWriter):
