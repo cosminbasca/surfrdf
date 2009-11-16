@@ -15,7 +15,7 @@
 #      in the documentation and/or other materials provided with
 #      the distribution.
 #    * Neither the name of DERI nor the
-#      names of its contributors may be used to endorse or promote  
+#      names of its contributors may be used to endorse or promote
 #      products derived from this software without specific prior
 #      written permission.
 
@@ -50,7 +50,7 @@ class QueryTranslator(object):
         self.__query = query
         if not self.__query.query_type:
             raise ValueError('No query type specified')
-    
+
     def set_query(self,query):
         if type(query) is Query:
             self.__query = query
@@ -59,10 +59,10 @@ class QueryTranslator(object):
     query = property(fget = lambda self: self.__query,
                      fset = set_query)
     '''the `query`, a :class:`surf.query.Query` instance'''
-    
+
     def translate(self):
         '''translates the `query` to the appropriate query language
-        
+
         note: **must** be overriden by subclasses'''
         return ''
-    
+

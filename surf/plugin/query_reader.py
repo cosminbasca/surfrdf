@@ -15,7 +15,7 @@
 #      in the documentation and/or other materials provided with
 #      the distribution.
 #    * Neither the name of DERI nor the
-#      names of its contributors may be used to endorse or promote  
+#      names of its contributors may be used to endorse or promote
 #      products derived from this software without specific prior
 #      written permission.
 
@@ -41,30 +41,30 @@ from surf.query import Query, a, ask, select, optional_group, named_group
 from surf.rdf import URIRef
 
 def query_SP(s, p, direct, context):
-    """ Construct :class:`surf.query.Query` with `?v` and `?c` as unknowns. """ 
-    
+    """ Construct :class:`surf.query.Query` with `?v` and `?c` as unknowns. """
+
     s, v = (s, '?v') if direct else ('?v', s)
     query = select('?v', '?c').distinct()
     query.where((s, p, v)).optional_group(('?v', a, '?c'))
     if context:
         query.from_(context)
-        
-    return query 
+
+    return query
 
 def query_S(s, direct, context):
-    """ Construct :class:`surf.query.Query` with `?p`, `?v` and `?c` as 
+    """ Construct :class:`surf.query.Query` with `?p`, `?v` and `?c` as
     unknowns. """
 
     s, v = (s, '?v') if direct else ('?v', s)
     query = select('?p','?v','?c').distinct()
-    query.where((s, '?p', v)).optional_group(('?v', a, '?c')) 
+    query.where((s, '?p', v)).optional_group(('?v', a, '?c'))
     if context:
         query.from_(context)
 
     return query
-    
+
 def query_Ask(subject, context):
-    """ Construct :class:`surf.query.Query` of type **ASK**. """ 
+    """ Construct :class:`surf.query.Query` of type **ASK**. """
 
     query = ask()
     if context:
@@ -74,30 +74,30 @@ def query_Ask(subject, context):
         query.where((subject, '?p', '?o'))
 
     return query
-    
+
 #Resource class level
 def query_P_S(c, p, direct, context):
-    """ Construct :class:`surf.query.Query` with `?s` and `?c` as unknowns. """ 
-    
+    """ Construct :class:`surf.query.Query` with `?s` and `?c` as unknowns. """
+
     query = select('?s', '?c').distinct()
     if context:
         query.from_(context)
-    
+
     for i in range(len(p)):
         s, v = ('?s', '?v%d' % i) if direct else ('?v%d' % i, '?s')
         if type(p[i]) is URIRef: query.where((s, p[i], v))
     query.optional_group(('?s', a, '?c'))
-    
+
     return query
 
 def query_Concept(subject):
-    """ Construct :class:`surf.query.Query` with `?c` as the unknown. """ 
+    """ Construct :class:`surf.query.Query` with `?c` as the unknown. """
 
     return select('?c').distinct().where((subject, a, '?c'))
 
 class RDFQueryReader(RDFReader):
-    """ Super class for all SuRF Reader plugins that wrap queryable `stores`. """    
-    
+    """ Super class for all SuRF Reader plugins that wrap queryable `stores`. """
+
     def __init__(self,*args,**kwargs):
         RDFReader.__init__(self,*args,**kwargs)
         self.use_subqueries = kwargs.get('use_subqueries',False)
@@ -105,39 +105,39 @@ class RDFQueryReader(RDFReader):
             self.use_subqueries = True if self.use_subqueries.lower() == 'true' else False
         elif type(self.use_subqueries) is not bool:
             raise ValueError('The use_subqueries parameter must be a bool or a string set to "true" or "false"')
-    
+
     #protected interface
     def _get(self, subject, attribute, direct, context):
         query = query_SP(subject, attribute, direct, context)
         result = self._execute(query)
         return self.convert(result, 'v', 'c')
-    
+
     def _load(self, subject, direct, context):
         query = query_S(subject, direct, context)
         result = self._execute(query)
         return self.convert(result, 'p', 'v', 'c')
-    
+
     def _is_present(self, subject, context):
         query = query_Ask(subject, context)
         result = self._execute(query)
         return self._ask(result)
-    
+
     def _concept(self,subject):
         query = query_Concept(subject)
         result = self._execute(query)
         return self.convert(result, 'c')
-        
+
     def _instances_by_attribute(self, concept, attributes, direct, context):
         query = query_P_S(concept, attributes, direct, context)
         result = self._execute(query)
         return self.convert(result, 's', 'c')
-        
+
     def __apply_limit_offset_order_get_by_filter(self, params, query):
         """ Apply limit, offset, order parameters to query. """
-        
+
         if "limit" in params:
             query.limit(params["limit"])
-        
+
         if "offset" in params:
             query.offset(params["offset"])
 
@@ -147,7 +147,7 @@ class RDFQueryReader(RDFReader):
                 query.order_by("?s")
             else:
                 # Match another variable, order by it
-                query.optional_group(("?s", params["order"], "?o")) 
+                query.optional_group(("?s", params["order"], "?o"))
                 query.order_by("?o")
 
         if "get_by" in params:
@@ -156,7 +156,7 @@ class RDFQueryReader(RDFReader):
                     query.where(("?s", attribute, value))
                 else:
                     query.where((value, attribute, "?s"))
-        
+
         if "filter" in params:
             filter_idx = 0
             for attribute, value, direct  in params["filter"]:
@@ -164,10 +164,10 @@ class RDFQueryReader(RDFReader):
                 filter_variable = "?f%d" % filter_idx
                 query.where(("?s", attribute, filter_variable))
                 query.filter(value % filter_variable)
-                
-        
+
+
         return query
-        
+
     def _get_by(self, params):
         # Decide which loading strategy to use
         if "full" in params:
@@ -187,10 +187,10 @@ class RDFQueryReader(RDFReader):
 
         # Load just subjects and their types
         table = self._to_table(self._execute(query))
-        
-        # Create response structure, preserve order, don't include 
+
+        # Create response structure, preserve order, don't include
         # duplicate subjects if some subject has multiple types
-        subjects = {} 
+        subjects = {}
         results = []
         for match in table:
             subject = match["s"]
@@ -202,25 +202,25 @@ class RDFQueryReader(RDFReader):
             if "c" in match:
                 concept = match["c"]
                 subjects[subject]["direct"][a][concept] = []
-            
+
         return results
 
     def __get_by_n_queries(self, params):
         context = params.get("context", None)
-            
+
         query = select("?s")
         if not (context is None):
             query.from_(context)
 
         self.__apply_limit_offset_order_get_by_filter(params, query)
-                
-        # Load details, for now the simplest approach with N queries. 
+
+        # Load details, for now the simplest approach with N queries.
         # Use _to_table instead of convert to preserve order.
         results = []
         for match in self._to_table(self._execute(query)):
             subject = match["s"]
             instance_data = {}
-            
+
             result = self._execute(query_S(subject, True, context))
             result = self.convert(result, 'p', 'v', 'c')
             instance_data["direct"] = result
@@ -229,20 +229,20 @@ class RDFQueryReader(RDFReader):
                 result = self._execute(query_S(subject, False, context))
                 result = self.convert(result, 'p', 'v', 'c')
                 instance_data["inverse"] = result
-            
+
             results.append((subject, instance_data))
-        
+
         return results
 
     def __get_by_subquery(self, params):
         context = params.get("context", None)
-            
+
         inner_query = select("?s")
         inner_params = params.copy()
         if "order" in inner_params:
             del inner_params["order"]
         self.__apply_limit_offset_order_get_by_filter(inner_params, inner_query)
-        
+
         query = select("?s", "?p", "?v", "?c").distinct()
         query.group(('?s', '?p', '?v'), optional_group(('?v',a,'?c')))
         query.where(inner_query)
@@ -256,16 +256,16 @@ class RDFQueryReader(RDFReader):
                 query.order_by("?s")
             else:
                 # Match another variable, order by it
-                query.optional_group(("?s", params["order"], "?order")) 
+                query.optional_group(("?s", params["order"], "?order"))
                 query.order_by("?order")
 
         table = self._to_table(self._execute(query))
-        subjects = {} 
+        subjects = {}
         results = []
         for match in table:
             # Make sure subject and predicate are URIs (they have to be!),
             # this works around bug in Virtuoso -- it sometimes returns
-            # URIs as Literals. 
+            # URIs as Literals.
             subject = URIRef(match["s"])
             predicate = URIRef(match["p"])
             value = match["v"]
@@ -275,7 +275,7 @@ class RDFQueryReader(RDFReader):
                 instance_data = {"direct" : {}}
                 subjects[subject] = instance_data
                 results.append((subject, instance_data))
-            
+
             # Add predicate to subject's direct predicates if it's not there
             direct_attributes = subjects[subject]["direct"]
             if not predicate in direct_attributes:
@@ -285,38 +285,38 @@ class RDFQueryReader(RDFReader):
             predicate_values = direct_attributes[predicate]
             if not value in predicate_values:
                 predicate_values[value] = []
-                
-            # Add RDF type of the value to subject->predicate->value list 
+
+            # Add RDF type of the value to subject->predicate->value list
             if "c" in match:
                 predicate_values[value].append(match["c"])
-            
+
         return results
-    
+
     # to implement
     def _ask(self, result):
         """ Return boolean value of an **ASK** query. """
-        
+
         return False
-    
+
     # execute
     def _execute(self, query):
         """ To be implemented by classes the inherit from `RDFQueryReader`.
-        
+
         This method is called internally by :meth:`execute`.
-        
+
         """
-        
+
         return None
 
     def _to_table(self, result):
         return []
-    
+
     def __convert(self, query_result, *keys):
         results_table = self._to_table(query_result)
-        
+
         if len(keys) == 1:
             return [row[keys[0]] for row in results_table]
-        
+
         last = len(keys)-2
         results = {}
         for row in results_table:
@@ -336,7 +336,7 @@ class RDFQueryReader(RDFReader):
                     data[v].append(row.get(keys[i+1]))
         return results
 
-    # public interface    
+    # public interface
     def execute(self, query):
         """ Execute a `query` of type :class:`surf.query.Query`. """
 
@@ -344,14 +344,14 @@ class RDFQueryReader(RDFReader):
         if q:
             return self._execute(q)
         return None
-    
+
     def convert(self, query_result, * keys):
         """ Convert the results from the query to a multilevel dictionary.
-        
-        This method is used by the :class:`surf.resource.Resource` class. 
-        
+
+        This method is used by the :class:`surf.resource.Resource` class.
+
         """
-        
+
         try:
             return self.__convert(query_result, *keys)
         except Exception, e:

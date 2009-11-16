@@ -15,7 +15,7 @@
 #      in the documentation and/or other materials provided with
 #      the distribution.
 #    * Neither the name of DERI nor the
-#      names of its contributors may be used to endorse or promote  
+#      names of its contributors may be used to endorse or promote
 #      products derived from this software without specific prior
 #      written permission.
 
@@ -46,14 +46,14 @@ def to_json(graph):
         http://n2.talis.com/wiki/RDF_JSON_Specification
     '''
     value_types = {URIRef:'uri',Literal:'literal',BNode:'bnode'}
-    
+
     json_root = {}
     subjects = []
     # group subjects
     for s in graph.subjects():
         if s not in subjects:
             subjects.append(s)
-    
+
     for s in subjects:
         json_subjects = {}
         predicates = []
@@ -61,10 +61,10 @@ def to_json(graph):
         for p in graph.predicates(s):
             if p not in predicates:
                 predicates.append(p)
-            
+
         for p in predicates:
             json_values = []
-            
+
             for v in graph.objects(s,p):
                 value = {}
                 value['value'] = v
@@ -73,9 +73,9 @@ def to_json(graph):
                     value['lang'] = str(v.language)
                 if type(v) is Literal and v.datatype:
                     value['datatype'] = str(v.datatype)
-                
+
                 json_values.append(value)
             json_subjects[str(p)] = json_values
         json_root[str(s)] = json_subjects
-        
+
     return dumps(json_root)

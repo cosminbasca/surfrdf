@@ -15,7 +15,7 @@
 #      in the documentation and/or other materials provided with
 #      the distribution.
 #    * Neither the name of DERI nor the
-#      names of its contributors may be used to endorse or promote  
+#      names of its contributors may be used to endorse or promote
 #      products derived from this software without specific prior
 #      written permission.
 
@@ -38,7 +38,7 @@ __author__ = 'Cosmin Basca'
 
 import sys
 
-from surf.rdf import ClosedNamespace, Namespace, RDF, RDFS 
+from surf.rdf import ClosedNamespace, Namespace, RDF, RDFS
 
 __anonymous = 'NS'
 __anonymous_count = 0
@@ -99,26 +99,26 @@ XSD           = Namespace("http://www.w3.org/2001/XMLSchema#")
 YAGO          = Namespace('http://dbpedia.org/class/yago/')
 
 
-# an internal inverted dict - for fast access 
+# an internal inverted dict - for fast access
 __inverted_dict__ = {}
 for k, v in sys.modules[__name__].__dict__.items():
     if type(v) in [Namespace, ClosedNamespace]:
         __inverted_dict__[str(v)] = k
-         
+
 def __add_inverted(prefix):
     ns_dict = sys.modules[__name__].__dict__
     __inverted_dict__[str(ns_dict[prefix])] = prefix
 
 def base(property):
     """ Return the base part of a URI, `property` is a string denoting a URI.
-    
+
     .. code-block:: python
-    
+
         >>> print ns.base('http://sometest.ns/ns#symbol')
         http://sometest.ns/ns#
-        
+
     """
-    
+
     if '#' in property:
         return '%s#'%property.rsplit('#',1)[0]
     return '%s/'%property.rsplit('/',1)[0]
@@ -126,30 +126,30 @@ def base(property):
 def symbol(property):
     """ Return the part of a URI after the last **/** or *#*, `property` is a
     string denoting a URI
-    
+
     .. code-block:: python
-    
+
         >>> print ns.symbol('http://sometest.ns/ns#symbol')
         symbol
-        
+
     """
-    
+
     if '#' in property:
         return property.rsplit('#',1)[-1]
     return property.rsplit('/',1)[-1]
 
 def register(**namespaces):
-    """ Register a namespace with a shorthand notation with the 
+    """ Register a namespace with a shorthand notation with the
     `namespace` manager. The arguments are passed in as key-value pairs.
-    
+
     .. code-block:: python
-    
+
         >>> ns.register(test='http://sometest.ns/ns#')
-        >>> print ns.TEST 
+        >>> print ns.TEST
         http://sometest.ns/ns#
-        
+
     """
-    
+
     ns_dict = sys.modules[__name__].__dict__
     for key in namespaces:
         uri = namespaces[key]
@@ -157,20 +157,20 @@ def register(**namespaces):
         ns_dict[prefix] = uri if type(uri) in [Namespace, ClosedNamespace] else Namespace(uri)
         # also keep inverted dict up-to-date
         __add_inverted(prefix)
-        
+
 def get_namespace(base):
-    """ Returns the `namespace` short hand notation and the uri based on the  
+    """ Returns the `namespace` short hand notation and the uri based on the
     uri `base`.
     The namespace is a `rdf.namespace.Namespace`
-    
+
     .. code-block:: python
-    
+
         >>> key, namespace = ns.get_namespace('http://sometest.ns/ns#')
         >>> print key, namespace
         TEST, http://sometest.ns/ns#
-        
+
     """
-    
+
     global __anonymous_count
     ns_dict = sys.modules[__name__].__dict__
     base = base if type(base) in [str, unicode] else str(base)
@@ -187,41 +187,41 @@ def get_namespace(base):
 
 def get_namespace_url(prefix):
     """ Return the `namespace` URI registered under the specified `prefix`
-    
+
     .. code-block:: python
-    
+
         >>> url = ns.get_namespace_url('TEST')
-        >>> print url 
+        >>> print url
         http://sometest.ns/ns#
-        
+
     """
-    
+
     ns_dict = sys.modules[__name__].__dict__
     try:
         return ns_dict[prefix.__str__().upper()]
     except:
         return None
-    
-    
+
+
 def get_prefix(uri):
-    """ The inverse function of `get_namespace_url(prefix)`, return  
-    the `prefix` of a `namespace` based on its URI. 
-    
+    """ The inverse function of `get_namespace_url(prefix)`, return
+    the `prefix` of a `namespace` based on its URI.
+
     .. code-block:: python
-    
+
         >>> name = ns.get_prefix(Namespace('http://sometest.ns/ns#'))
         >>> # true, if one registered the uri to the "test" prefix beforehand
-        >>> print name 
+        >>> print name
         TEST
-        
+
     """
-    
+
     try:
         return __inverted_dict__[uri.__str__()]
     except:
         return None
 
-    
-    
-    
-    
+
+
+
+

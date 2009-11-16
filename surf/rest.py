@@ -15,7 +15,7 @@
 #      in the documentation and/or other materials provided with
 #      the distribution.
 #    * Neither the name of DERI nor the
-#      names of its contributors may be used to endorse or promote  
+#      names of its contributors may be used to endorse or promote
 #      products derived from this software without specific prior
 #      written permission.
 
@@ -41,7 +41,7 @@ from surf.rdf import Namespace
 class Rest(object):
     ''' The :class:`Rest` class handles the generation of REST like methods to
     perform CRUD operations on a :class:`surf.resource.Resource` class
-    
+
     note: The REST api exposed is designed in accordance with the REST controller
     used in `pylons` applications, it adheres to the REST specification and offers
     extra features'''
@@ -52,13 +52,13 @@ class Rest(object):
         subjects'''
         self.__concept_class = concept_class
         self.__namespace = resources_namespace if type(resources_namespace) is Namespace else Namespace(resources_namespace)
-        
-    # the REST methods    
+
+    # the REST methods
     def index(self, offset = None, limit = None):
         '''**REST** : GET /: All items in the collection,
         returns all `instances` for the current `Resource`'''
         return self.__concept_class.all(offset = offset, limit = limit)
-    
+
     def create(self, json_params):
         '''**REST** : POST /: Create a new item,
         creates a new instance of the current `Resource` type'''
@@ -66,12 +66,12 @@ class Rest(object):
         for attr_name in json_params:
             setattr(instance, attr_name, json_params[attr_name])
         instance.save()
-    
+
     def new(self, json_params):
         '''**REST** : GET /new: Form to create a new item.
         creates a new instance of the current `Resource` type'''
         self.create(json_params)
-    
+
     def update(self, id, json_params):
         '''**REST** : PUT /id: Update an existing item.,
         update an instnaces attributes with the supplied parameters'''
@@ -79,28 +79,27 @@ class Rest(object):
         for attr_name in json_params:
             setattr(instance, attr_name, json_params[attr_name])
         instance.update()
-        
+
     def edit(self, id, json_params):
         '''**REST** : GET /id;edit:
         updates an instances attributes with the supplied parameters'''
         self.update(id, json_params)
-    
+
     def delete(self, id):
         '''**REST** : DELETE /id: Delete an existing item.
         removes the denoted instance from the underlying `store`'''
         instance = self.__concept_class(self.__namespace[id])
         instance.remove()
-    
+
     def show(self, id):
         '''**REST** : GET /id: Show a specific item.
         show / retrieve the specified resource'''
         instance = self.__concept_class(self.__namespace[id])
         instance.load()
         return instance
-    
+
     @classmethod
     def resource(cls, session, resources_namespace, concept, id):
         ns = resources_namespace if type(resources_namespace) is Namespace else Namespace(resources_namespace)
         Concept = session.get_class(concept)
         return Concept(ns[id])
-        

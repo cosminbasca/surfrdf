@@ -15,7 +15,7 @@
 #      in the documentation and/or other materials provided with
 #      the distribution.
 #    * Neither the name of DERI nor the
-#      names of its contributors may be used to endorse or promote  
+#      names of its contributors may be used to endorse or promote
 #      products derived from this software without specific prior
 #      written permission.
 
@@ -50,9 +50,9 @@ from surf.query.update import LOAD, CLEAR, INSERT, INSERT_DATA, DELETE, DELETE_D
 class SparulTranslator(SparqlTranslator):
     '''translates a query to SPARQL Update,
     based on the description of the SPARQL UPDATE protocol found here
-    
+
     http://jena.hpl.hp.com/~afs/SPARQL-Update.html'''
-    
+
     def translate(self):
         if self.query.query_type == LOAD:
             return self._translate_load(self.query)
@@ -62,7 +62,7 @@ class SparulTranslator(SparqlTranslator):
             return self._translate_insert(self.query)
         elif self.query.query_type in [DELETE, DELETE_DATA]:
             return self._translate_delete(self.query)
-            
+
     def _translate_load(self,query):
         rep = 'LOAD %(remote_uri)s %(into_exp)s'
         if query.query_remote_uri:
@@ -72,28 +72,28 @@ class SparulTranslator(SparqlTranslator):
         into_exp = 'INTO %s'%(query.query_into_uri[0]) if len(query.query_into_uri) == 1 else ''
         return rep%({'remote_uri':remote_uri,
                      'into_exp':into_exp})
-    
+
     def _translate_clear(self,query):
         rep = 'CLEAR %(graph)s'
         graph = 'GRAPH <%s>' % query.query_clear_uri if query.query_clear_uri else ''
         return rep%({'graph':graph})
-    
+
     def _translate_insert(self,query):
         rep = 'INSERT %(data)s %(into)s %(template)s %(where)s'
         data            = 'DATA' if query.query_type == INSERT_DATA else ''
         into            = ' '.join([ "INTO <%s>" % uri for uri in query.query_into_uri])
         template        = '{ %s }'%('. '.join([self._statement(stmt) for stmt in self.query.query_template]))
         where_pattern   = '. '.join([self._statement(stmt) for stmt in self.query.query_data])
-        
+
         where = ""
         if query.query_type == INSERT and where_pattern:
             where       = "WHERE { %s }" % (where_pattern)
-         
+
         return rep%({'data'     :data,
                      'into'     :into,
                      'template' :template,
                      'where'    :where})
-    
+
     def _translate_delete(self,query):
         rep = 'DELETE %(data)s %(from_)s %(template)s %(where)s'
         data            = 'DATA' if query.query_type == DELETE_DATA else ''
@@ -106,4 +106,3 @@ class SparulTranslator(SparqlTranslator):
                      'from_'    :from_,
                      'template' :template,
                      'where'    :where})
-    

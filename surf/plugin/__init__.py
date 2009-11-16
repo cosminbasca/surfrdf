@@ -15,7 +15,7 @@
 #      in the documentation and/or other materials provided with
 #      the distribution.
 #    * Neither the name of DERI nor the
-#      names of its contributors may be used to endorse or promote  
+#      names of its contributors may be used to endorse or promote
 #      products derived from this software without specific prior
 #      written permission.
 
@@ -39,11 +39,11 @@ import logging
 from surf.query import Query
 
 class Plugin(object):
-    """ 
-    Super class for all SuRF plugins, provides basic instantiation 
+    """
+    Super class for all SuRF plugins, provides basic instantiation
     and `logging`.
     """
-    
+
     def __init__(self, *args, **kwargs):
         logging.basicConfig()
         self.log = logging.getLogger(self.__class__.__name__)
@@ -52,31 +52,30 @@ class Plugin(object):
 
     def enable_logging(self, enable = True):
         """ Enables or disable `logging` for the current `plugin`. """
-        
+
         level = logging.DEBUG if enable else logging.NOTSET
         self.log.setLevel(level)
-            
+
     def is_enable_logging(self):
         """ `True` if `logging` is enabled. """
-        
+
         return False if self.log.level == logging.NOTSET else True
-    
+
     def close(self):
         """ Close the `plugin` and free any resources it may hold. """
-        
+
         pass
-    
+
     def __set_inference(self, val):
         """ Setter method for the `inference` property.
-        
+
         Do not use this method, use the `inference` property instead.
-        
+
         """
-        
+
         self.__inference = val if type(val) is bool else False
-    
+
     inference = property(fget = lambda self:self.__inference,
                          fset = __set_inference)
-    """ Toggle `logical inference` on / off. The property has any effect 
+    """ Toggle `logical inference` on / off. The property has any effect
     only if such functionality is supported by the underlying data `store`. """
-    

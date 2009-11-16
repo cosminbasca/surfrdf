@@ -20,7 +20,6 @@ if rdflib.__version__.startswith("2.5"):
     from rdflib.namespace import ClosedNamespace, Namespace
     from rdflib.namespace import RDF, RDFS
     from rdflib.term import URIRef
-    
-__exports__ = [BNode, ClosedNamespace, ConjunctiveGraph, Graph, Literal, 
+
+__exports__ = [BNode, ClosedNamespace, ConjunctiveGraph, Graph, Literal,
                Namespace, RDF, RDFS, URIRef]
-    

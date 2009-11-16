@@ -15,7 +15,7 @@
 #      in the documentation and/or other materials provided with
 #      the distribution.
 #    * Neither the name of DERI nor the
-#      names of its contributors may be used to endorse or promote  
+#      names of its contributors may be used to endorse or promote
 #      products derived from this software without specific prior
 #      written permission.
 
@@ -43,107 +43,107 @@ class RDFReader(Plugin):
     #protected interface
     def _get(self, subject, attribute, direct, context):
         """ To be implemented by classes that inherit `RDFReader`.
-        
-        This method is called directly by :meth:`get`. 
-        
+
+        This method is called directly by :meth:`get`.
+
         """
-        
+
         return None
-    
+
     def _load(self, subject, context):
-        """ To be implemented by classes that inherit `RDFReader`.        
-        
+        """ To be implemented by classes that inherit `RDFReader`.
+
         This method is called directly by :meth:`load`.
-        
+
         """
-        
+
         return {}
-    
+
     def _is_present(self, subject, context):
         """ To be implemented by classes that inherit `RDFReader`.
-        
+
         This method is called directly by :meth:`is_present`.
-        
+
         """
-        
+
         return False
-    
+
     def _concept(self,subject):
         """ To be implemented by classes that inherit `RDFReader`.
-        
-        This method is called directly by :meth:`concept`. 
-        
+
+        This method is called directly by :meth:`concept`.
+
         """
-        
+
         return None
-    
+
     def _instances_by_attribute(self, concept, attributes, direct, context):
         """ To be implemented by classes that inherit `RDFReader`.
-        
+
         This method is called directly by :meth:`instances_by_attribute`.
-        
+
         """
-        
+
         return []
-    
+
     def _get_by(self, params):
-        
-        return []    
-        
+
+        return []
+
     #public interface
     def get(self, resource, attribute, direct):
         """ Return the `value(s)` of the corresponding `attribute`.
-        
-        If ``direct`` is `False` then the subject of the ``resource`` is 
-        considered the object of the query. 
-        
+
+        If ``direct`` is `False` then the subject of the ``resource`` is
+        considered the object of the query.
+
         """
-        
+
         subj = resource.subject if hasattr(resource, 'subject') else resource
         return self._get(subj, attribute, direct, resource.context)
-        
+
     def load(self, resource, direct):
         """ Fully load the ``resource`` from the `store`.
-        
+
         This method returns all statements about the `resource`.
-        
-        If ``direct`` is `False`, then the subject of the ``resource`` 
+
+        If ``direct`` is `False`, then the subject of the ``resource``
         is considered the object of the query
-        
+
         """
-        
+
         subj = resource.subject if hasattr(resource, 'subject') else resource
         return self._load(subj, direct, resource.context)
-        
+
     def is_present(self, resource):
         """ Return `True` if the ``resource`` is present in the `store`. """
-        
+
         subj = resource.subject if hasattr(resource, 'subject') else resource
         return self._is_present(subj, resource.context)
-        
+
     def concept(self, resource):
         """ Return the `concept` URI of the following `resource`.
-        
+
         `resource` can be a `string` or a `URIRef`.
-        
+
         """
-        
+
         subj = resource.subject if hasattr(resource, 'subject') else resource
         return self._concept(subj)
-        
+
     def instances_by_attribute(self, resource, attributes, direct, context):
         """
-        Return all `URIs` that are instances of ``resource`` and 
+        Return all `URIs` that are instances of ``resource`` and
         have the specified `attributes`.
-        
-        If ``direct`` is `False`, than the subject of the ``resource`` 
-        is considered the object of the query. 
-        
+
+        If ``direct`` is `False`, than the subject of the ``resource``
+        is considered the object of the query.
+
         """
-        
+
         concept = resource.uri if hasattr(resource, 'uri') else resource
-        return self._instances_by_attribute(concept, attributes, direct, 
+        return self._instances_by_attribute(concept, attributes, direct,
                                             context)
-        
+
     def get_by(self, params):
         return self._get_by(params)

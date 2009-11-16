@@ -15,7 +15,7 @@
 #      in the documentation and/or other materials provided with
 #      the distribution.
 #    * Neither the name of DERI nor the
-#      names of its contributors may be used to endorse or promote  
+#      names of its contributors may be used to endorse or promote
 #      products derived from this software without specific prior
 #      written permission.
 
@@ -37,7 +37,7 @@
 # Copyright, Sat, 7 Jun 2003
 # by:	Michele Simionato
 # Recipe 204197: SOLVING THE METACLASS CONFLICT
-# http://code.activestate.com/recipes/204197/ 
+# http://code.activestate.com/recipes/204197/
 
 import inspect, types, __builtin__
 
@@ -46,7 +46,7 @@ import inspect, types, __builtin__
 SOLVING THE METACLASS CONFLICT`, solution contributed by Michele Simionato on Sat, 7 Jun 2003
 copyright held by Michele Simionata, Jun 2003,
 
-see: http://code.activestate.com/recipes/204197/ 
+see: http://code.activestate.com/recipes/204197/
 '''
 
 ############## preliminary: two utility functions #####################
@@ -88,7 +88,7 @@ def get_noconflict_metaclass(bases, left_metas, right_metas):
     elif len(needed_metas) == 1: # another trivial case
         meta = needed_metas[0]
     # check for recursion, can happen i.e. for Zope ExtensionClasses
-    elif needed_metas == bases: 
+    elif needed_metas == bases:
         raise TypeError("Incompatible root metatypes", needed_metas)
     else: # gotta work ...
         metaname = '_' + ''.join([m.__name__ for m in needed_metas])

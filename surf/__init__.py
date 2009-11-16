@@ -15,7 +15,7 @@
 #      in the documentation and/or other materials provided with
 #      the distribution.
 #    * Neither the name of DERI nor the
-#      names of its contributors may be used to endorse or promote  
+#      names of its contributors may be used to endorse or promote
 #      products derived from this software without specific prior
 #      written permission.
 
@@ -62,14 +62,14 @@ import re
 # http://code.djangoproject.com/browser/django/trunk/django/utils/version.py
 def get_svn_revision(path=None):
     """ Return the `svn revision number` of the current surf source folder.
-        
+
     The revision number is used by the `__version__` property.
-    
+
     .. note:: This function is used `as is` from the `django` project
                 see http://code.djangoproject.com/browser/django/trunk/django/utils/version.py
-        
+
     """
-    
+
     rev = None
     if path is None:
         path = sys.modules[__name__].__path__[0]

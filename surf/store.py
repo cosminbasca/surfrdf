@@ -15,7 +15,7 @@
 #      in the documentation and/or other materials provided with
 #      the distribution.
 #    * Neither the name of DERI nor the
-#      names of its contributors may be used to endorse or promote  
+#      names of its contributors may be used to endorse or promote
 #      products derived from this software without specific prior
 #      written permission.
 
@@ -73,25 +73,25 @@ class PluginNotFoundException(Exception):
         super(PluginNotFoundException,self).__init__(self, *args, **kwargs)
 
 class Store(object):
-    """ The `Store` class is comprised of a reader and a writer, getting 
-    access to an underlying triple store. Also store specific parameters must 
+    """ The `Store` class is comprised of a reader and a writer, getting
+    access to an underlying triple store. Also store specific parameters must
     be handled by the class, the plugins act based on various settings.
-    
-    The `Store` is also the `plugin` manager and provides convenience methods 
-    for working with plugins. 
-    
+
+    The `Store` is also the `plugin` manager and provides convenience methods
+    for working with plugins.
+
     """
-    
+
     def __init__(self,reader=None,writer=None,*args,**kwargs):
         self.log = logging.getLogger(self.__class__.__name__)
         self.log.info('initializing the store')
         self.log.info('registered readers : ' + str(registered_readers()))
         self.log.info('registered writer : ' + str(registered_writers()))
-        
+
         self.__default_context = None
         if "default_context" in kwargs:
             self.__default_context = URIRef(kwargs["default_context"])
-        
+
         if reader:
             if reader in __readers__:
                 self.reader = __readers__[reader](*args, **kwargs)
@@ -99,7 +99,7 @@ class Store(object):
                 raise PluginNotFoundException('The <%s> READER plugin was not found'%(reader))
         else:
             self.reader = RDFReader(*args, **kwargs)
-            
+
         if writer:
             if writer in __writers__:
                 self.writer = __writers__[writer](self.reader, *args, **kwargs)
@@ -110,10 +110,10 @@ class Store(object):
         self.log.info('store initialized')
 
     default_context = property(lambda self: self.__default_context)
-     
+
     use_subqueries = property(fget = lambda self: self.reader.use_subqueries if hasattr(self.reader,'use_subqueries') else False)
     """ True if the `reader` plugin is using sub queries, False otherwise. """
-    
+
     def __add_default_context(self, context):
         """ Return default context if context is None. """
 
@@ -121,30 +121,30 @@ class Store(object):
             context = None
         elif not context:
             context = self.__default_context
-        
+
         return context
-    
+
     def enable_logging(self, enable):
         """ Toggle `logging` on or off. """
-        
+
         level = logging.DEBUG if enable else logging.NOTSET
         self.log.setLevel(level)
         self.reader.enable_logging(enable)
         self.writer.enable_logging(enable)
-    
+
     def is_enable_logging(self):
         """ True if `logging` is enabled, False otherwise. """
         return False if self.log.level == logging.NOTSET else True
-    
+
     def close(self):
         """ Close the `store`.
-        
+
         Both the `reader` and the `writer` plugins are closed.
-        See :func:`surf.plugin.writer.RDFWriter.close` 
-        and :func:`surf.plugin.reader.RDFReader.close` methods. 
-        
+        See :func:`surf.plugin.writer.RDFWriter.close`
+        and :func:`surf.plugin.reader.RDFReader.close` methods.
+
         """
-        
+
         try:
             self.reader.close()
             self.log('reader closed successfully')
@@ -155,118 +155,118 @@ class Store(object):
             self.log('writer closed successfully')
         except Exception, e:
             self.log('error on closing the writer '+str(e))
-            
+
     #---------------------------------------------------------------------------
     # the reader interface
     #---------------------------------------------------------------------------
-    
+
     def get(self, resource, attribute, direct):
         """ :func:`surf.plugin.reader.RDFReader.get` method. """
-        
+
         return self.reader.get(resource, attribute, direct)
-    
-    # cRud    
+
+    # cRud
     def load(self, resource, direct):
         """ :func:`surf.plugin.reader.RDFReader.load` method. """
-        
+
         return self.reader.load(resource, direct)
-        
+
     def is_present(self, resource):
         """ :func:`surf.plugin.reader.RDFReader.is_present` method. """
-        
+
         return self.reader.is_present(resource)
-        
+
     def concept(self, resource):
         """ :func:`surf.plugin.reader.RDFReader.concept` method. """
-        
+
         return self.reader.concept(resource)
-        
+
     def instances_by_attribute(self, resource, attributes, direct, context):
         """ :func:`surf.plugin.reader.RDFReader.instances_by_attribute` method. """
 
         context = self.__add_default_context(context)
-        return self.reader.instances_by_attribute(resource, attributes, 
+        return self.reader.instances_by_attribute(resource, attributes,
                                                   direct, context)
-        
+
     def get_by(self, params):
         params["context"] = self.__add_default_context(params.get("context"))
         return self.reader.get_by(params)
-        
+
     #---------------------------------------------------------------------------
     # the query reader interface
     #---------------------------------------------------------------------------
-    
+
     def execute(self, query):
         """ :func:`surf.plugin.reader.RDFQueryReader.execute` method. """
-        
+
         if hasattr(self.reader, 'execute') and type(query) is Query:
             return self.reader.execute(query)
         return None
-    
+
     def execute_sparql(self, sparql_query, format = 'JSON'):
         """ :func:`surf.plugin.reader.RDFQueryReader.execute_sparql` method. """
-        
+
         if hasattr(self.reader, 'execute_sparql') and type(sparql_query) in [str, unicode]:
             return self.reader.execute_sparql(sparql_query, format = format)
         return None
-    
+
     #---------------------------------------------------------------------------
     # the writer interface
     #---------------------------------------------------------------------------
-    
+
     def clear(self, context = None):
         """ See :func:`surf.plugin.writer.RDFWriter.clear` method. """
-        
+
         self.writer.clear(context=context)
-    
-    # Crud    
+
+    # Crud
     def save(self, resource):
         """ See :func:`surf.plugin.writer.RDFWriter.save` method. """
-        
+
         self.writer.save(resource)
-    
+
     # crUd
     def update(self, resource):
         """ See :func:`surf.plugin.writer.RDFWriter.update` method. """
-        
+
         self.writer.update(resource)
-        
+
     # cruD
     def remove(self, resource):
         """ See :func:`surf.plugin.writer.RDFWriter.remove` method. """
-        
+
         self.writer.remove(resource)
-        
+
     def size(self):
         """ See :func:`surf.plugin.writer.RDFWriter.size` method. """
-        
+
         return self.writer.size()
-        
+
     # triple level access methods
     def add_triple(self, s = None, p = None, o = None, context = None):
         """ See :func:`surf.plugin.writer.RDFWriter.add_triple` method. """
-        
+
         context = self.__add_default_context(context)
         self.writer.add_triple(s = s, p = p, o = o, context = context)
-    
+
     def set_triple(self,s = None, p = None, o = None, context = None):
         """ See :func:`surf.plugin.writer.RDFWriter.set_triple` method. """
 
         context = self.__add_default_context(context)
         self.writer.set_triple(s = s, p = p, o = o, context = context)
-    
+
     def remove_triple(self, s = None, p = None, o = None, context = None):
         """ See :func:`surf.plugin.writer.RDFWriter.remove_triple` method. """
 
         context = self.__add_default_context(context)
         self.writer.remove_triple(s = s, p = p, o = o, context = context)
-    
+
     def index_triples(self, **kwargs):
         """ See :func:`surf.plugin.writer.RDFWriter.index_triples` method. """
-        
+
         return self.writer.index_triples(**kwargs)
-        
+
     def load_triples(self, **kwargs):
         """ See :func:`surf.plugin.writer.RDFWriter.load_triples` method. """
-        
+
         return self.writer.load_triples(**kwargs)
