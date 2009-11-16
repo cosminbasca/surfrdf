@@ -57,6 +57,7 @@ Documentation
    examples
    store_session 
    resources_classes
+   query
    plugins
    integration
 

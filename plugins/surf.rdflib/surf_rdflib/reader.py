@@ -66,11 +66,11 @@ class ReaderPlugin(RDFQueryReader):
         return result.askAnswer[0]
     
     # execute
-    def _execute(self,query):
+    def _execute(self, query):
         q_string = SparqlTranslator(query).translate()
         return self.execute_sparql(q_string)
         
-    def execute_sparql(self,q_string):
+    def execute_sparql(self, q_string, format = None):
         self.log.debug(q_string)
         return self.__graph.query(q_string)
     
