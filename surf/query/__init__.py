@@ -102,7 +102,7 @@ class Query(object):
 
     STATEMENT_TYPES     = [list, tuple, Group, NamedGroup, OptionalGroup,
                            Filter] # + Query, but cannot reference it here.
-    AGGREGATE_FUCTIONS  = ['count']
+    AGGREGATE_FUCTIONS  = ["count", "min", "max", "avg"]
     TYPES               = [SELECT, ASK, CONSTRUCT, DESCRIBE]
 
     def __init__(self, type, *vars):
