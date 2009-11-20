@@ -2,7 +2,10 @@
 
 from unittest import TestCase
 
+from sparql_protocol.reader import SparqlReaderException
+from sparql_protocol.writer import SparqlWriterException
 import surf
+from surf.query import select
 from surf.rdf import Literal, URIRef
 from surf.resource.result_proxy import CardinalityException
 
@@ -291,5 +294,20 @@ class TestSparqlProtocol(TestCase):
         js = Person.all().filter(foaf_name = "(%s LIKE 'J%%')") 
         self.assertEqual(len(js), 2)
         
+    def test_exceptions(self):
+        """ Test that exceptions are raised on invalid queries. """
+
+        store = surf.Store(reader = "sparql_protocol",
+                           writer = "sparql_protocol",
+                           endpoint = "invalid")
+
+        def try_query():
+            store.execute(query)
         
-         
+        query = select("?a") 
+        self.assertRaises(SparqlReaderException, try_query)
+        
+        def try_add_triple():
+            store.add_triple("?s", "?p", "?o") 
+
+        self.assertRaises(SparqlWriterException, try_add_triple)

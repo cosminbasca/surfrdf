@@ -32,6 +32,8 @@
 
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca, Adam Gzella'
+
+import sys    
     
 from SPARQLWrapper import SPARQLWrapper, JSON
 from SPARQLWrapper.SPARQLExceptions import EndPointNotFound, QueryBadFormed, SPARQLWrapperException
@@ -41,6 +43,8 @@ from surf.plugin.writer import RDFWriter
 from surf.query.translator.sparul import SparulTranslator
 from surf.query.update import insert, delete, clear
 from surf.rdf import BNode, Literal, URIRef
+
+class SparqlWriterException(Exception): pass
 
 class WriterPlugin(RDFWriter):
     def __init__(self,reader,*args,**kwargs):
@@ -115,20 +119,19 @@ class WriterPlugin(RDFWriter):
             if isinstance(query_str, unicode):
                 # SPARQLWrapper doesn't like unicode
                 query_str = query_str.encode("utf-8")
+                #import sys
+                #sys.stderr.write("add: %s \n" % query_str)
+                #print "add:", query_str
             self.__sparql_wrapper.setQuery(query_str)
             self.__sparql_wrapper.query().convert()
             return True
+
         except EndPointNotFound, notfound: 
-            self.log.error('SPARQL ENDPOINT not found : \n' + str(notfound))
+            raise SparqlWriterException("Endpoint not found"), None, sys.exc_info()[2]
         except QueryBadFormed, badquery:
-            self.log.error('SPARQL EXCEPTION ON QUERY (BAD FORMAT): \n ' + str(badquery))
-        except SPARQLWrapperException, sparqlwrapper:
-            self.log.error('SPARQL WRAPPER Exception \n' + str(sparqlwrapper))
+            raise SparqlWriterException("Bad query: %s" % query_str), None, sys.exc_info()[2]
         except Exception, e:
-            self.log.error('Exception while querying' + str(e))
-
-        return None
-
+            raise SparqlWriterException(), None, sys.exc_info()[2]
     
     def __add(self,s, p, o, context = None):
         return self.__add_many([(s, p, o)], context)

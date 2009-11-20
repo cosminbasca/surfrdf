@@ -35,12 +35,15 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
+import sys
 from SPARQLWrapper import SPARQLWrapper, jsonlayer, JSON
 from SPARQLWrapper.SPARQLExceptions import EndPointNotFound, QueryBadFormed, SPARQLWrapperException
 
 from surf.plugin.query_reader import RDFQueryReader
 from surf.query.translator.sparql import SparqlTranslator
 from surf.rdf import BNode, ConjunctiveGraph, Literal, URIRef
+
+class SparqlReaderException(Exception): pass
 
 class ReaderPlugin(RDFQueryReader):
     def __init__(self, *args, **kwargs):
@@ -85,14 +88,11 @@ class ReaderPlugin(RDFQueryReader):
             results = self.__sparql_wrapper.query().convert()
             return self._toRdflib(results)
         except EndPointNotFound, notfound: 
-            self.log.error('SPARQL ENDPOINT not found : \n' + str(notfound))
+            raise SparqlReaderException("Endpoint not found"), None, sys.exc_info()[2]
         except QueryBadFormed, badquery:
-            self.log.error('SPARQL EXCEPTION ON QUERY (BAD FORMAT): \n ' + str(badquery))
-        except SPARQLWrapperException, sparqlwrapper:
-            self.log.error('SPARQL WRAPPER Exception \n' + str(sparqlwrapper))
+            raise SparqlReaderException("Bad query: %s" % q_string), None, sys.exc_info()[2]
         except Exception, e:
-            self.log.error('Exception while querying' + str(e))
-        return None    
+            raise SparqlReaderException(), None, sys.exc_info()[2]
     
     # execute
     def _execute(self, query):
