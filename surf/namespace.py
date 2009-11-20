@@ -102,7 +102,7 @@ YAGO          = Namespace('http://dbpedia.org/class/yago/')
 # an internal inverted dict - for fast access
 __inverted_dict__ = {}
 for k, v in sys.modules[__name__].__dict__.items():
-    if type(v) in [Namespace, ClosedNamespace]:
+    if isinstance(v, Namespace) or isinstance(v, ClosedNamespace):
         __inverted_dict__[str(v)] = k
 
 def __add_inverted(prefix):
