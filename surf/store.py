@@ -54,11 +54,13 @@ def __init_plugins(plugins,entry_point):
         plugin_class = entrypoint.load()
         plugins[entrypoint.name] = plugin_class
 
+__plugins_loaded = False
 def load_plugins():
-    __init_plugins(__readers__,__ENTRYPOINT_READER__)
-    __init_plugins(__writers__,__ENTRYPOINT_WRITER__)
-
-load_plugins()
+    global __plugins_loaded
+    if not __plugins_loaded:
+        __init_plugins(__readers__,__ENTRYPOINT_READER__)
+        __init_plugins(__writers__,__ENTRYPOINT_WRITER__)
+        __plugins_loaded = True
 
 registered_readers = lambda : __readers__.keys()
 registered_writers = lambda : __writers__.keys()
@@ -85,6 +87,7 @@ class Store(object):
     def __init__(self,reader=None,writer=None,*args,**kwargs):
         self.log = logging.getLogger(self.__class__.__name__)
         self.log.info('initializing the store')
+        load_plugins()
         self.log.info('registered readers : ' + str(registered_readers()))
         self.log.info('registered writer : ' + str(registered_writers()))
 
