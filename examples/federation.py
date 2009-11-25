@@ -1,36 +1,37 @@
-from surf import *
+import surf
 
-dbpedia =  Store( reader='sparql_protocol',
-                endpoint='http://dbpedia.org/sparql',
-                default_graph='http://dbpedia.org')
+dbpedia = surf.Store(reader = 'sparql_protocol',
+                     endpoint = 'http://dbpedia.org/sparql',
+                     default_graph = 'http://dbpedia.org')
 
-local = Store(  reader='allegro_franz',
-                writer='allegro_franz',
-                server='localhost',
-                port=6789,
-                catalog='repositories',
-                repository = 'surf_test')
+local = surf.Store(reader = 'allegro_franz',
+                   writer = 'allegro_franz',
+                   server = 'localhost',
+                   port = 6789,
+                   catalog = 'repositories',
+                   repository = 'surf_test')
 
 print 'Create the session'
-session = Session()
+session = surf.Session()
+session.enable_logging = True
 session['dbpedia'] = dbpedia
 session['local'] = local
 
 print '---------------------------------------------------------------------------'
 print 'DBPEDIA'
-PhilCollinsAlbums = session.get_class(ns.YAGO['PhilCollinsAlbums'],store='dbpedia')
+PhilCollinsAlbums = session.get_class(surf.ns.YAGO['PhilCollinsAlbums'], store='dbpedia')
 
 all_albums = PhilCollinsAlbums.all()
 
-print 'Phill Collins has %d albums on dbpedia'%len(all_albums)
-
-first_album = all_albums[0]
+print 'Phill Collins has %d albums on dbpedia' % len(all_albums)
+first_album = all_albums.first()
 first_album.load()
 
 print 'All covers'
 for a in all_albums:
     if a.dbpedia_name:
-        print '\tCover %s for "%s"'%(a.dbpedia_cover,a.dbpedia_name)
+        cvr = a.dbpedia_cover
+        print '\tCover %s for "%s"' % (str(a.dbpedia_cover), str(a.dbpedia_name))
         
 print '---------------------------------------------------------------------------'
 print 'LOCAL'
@@ -38,11 +39,11 @@ print 'LOCAL'
 local.clear()
 
 print 'Define a namespace'
-ns.register(surf='http://surf.test/ns#')
+surf.ns.register(surf='http://surf.test/ns#')
 
 print 'Create some classes'
-Actor = session.get_class(ns.SURF['Actor'],store='local')
-Movie = session.get_class(ns.SURF['Movie'],store='local')
+Actor = session.get_class(surf.ns.SURF['Actor'], store='local')
+Movie = session.get_class(surf.ns.SURF['Movie'], store='local')
 
 print Actor, Actor.uri
 print Movie, Movie.uri
@@ -66,12 +67,12 @@ m5.surf_title = "Movie 5"
 a1 = Actor('http://baseuri/a1')
 a1.surf_name = "Actor 1"
 a1.surf_adress = "Some drive 35"
-a1.surf_movies = [m1,m2,m3]
+a1.surf_movies = [m1, m2, m3]
 
 a2 = Actor('http://baseuri/a2')
 a2.surf_name = "Actor 2"
 a2.surf_adress = "A different adress"
-a2.surf_movies = [m3,m4,m5]
+a2.surf_movies = [m3, m4, m5]
 
 # saving
 print 'Comitting ... '
@@ -79,22 +80,22 @@ session.commit()
 
 
 print 'Retrieving from store'
-actors = Actor.all()
-movies = Movie.all()
+actors = list(Actor.all())
+movies = list(Movie.all())
 
 print 'Actor 1 cmp: ',a1 == actors[0]
 print 'Actor 1 cmp: ',a1 == actors[1]
 print 'Actor in list : ',a1 in actors
 
-print 'All movies %d'%len(movies)
+print 'All movies %d' % len(movies)
 for m in movies:
     print m.surf_title
     
-print 'All actors %d'%len(actors)
+print 'All actors %d' % len(actors)
 for a in actors:
     print a.surf_name
     actor_movies = a.surf_movies
     for am in actor_movies:
-        print '\tStarred in %s'%am.surf_title
+        print '\tStarred in %s' % am.surf_title
 
 print 'done'
