@@ -1,5 +1,4 @@
 import surf
-import threading
 
 store = surf.Store(reader = 'allegro_franz',
                    writer = 'allegro_franz',
