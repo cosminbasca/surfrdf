@@ -37,8 +37,9 @@ __author__ = 'Cosmin Basca'
     
 
 from surf.plugin.writer import RDFWriter
-from util import toRdfLib, toSesame, toStatement, toTuple
-from reader import ReaderPlugin
+
+from allegro_franz.reader import ReaderPlugin
+from allegro_franz.util import toRdfLib, toSesame, toStatement, toTuple
 
 try:
     from franz.openrdf.sail.allegrographserver import AllegroGraphServer
@@ -108,7 +109,7 @@ try:
                 self.__remove(s,p)
             for p, objs in resource.rdf_direct.items():
                 for o in objs:
-                   self.__add(s,p,o)
+                    self.__add(s, p, o)
         
         def _remove(self,resource,inverse=False):
             self.__remove(s=resource.subject)
