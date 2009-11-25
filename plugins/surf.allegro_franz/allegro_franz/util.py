@@ -40,7 +40,7 @@ try:
     from franz.openrdf.model.value import BNode as fBNode
     from franz.openrdf.model.literal import Literal as fLiteral
     
-    from surf.rdf import BNodel, Literal, URIRef
+    from surf.rdf import BNode, Literal, URIRef
     
     '''
     helper functions that convert between rdflib concepts and sesame2 api concepts
