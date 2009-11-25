@@ -69,7 +69,7 @@ class ResourceMeta(type):
         pass
 
     @classmethod
-    def _instance(cls, subject, vals, context = None):
+    def _instance(cls, subject, vals, context = None, store = None):
         """
         Create an instance from the `subject` and it's associated
         `concept` (`vals`) URIs.
@@ -85,7 +85,8 @@ class ResourceMeta(type):
             if uri:
                 return cls.session.map_instance(uri, subject, classes = classes,
                                                 block_outo_load = True,
-                                                context = context)
+                                                context = context,
+                                                store = store)
             else:
                 return subject
         else:
@@ -536,7 +537,10 @@ class Resource(object):
             return subject
 
         context = params.get("context", None)
-        instance = cls._instance(subject, [rdf_type], context = context)
+        instance = cls._instance(subject, 
+                                 [rdf_type], 
+                                 context = context,
+                                 store = cls.store_key)
 
         instance.__set_predicate_values(data.get("direct", {}), True)
         instance.__set_predicate_values(data.get("inverse", {}), False)
