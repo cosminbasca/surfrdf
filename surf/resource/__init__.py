@@ -54,18 +54,21 @@ from surf.util import uri_to_class, uuid_subject, value_to_rdf
 
 a = RDF.type
 
-#--------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
 class ResourceMeta(type):
     def __new__(mcs, classname, bases, class_dict):
-        ResourceClass = super(ResourceMeta, mcs).__new__(mcs, classname, bases, class_dict)
+        ResourceClass = super(ResourceMeta, mcs).__new__(mcs, classname, bases, 
+                                                         class_dict)
+        
         if "uri" not in class_dict:
             ResourceClass.uri = None
+        
         ResourceClass._instance = mcs._instance
         ResourceClass._lazy = mcs._lazy
         return ResourceClass
 
-    def __init__(self,*args,**kwargs):
+    def __init__(self, *args, **kwargs):
         pass
 
     @classmethod
@@ -132,7 +135,7 @@ class ResourceMeta(type):
         self_as_instance = self._instance(self.uri, [OWL["Class"]])
         return getattr(self_as_instance, attr_name)
 
-#--------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
 class Resource(object):
     """
@@ -207,16 +210,20 @@ class Resource(object):
     _instances = WeakKeyDictionary()
 
     def __init__(self, subject = None, block_auto_load = False, context = None):
-        """ Initialize a Resource, with the `subject` (a URI - either a string or a URIRef),
-        if the `subject` is None than a unique subject will be generated using the
-        :func:`surf.util.uuid_subject` method
-        `block_autoload` will prevent the resource from autoloading all rdf attributes associated
-        with the subject of the resource.
+        """ Initialize a Resource, with the `subject` (a URI - either a string 
+        or a URIRef). 
+        
+        If ``subject`` is None than a unique subject will be 
+        generated using the :func:`surf.util.uuid_subject` function.
+        
+        ``block_autoload`` will prevent the resource from autoloading all rdf 
+        attributes associated with the subject of the resource.
 
         """
 
         self.__subject = subject if subject else uuid_subject()
-        self.__subject = self.__subject if type(self.__subject) is URIRef else URIRef(self.__subject)
+        if not type(self.__subject) is URIRef:
+            self.__subject = URIRef(self.__subject)
         self.__context = context
         self.__dirty = False
         self._instances[self] = True
@@ -229,10 +236,10 @@ class Resource(object):
         # __getattr__ to decide if it's worth to query triplestore.
         self.__full = False
         if self.session:
-            if not self.store_key: 
+            if not self.store_key:
                 self.store_key = self.session.default_store_key
-                
-            if self.session.auto_load and not block_auto_load: 
+
+            if self.session.auto_load and not block_auto_load:
                 self.load()
 
     subject = property(lambda self: self.__subject)
@@ -245,7 +252,7 @@ class Resource(object):
         if type(dirty) is bool:
             self.__dirty = dirty
         else:
-            raise ValueError('Value must be of type bool not <%s>'%type(dirty))
+            raise ValueError('Value must be of type bool not <%s>' % type(dirty))
     dirty = property(fget = lambda self: self.__dirty, fset = set_dirty)
     """ Reflects the `dirty` state of the resource. """
 
@@ -305,7 +312,7 @@ class Resource(object):
         """
 
         for ns in namespaces:
-            if type(ns) in [str,unicode]:
+            if type(ns) in [str, unicode]:
                 self.__namespaces[ns] = get_namespace_url(ns)
             elif type(ns) in [Namespace, ClosedNamespace]:
                 self.__namespaces[get_prefix(ns)] = ns
@@ -361,7 +368,11 @@ class Resource(object):
         """
 
         def make_values_source(values, rdf_values):
+            """ Return callable that returns stored values for this attr. """
+            
             def setattr_values_source():
+                """ Return stored values for this attribute. """
+
                 return values, rdf_values
 
             return setattr_values_source
@@ -378,7 +389,9 @@ class Resource(object):
             if type(value) is ResourceValue:
                 pass
             else:
-                if type(value) not in [list, tuple]: value = [value]
+                if type(value) not in [list, tuple]: 
+                    value = [value]
+                    
                 value = map(value_to_rdf, value)
                 values_source = make_values_source(value, rdf_dict[predicate])
                 value = ResourceValue(values_source, self, name)
@@ -403,10 +416,11 @@ class Resource(object):
             rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
             rdf_dict[predicate] = []
             self.__dirty = True
-        object.__delattr__(self,attr_name)
+        object.__delattr__(self, attr_name)
 
     # TODO: reuse already existing instances - CACHED
-    # TODO: shoud we raise an error when predicate not foud ? or just return an empty list ? hmmm --- error :]
+    # TODO: shoud we raise an error when predicate not foud ? or just return 
+    # an empty list ? hmmm --- error :]
     def __getattr__(self, attr_name):
         """ Retrieve and cache attribute values.
 
@@ -427,6 +441,8 @@ class Resource(object):
             """ Return callable that loads and returns values. """
 
             def getattr_values_source():
+                """ Load and return values for this attribute. """
+                
                 if do_query:
                     store = resource.session[resource.store_key]
                     # Request to triple store
@@ -488,8 +504,8 @@ class Resource(object):
 
         """
 
-        for p,v in results.items():
-            attr = rdf2attr(p,direct)
+        for p, v in results.items():
+            attr = rdf2attr(p, direct)
             value = self._lazy(v)
             if value or (type(value) is list and len(value) > 0):
                 self.__setattr__(attr, value)
@@ -510,7 +526,7 @@ class Resource(object):
         instances = []
         for s, types in subjects.items():
             if type(s) is URIRef:
-                instances.append(cls._instance(s,[cls.uri] if cls.uri else types))
+                instances.append(cls._instance(s, [cls.uri] if cls.uri else types))
         return instances if len(instances) > 0 else []
 
     @classmethod
@@ -540,8 +556,8 @@ class Resource(object):
             return subject
 
         context = params.get("context", None)
-        instance = cls._instance(subject, 
-                                 [rdf_type], 
+        instance = cls._instance(subject,
+                                 [rdf_type],
                                  context = context,
                                  store = cls.store_key)
 
@@ -620,12 +636,12 @@ class Resource(object):
 
         """
 
-        graph = self.graph(direct=direct)
+        graph = self.graph(direct = direct)
         if format == 'json':
             return to_json(graph)
-        return graph.serialize(format=format)
+        return graph.serialize(format = format)
 
-    def graph(self, direct=True):
+    def graph(self, direct = True):
         """
         Return an `rdflib` `ConjunctiveGraph` represenation of the current `resource`
 
@@ -633,22 +649,22 @@ class Resource(object):
 
         graph = ConjunctiveGraph()
         self.bind_namespaces_to_graph(graph)
-        graph.add((self.subject,RDF['type'],self.uri))
+        graph.add((self.subject, RDF['type'], self.uri))
         for predicate in self.__rdf_direct:
             for value in self.__rdf_direct[predicate]:
                 if type(value) in [URIRef, Literal, BNode]:
-                    graph.add((self.subject,predicate,value))
+                    graph.add((self.subject, predicate, value))
         if not direct:
             for predicate in self.__rdf_inverse:
                 for value in self.__rdf_inverse[predicate]:
                     if type(value) in [URIRef, Literal, BNode]:
-                        graph.add((value,predicate,self.subject))
+                        graph.add((value, predicate, self.subject))
         return graph
 
     def __str__(self):
         """ Return `string` representation of the resource. """
 
-        return '{%s : %s}'%(unicode(self.subject),unicode(self.uri))
+        return '{%s : %s}' % (unicode(self.subject), unicode(self.uri))
 
     def save(self):
         """ Save the `resource` to the data `store`. """
@@ -702,7 +718,7 @@ class Resource(object):
             format = 'application/rdf+xml'
         elif format in self.formats:
             format = self.formats[format]
-        graph.parse(data=data,file=file,location=location,format=format)
+        graph.parse(data = data, file = file, location = location, format = format)
         self.set(graph)
 
     def set(self, graph):
@@ -717,15 +733,15 @@ class Resource(object):
 
         #TODO: must make this __lazy ... see how
         attrs = {}
-        for s,p,o in graph:
+        for s, p, o in graph:
             attr_name = None
             value = None
             if str(s) == str(self.subject):
-                attr_name = rdf2attr(p,True)
+                attr_name = rdf2attr(p, True)
                 #value = self.__lazy([o])
                 value = o
             elif str(o) == str(self.subject):
-                attr_name = rdf2attr(p,False)
+                attr_name = rdf2attr(p, False)
                 #value = self.__lazy([s])
                 value = s
 
@@ -739,7 +755,7 @@ class Resource(object):
                     attrs[attr_name].append(value)
 
         for attr_name in attrs:
-            setattr(self,attr_name,attrs[attr_name])
+            setattr(self, attr_name, attrs[attr_name])
 
     @classmethod
     def namespace(cls):
@@ -790,6 +806,8 @@ class Resource(object):
         are both of type `Resource`, False otherwise.
 
         """
+        
+        if isinstance(other, Resource):
+            return self.subject == other.subject
 
-        return self.subject == other.subject if isinstance(other, Resource) else False
-
+        return False

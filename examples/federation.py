@@ -17,9 +17,10 @@ session.enable_logging = True
 session['dbpedia'] = dbpedia
 session['local'] = local
 
-print '---------------------------------------------------------------------------'
+print '------------------------------------------------------------------------'
 print 'DBPEDIA'
-PhilCollinsAlbums = session.get_class(surf.ns.YAGO['PhilCollinsAlbums'], store='dbpedia')
+PhilCollinsAlbums = session.get_class(surf.ns.YAGO['PhilCollinsAlbums'],
+                                      store = 'dbpedia')
 
 all_albums = PhilCollinsAlbums.all()
 
@@ -31,19 +32,20 @@ print 'All covers'
 for a in all_albums:
     if a.dbpedia_name:
         cvr = a.dbpedia_cover
-        print '\tCover %s for "%s"' % (str(a.dbpedia_cover), str(a.dbpedia_name))
-        
-print '---------------------------------------------------------------------------'
+        print '\tCover %s for "%s"' % (str(a.dbpedia_cover), 
+                                       str(a.dbpedia_name))
+
+print '------------------------------------------------------------------------'
 print 'LOCAL'
 
 local.clear()
 
 print 'Define a namespace'
-surf.ns.register(surf='http://surf.test/ns#')
+surf.ns.register(surf = 'http://surf.test/ns#')
 
 print 'Create some classes'
-Actor = session.get_class(surf.ns.SURF['Actor'], store='local')
-Movie = session.get_class(surf.ns.SURF['Movie'], store='local')
+Actor = session.get_class(surf.ns.SURF['Actor'], store = 'local')
+Movie = session.get_class(surf.ns.SURF['Movie'], store = 'local')
 
 print Actor, Actor.uri
 print Movie, Movie.uri
@@ -83,14 +85,14 @@ print 'Retrieving from store'
 actors = list(Actor.all())
 movies = list(Movie.all())
 
-print 'Actor 1 cmp: ',a1 == actors[0]
-print 'Actor 1 cmp: ',a1 == actors[1]
-print 'Actor in list : ',a1 in actors
+print 'Actor 1 cmp: ', a1 == actors[0]
+print 'Actor 1 cmp: ', a1 == actors[1]
+print 'Actor in list : ', a1 in actors
 
 print 'All movies %d' % len(movies)
 for m in movies:
     print m.surf_title
-    
+
 print 'All actors %d' % len(actors)
 for a in actors:
     print a.surf_name
@@ -98,4 +100,4 @@ for a in actors:
     for am in actor_movies:
         print '\tStarred in %s' % am.surf_title
 
-print 'done'
+print "Done."

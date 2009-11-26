@@ -45,9 +45,11 @@ from surf.util import attr2rdf, de_camel_case, is_uri, uri_to_classname
 
 '''
 TODO:
-    come to a resolution regarding the metaclass conflict
-    for now classes that extend the Resource must have no metaclasses of their own
-    q: is it a good idea the generate a sublclass of all meta?
+    Come to a resolution regarding the metaclass conflict
+    for now classes that extend the Resource must have no metaclasses of 
+    their own.
+    
+    Q: is it a good idea the generate a sublclass of all meta?
     or should the only meta to be used be ResourceMeta ?
     what are the implications ?
 
@@ -68,7 +70,7 @@ class Session(object):
     """
 
     # TODO: add cache
-    ''',use_cached=False,cache_expire=DEFAULT_RESOURCE_EXPIRE_TIME'''
+
     def __init__(self, default_store = None, mapping = {},
                  auto_persist = False, auto_load = False):
         """ Create a new `session` object that handles the creation of types
@@ -83,8 +85,8 @@ class Session(object):
 
         self.mapping = mapping
 
-        setattr(Resource,'session',self)
-        setattr(ResourceMeta,'session',self)
+        setattr(Resource, 'session', self)
+        setattr(ResourceMeta, 'session', self)
 
         self.__auto_persist = auto_persist
         self.__auto_load = auto_load
@@ -97,7 +99,7 @@ class Session(object):
                 raise Exception('the arguments is not a valid Store instance')
             self.default_store = default_store
 
-    #emulate a dict for the sessions stores
+    # Emulate a dict for the sessions stores.
     def __len__(self):
         """ Total number of `stores` managed by the session. """
         return len(self.__stores)
@@ -227,14 +229,14 @@ class Session(object):
     None is returned. """
 
 
-    def set_default_store(self,store):
+    def set_default_store(self, store):
         """ Setter function for the `default_store` property.
 
         Do not use this, use the `default_store` property instead.
 
         """
 
-        self.__setitem__(DEFAULT_STORE_KEY,store)
+        self.__setitem__(DEFAULT_STORE_KEY, store)
 
     def get_default_store(self):
         """ Getter function for the `default_store` property.
@@ -254,7 +256,7 @@ class Session(object):
 
     See `default_store_key` to see how the `default store` is selected. """
 
-    def __uri(self,uri):
+    def __uri(self, uri):
         """ For **internal** use only, convert the `uri` to a `URIRef`. """
 
         if not uri:
@@ -266,7 +268,7 @@ class Session(object):
             return uri.uri
         else:
             if not is_uri(uri):
-                attrname = de_camel_case(uri,'_',DE_CAMEL_CASE_DEFAULT)
+                attrname = de_camel_case(uri, '_', DE_CAMEL_CASE_DEFAULT)
                 uri, _ = attr2rdf(attrname)
             return URIRef(uri)
 
@@ -377,7 +379,7 @@ class Session(object):
 
         """
 
-        resource = self.map_type(uri,store,*classes)(subject)
+        resource = self.map_type(uri, store, *classes)(subject)
         resource.load_from_source(data = data, file = file,
                                   location = location, format = format)
         return resource

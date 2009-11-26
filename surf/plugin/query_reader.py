@@ -56,7 +56,7 @@ def query_S(s, direct, context):
     unknowns. """
 
     s, v = (s, '?v') if direct else ('?v', s)
-    query = select('?p','?v','?c').distinct()
+    query = select('?p', '?v', '?c').distinct()
     query.where((s, '?p', v)).optional_group(('?v', a, '?c'))
     if context:
         query.from_(context)
@@ -85,7 +85,9 @@ def query_P_S(c, p, direct, context):
 
     for i in range(len(p)):
         s, v = ('?s', '?v%d' % i) if direct else ('?v%d' % i, '?s')
-        if type(p[i]) is URIRef: query.where((s, p[i], v))
+        if type(p[i]) is URIRef:
+            query.where((s, p[i], v))
+
     query.optional_group(('?s', a, '?c'))
 
     return query
@@ -96,11 +98,11 @@ def query_Concept(subject):
     return select('?c').distinct().where((subject, a, '?c'))
 
 class RDFQueryReader(RDFReader):
-    """ Super class for all SuRF Reader plugins that wrap queryable `stores`. """
+    """ Super class for SuRF Reader plugins that wrap queryable `stores`. """
 
-    def __init__(self,*args,**kwargs):
-        RDFReader.__init__(self,*args,**kwargs)
-        self.use_subqueries = kwargs.get('use_subqueries',False)
+    def __init__(self, *args, **kwargs):
+        RDFReader.__init__(self, *args, **kwargs)
+        self.use_subqueries = kwargs.get('use_subqueries', False)
         if type(self.use_subqueries) in [str, tuple]:
             self.use_subqueries = True if self.use_subqueries.lower() == 'true' else False
         elif type(self.use_subqueries) is not bool:
@@ -122,7 +124,7 @@ class RDFQueryReader(RDFReader):
         result = self._execute(query)
         return self._ask(result)
 
-    def _concept(self,subject):
+    def _concept(self, subject):
         query = query_Concept(subject)
         result = self._execute(query)
         return self.convert(result, 'c')
@@ -244,7 +246,7 @@ class RDFQueryReader(RDFReader):
         self.__apply_limit_offset_order_get_by_filter(inner_params, inner_query)
 
         query = select("?s", "?p", "?v", "?c").distinct()
-        query.group(('?s', '?p', '?v'), optional_group(('?v',a,'?c')))
+        query.group(('?s', '?p', '?v'), optional_group(('?v', a, '?c')))
         query.where(inner_query)
         if not (context is None):
             query.from_(context)
@@ -317,11 +319,11 @@ class RDFQueryReader(RDFReader):
         if len(keys) == 1:
             return [row[keys[0]] for row in results_table]
 
-        last = len(keys)-2
+        last = len(keys) - 2
         results = {}
         for row in results_table:
             data = results
-            for i in range(len(keys)-1):
+            for i in range(len(keys) - 1):
                 k = keys[i]
                 if k not in row:
                     continue
@@ -333,7 +335,7 @@ class RDFQueryReader(RDFReader):
                 elif i == last:
                     if v not in data:
                         data[v] = []
-                    data[v].append(row.get(keys[i+1]))
+                    data[v].append(row.get(keys[i + 1]))
         return results
 
     # public interface

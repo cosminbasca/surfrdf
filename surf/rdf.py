@@ -1,3 +1,5 @@
+""" Conditionally import rdflib classes. """
+
 import rdflib
 
 # 2.4 style imports
