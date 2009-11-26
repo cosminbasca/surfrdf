@@ -52,17 +52,17 @@ from surf.util import attr2rdf, namespace_split, rdf2attr
 from surf.util import uri_to_class, uuid_subject, value_to_rdf
 
 
-a = RDF['type']
+a = RDF.type
 
 #--------------------------------------------------------------------------------------------------------
 
 class ResourceMeta(type):
-    def __new__(meta, classname, bases, class_dict):
-        ResourceClass = super(ResourceMeta,meta).__new__(meta,classname,bases,class_dict)
-        if 'uri' not in class_dict:
+    def __new__(mcs, classname, bases, class_dict):
+        ResourceClass = super(ResourceMeta, mcs).__new__(mcs, classname, bases, class_dict)
+        if "uri" not in class_dict:
             ResourceClass.uri = None
-        ResourceClass._instance = meta._instance
-        ResourceClass._lazy = meta._lazy
+        ResourceClass._instance = mcs._instance
+        ResourceClass._lazy = mcs._lazy
         return ResourceClass
 
     def __init__(self,*args,**kwargs):
@@ -84,7 +84,7 @@ class ResourceMeta(type):
 
             if uri:
                 return cls.session.map_instance(uri, subject, classes = classes,
-                                                block_outo_load = True,
+                                                block_auto_load = True,
                                                 context = context,
                                                 store = store)
             else:
@@ -206,7 +206,7 @@ class Resource(object):
     __metaclass__ = ResourceMeta
     _instances = WeakKeyDictionary()
 
-    def __init__(self, subject = None, block_outo_load = False, context = None):
+    def __init__(self, subject = None, block_auto_load = False, context = None):
         """ Initialize a Resource, with the `subject` (a URI - either a string or a URIRef),
         if the `subject` is None than a unique subject will be generated using the
         :func:`surf.util.uuid_subject` method
@@ -229,8 +229,11 @@ class Resource(object):
         # __getattr__ to decide if it's worth to query triplestore.
         self.__full = False
         if self.session:
-            if not self.store_key: self.store_key = self.session.default_store_key
-            if self.session.auto_load and not block_outo_load: self.load()
+            if not self.store_key: 
+                self.store_key = self.session.default_store_key
+                
+            if self.session.auto_load and not block_auto_load: 
+                self.load()
 
     subject = property(lambda self: self.__subject)
     """ The subject of the resource. """

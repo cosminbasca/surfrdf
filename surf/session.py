@@ -333,7 +333,7 @@ class Session(object):
         return self.map_type(uri, store, *classes)
 
     def map_instance(self, uri, subject, store = None, classes = [],
-                     block_outo_load = False, context = None):
+                     block_auto_load = False, context = None):
         """Create a `instance` of the `class` specified by `uri` and `classes`
         to be inherited, see `map_type` for more information. """
 
@@ -350,17 +350,17 @@ class Session(object):
             context = self[store].default_context
 
         Concept = self.map_type(uri, store, *classes)
-        return Concept(subject, block_outo_load = block_outo_load,
+        return Concept(subject, block_auto_load = block_auto_load,
                        context = context)
 
     def get_resource(self, subject, uri = None, store = None, graph = None,
-                     block_outo_load = False, context = None, *classes):
+                     block_auto_load = False, context = None, *classes):
         """ Same as `map_type` but `set` the resource from the `graph`. """
 
         subject = subject if type(subject) is URIRef else URIRef(str(subject))
         uri = uri if uri else Resource.concept(subject)
         resource = self.map_instance(uri, subject, store, classes,
-                                     block_outo_load = block_outo_load,
+                                     block_auto_load = block_auto_load,
                                      context = context)
 
         if graph:
