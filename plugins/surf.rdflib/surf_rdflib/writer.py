@@ -70,6 +70,8 @@ class WriterPlugin(RDFWriter):
         for p, objs in resource.rdf_direct.items():
             for o in objs:
                self.__add(s,p,o)
+        
+        self.__graph.commit()
     
     def _update(self,resource):
         s = resource.subject
@@ -78,6 +80,8 @@ class WriterPlugin(RDFWriter):
         for p, objs in resource.rdf_direct.items():
             for o in objs:
                self.__add(s,p,o)
+
+        self.__graph.commit()
     
     def _remove(self,resource,inverse=False):
         self.__remove(s=resource.subject)
