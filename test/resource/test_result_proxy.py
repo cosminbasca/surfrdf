@@ -22,6 +22,9 @@ class MockStore(object):
 
         return self.__data
 
+class MockResource(object):
+    subject = "mock_subject"
+
 def mock_instancemaker(params, instance_data):
     return "instance"
     
@@ -59,7 +62,7 @@ class TestResultProxy(unittest.TestCase):
         list(self.proxy.order("some_attr").desc())
 
     def test_get_by(self):
-        """ Test order, desc. """
+        """ Test get_by. """
         
         expected = [(surf.ns.FOAF["name"], "Jane", True)]
         self.store.expect_args({"get_by" : expected})
@@ -76,6 +79,14 @@ class TestResultProxy(unittest.TestCase):
         
         self.store.expect_args({"filter" : [(surf.ns.FOAF["name"], "f", True)]})
         list(self.proxy.filter(foaf_name = "f"))
+
+    def test_get_by_resource(self):
+        """ Test that get_by accepts Resources as values. """
+        
+        resource = MockResource()
+        expected = [(surf.ns.FOAF["knows"], resource.subject, True)]
+        self.store.expect_args({"get_by" : expected})
+        list(self.proxy.get_by(foaf_knows = resource))
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

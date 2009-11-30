@@ -142,6 +142,12 @@ class ResultProxy(object):
             # Assume by plain strings user means literals
             if type(value) in [str, unicode]:
                 value = Literal(value)
+            
+            # If value has subject attribute, this must be Resource, 
+            # take its subject.
+            if hasattr(value, "subject"):
+                value = value.subject
+             
             params["get_by"].append((attr, value, direct))
         return ResultProxy(params)
 

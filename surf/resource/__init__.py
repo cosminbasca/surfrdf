@@ -541,7 +541,7 @@ class Resource(object):
 
         rdf_type = None
         # Let's see if rdf:type was specified in query parameters
-        for predicate, value, direct in params.get("get_by", []):
+        for predicate, value, _ in params.get("get_by", []):
             if predicate == a:
                 rdf_type = value
                 break
