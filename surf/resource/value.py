@@ -88,6 +88,12 @@ class ResourceValue(list):
         self.__prepare_values()
         return list.__len__(self)
 
+    def __contains__(self, key):
+        # For now, load all values. In future, if the data is not yet loaded,
+        # we can optimize and do ASK query here. 
+        self.__prepare_values()
+        return self.to_rdf(key) in self.__rdf_values 
+
     def __getitem__(self, key):
         self.__prepare_values()
         return list.__getitem__(self, key)
