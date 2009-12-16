@@ -162,3 +162,46 @@ instantiated resource is present in triple store use
 	>>> resource.is_present()
 	False
 	 	
+	 	
+Extending SuRF resource classes
+-------------------------------
+
+SuRF Resource objects are all instances of :class:`surf.resource.Resource`.
+It is possible to specify additional classes that resources of particular 
+RDF type should subclass. This lets applications add custom logic to resource 
+classes based on their type. The mapping is defined at session level by 
+populating ``mapping`` dictionary in session object:
+
+.. testcode::
+
+	class MyPerson(object):
+		""" Some custom logic for foaf:Person resources. """
+		
+		def get_friends_count(self):
+			return len(self.foaf_knows)
+			
+			
+	session.mapping[surf.ns.FOAF.Person] = MyPerson
+	
+	# Now let's test the mapping
+	john = session.get_resource("http://example/john", surf.ns.FOAF.Person)
+	
+	# Is `john` an instance of surf.Resource? 
+	print isinstance(john, surf.Resource)	
+	# outputs: True
+	
+	# Is `john` an instance of MyPerson?
+	print isinstance(john, MyPerson)
+	# outputs: True
+	
+	# Try the custom `get_friends_count` method:
+	print john.get_friends_count()
+	# outputs: 0
+
+.. testoutput::
+	:hide:
+
+	True
+	True
+	0	
+	 	
