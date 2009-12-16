@@ -234,3 +234,21 @@ def value_to_rdf(value):
             return Literal(val,lang=language,datatype=datatype)
         return value
     return value
+
+class single(object):
+    """ Descriptor for easy access to attributes with single value. """
+    
+    def __init__(self, attr):
+        if isinstance(attr, URIRef):
+            attr = rdf2attr(attr, True)
+        self.attr = attr
+    
+    def __get__(self, obj, type = None):
+        return getattr(obj, self.attr).first
+    
+    def __set__(self, obj, value):
+        setattr(obj, self.attr, value) 
+
+    def __delete__(self, obj):
+        setattr(obj, self.attr, []) 
+        
