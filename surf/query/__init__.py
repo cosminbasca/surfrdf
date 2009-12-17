@@ -295,7 +295,8 @@ def validate_statement(statement):
 
             if type(o) in [URIRef, BNode, Literal] or \
                 (type(o) in [str, unicode] and o.startswith('?')): pass
-            else: raise ValueError('The object is not a valid variable type')
+            else: 
+                raise ValueError('The object is not a valid variable type: %s' % o)
 
         return True
     else:

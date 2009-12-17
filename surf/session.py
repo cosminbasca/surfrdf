@@ -37,7 +37,7 @@ __author__ = 'Cosmin Basca'
 
 import new
 
-from surf.rdf import URIRef
+from surf.rdf import BNode, URIRef
 from surf.resource import Resource, ResourceMeta
 from surf.store import Store, NO_CONTEXT
 from surf.util import DE_CAMEL_CASE_DEFAULT
@@ -339,7 +339,8 @@ class Session(object):
         """Create a `instance` of the `class` specified by `uri` and `classes`
         to be inherited, see `map_type` for more information. """
 
-        subject = subject if type(subject) is URIRef else URIRef(str(subject))
+        if not type(subject) in [URIRef, BNode]:
+            subject = URIRef(str(subject))
 
         if not store:
             store = self.default_store_key

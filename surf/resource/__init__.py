@@ -109,7 +109,7 @@ class ResourceMeta(type):
             inst = r
             if isinstance(value[r], Resource) :
                 inst = value[r]
-            elif type(r) is URIRef:
+            elif type(r) in [URIRef, BNode]:
                 inst = cls._instance(r, value[r])
             attr_value.append(inst)
         return attr_value
@@ -220,9 +220,9 @@ class Resource(object):
         attributes associated with the subject of the resource.
 
         """
-
+        
         self.__subject = subject if subject else uuid_subject()
-        if not type(self.__subject) is URIRef:
+        if not type(self.__subject) in [URIRef, BNode]:
             self.__subject = URIRef(self.__subject)
         self.__context = context
         self.__dirty = False
