@@ -43,48 +43,51 @@ from surf.query.translator.sparql import SparqlTranslator
 from surf.rdf import BNode, Literal, URIRef
 
 class ReaderPlugin(RDFQueryReader):
-    def __init__(self,*args,**kwargs):
-        RDFQueryReader.__init__(self,*args,**kwargs)
-        self.__server           = kwargs['server'] if 'server' in kwargs else 'localhost'
-        self.__port             = kwargs['port'] if 'port' in kwargs else 6789
-        self.__root_path        = kwargs['root_path'] if 'root_path' in kwargs else '/sesame'
-        self.__repository_path  = kwargs['repository_path'] if 'repository_path' in kwargs else ''
-        self.__repository       = kwargs['repository'] if 'repository' in kwargs else None
-        
-        self.log.info('INIT : '+str(self.server)+','+str(self.port)+','+str(self.root_path)+','+str(self.repository_path))
-        self.__allegro          = Allegro(self.server,self.port,self.root_path,self.repository_path)
+    def __init__(self, *args, **kwargs):
+        RDFQueryReader.__init__(self, *args, **kwargs)
+        self.__server = kwargs['server'] if 'server' in kwargs else 'localhost'
+        self.__port = kwargs['port'] if 'port' in kwargs else 6789
+        self.__root_path = kwargs['root_path'] if 'root_path' in kwargs else '/sesame'
+        self.__repository_path = kwargs['repository_path'] if 'repository_path' in kwargs else ''
+        self.__repository = kwargs['repository'] if 'repository' in kwargs else None
+        self.__use_allegro_extensions = kwargs['use_allegro_extensions'] if 'use_allegro_extensions' in kwargs else False
+
+        self.log.info('INIT : ' + str(self.server) + ',' + str(self.port) + ',' + str(self.root_path) + ',' + str(self.repository_path))
+        self.__allegro = Allegro(self.server, self.port, self.root_path, self.repository_path)
         if not self.repository:
-            raise Exception('No <repository> argument supplyed.')
-        opened = self.allegro.open_repository(self.repository)
-        self.log.info('ALLEGRO Repo opened : '+str(opened))
-        
-    server              = property(lambda self: self.__server)
-    port                = property(lambda self: self.__port)
-    root_path           = property(lambda self: self.__root_path)
-    repository_path     = property(lambda self: self.__repository_path)
-    repository          = property(lambda self: self.__repository)
-    allegro             = property(lambda self: self.__allegro)
-    
-    def _to_table(self,result):
+            raise Exception('No <repository> argument supplied.')
+
+        if self.__use_allegro_extensions:
+            opened = self.allegro.open_repository(self.repository)
+            self.log.info('ALLEGRO repository opened: ' + str(opened))
+
+    server = property(lambda self: self.__server)
+    port = property(lambda self: self.__port)
+    root_path = property(lambda self: self.__root_path)
+    repository_path = property(lambda self: self.__repository_path)
+    repository = property(lambda self: self.__repository)
+    allegro = property(lambda self: self.__allegro)
+
+    def _to_table(self, result):
         return result
-        
-    def _ask(self,result):
+
+    def _ask(self, result):
         '''
         returns the boolean value of a ASK query
         '''
         return result
-    
+
     # execute
-    def _execute(self,query):
+    def _execute(self, query):
         q_string = SparqlTranslator(query).translate()
         try:
             self.log.debug(q_string)
-            results = self.allegro.sparql_query(self.repository,q_string,infer=self.inference,format='sparql')
+            results = self.allegro.sparql_query(self.repository, q_string, infer = self.inference, format = 'sparql')
             return results
-        except Exception, e: 
-            self.log.error('Exception on query : \n'+str(e))
+        except Exception, e:
+            self.log.error('Exception on query : \n' + str(e))
         return None
-    
+
     def close(self):
         pass
-    
+
