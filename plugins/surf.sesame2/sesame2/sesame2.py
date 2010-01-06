@@ -262,13 +262,9 @@ class Sesame2(httplib.HTTPConnection):
 
         url = '%s%s' % (self.root_path, Sesame2.url[sesame2_method] % (sesame2_params))
         params = urlencode(params)
-        #if method in ['GET','POST']:
         url = '%s?%s' % (url, params) if len(params) > 0 else url
-        # does not work as specified ... 
-        #elif method == 'POST':
-        #    body = params
-        #    headers['Content-type']='application/x-www-form-urlencoded'
-        #print 'REQUEST = %s, %s, "%s", [%s]'%(method,url,body,str(headers))
+
+        self.connect() # Re-open connection if it was closed.
         self.request(method, url, body, headers)
         response = self.getresponse()
         if response.status in [200, 204]:
