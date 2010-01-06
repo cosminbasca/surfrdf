@@ -37,7 +37,6 @@ __author__ = 'Cosmin Basca'
 
 import re
 import new
-from weakref import WeakKeyDictionary
 
 from surf.namespace import get_namespace_url, get_prefix, OWL
 from surf.query import Query
@@ -207,7 +206,7 @@ class Resource(object):
     """
 
     __metaclass__ = ResourceMeta
-    _instances = WeakKeyDictionary()
+    _dirty_instances = set()
 
     def __init__(self, subject = None, block_auto_load = False, context = None):
         """ Initialize a Resource, with the `subject` (a URI - either a string 
@@ -225,8 +224,6 @@ class Resource(object):
         if not type(self.__subject) in [URIRef, BNode]:
             self.__subject = URIRef(self.__subject)
         self.__context = context
-        self.__dirty = False
-        self._instances[self] = True
         self.__expired = False
         self.__rdf_direct = {}
         self.__rdf_direct[a] = [self.uri]
@@ -249,11 +246,23 @@ class Resource(object):
     """ The namespaces. """
 
     def set_dirty(self, dirty):
-        if type(dirty) is bool:
-            self.__dirty = dirty
-        else:
+        if not isinstance(dirty, bool):
             raise ValueError('Value must be of type bool not <%s>' % type(dirty))
-    dirty = property(fget = lambda self: self.__dirty, fset = set_dirty)
+
+        # Setting dirty to "True" means: 
+        # adding this instance to "dirty_instances" set
+        if dirty and not self in self._dirty_instances:
+            self._dirty_instances.add(self)
+            
+        # Setting dirty to "False" means: 
+        # removing this instance from "dirty_instances" set
+        if not dirty and self in self._dirty_instances:
+            self._dirty_instances.remove(self)
+
+    def get_dirty(self):
+        return self in self._dirty_instances
+
+    dirty = property(fget = get_dirty, fset = set_dirty)
     """ Reflects the `dirty` state of the resource. """
 
     rdf_direct = property(fget = lambda self: self.__rdf_direct)
@@ -327,23 +336,12 @@ class Resource(object):
                 graph.namespace_manager.bind(prefix, self.namespaces[prefix])
 
     @classmethod
-    def instances(cls):
+    def get_dirty_instances(cls):
         """
-        Return all the `instances` of type `Resource` currently available in memory
-        """
-
-        return cls._instances.keys()
-
-    @classmethod
-    def instance(cls, subject):
-        """
-        Return the `Resource` `instance` currently in memory with the specified subject
+        Return all the unsaved (dirty) `instances` of type `Resource`.
         """
 
-        for i in cls._instances:
-            if i.subject == subject:
-                return i
-        return None
+        return cls._dirty_instances
 
     @classmethod
     def to_rdf(cls, value):
@@ -384,7 +382,7 @@ class Resource(object):
                 value = [value]
             rdf_dict[predicate] = []
             rdf_dict[predicate].extend([self.to_rdf(val) for val in value])
-            self.__dirty = True
+            self.dirty = True
 
             if type(value) is ResourceValue:
                 pass
@@ -415,7 +413,7 @@ class Resource(object):
             #value = self.__getattr__(attr_name)
             rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
             rdf_dict[predicate] = []
-            self.__dirty = True
+            self.dirty = True
         object.__delattr__(self, attr_name)
 
     # TODO: reuse already existing instances - CACHED
@@ -476,7 +474,7 @@ class Resource(object):
 
         # Not using self.__setattr__, that would trigger loading of attributes
         object.__setattr__(self, attr_name, attr_value)
-        self.__dirty = False
+        self.dirty = False
 
         return attr_value
 
@@ -494,7 +492,7 @@ class Resource(object):
         results_i = self.session[self.store_key].load(self, False)
         self.__set_predicate_values(results_d, True)
         self.__set_predicate_values(results_i, False)
-        self.__dirty = False
+        self.dirty = False
         self.__full = True
 
     def __set_predicate_values(self, results, direct):
@@ -670,13 +668,13 @@ class Resource(object):
         """ Save the `resource` to the data `store`. """
 
         self.session[self.store_key].save(self)
-        self.__dirty = False
+        self.dirty = False
 
     def remove(self):
         """ Remove the `resource` from the data `store`. """
 
         self.session[self.store_key].remove(self)
-        self.__dirty = False
+        self.dirty = False
 
     def update(self):
         """ Update the resource in the data `store`.
@@ -688,7 +686,7 @@ class Resource(object):
         """
 
         self.session[self.store_key].update(self)
-        self.__dirty = False
+        self.dirty = False
 
     def is_present(self):
         """ Return True if the `resource` is present in data `store`.

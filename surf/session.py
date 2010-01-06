@@ -388,7 +388,6 @@ class Session(object):
     def commit(self):
         """ Commit all the changes, update all the `dirty` `resources`. """
 
-        resources = Resource.instances()
-        for resource in resources:
-            if resource.dirty:
-                resource.update()
+        # Copy set into list because it will shrink as we go through it
+        for resource in list(Resource.get_dirty_instances()):
+            resource.update()

@@ -3,6 +3,7 @@
 from unittest import TestCase
 
 import surf
+from surf import Resource
 
 class TestResource(TestCase):
     """ Tests for Resource class. """
@@ -70,4 +71,19 @@ class TestResource(TestCase):
         assert isinstance(instance, surf.Resource)
         assert isinstance(instance, MyPerson)
         assert hasattr(instance, "get_something")
+
+    def test_class_instances(self):
+        """ Test that dirty class instances are not lost to GC. """
         
+        _, session = self._get_store_session()
+
+        # Class-level tests.
+        cls = session.get_class(surf.ns.FOAF.Person)
+        for i in range(0, 100):
+            c = cls("http://test_instance_%d" % i)
+            # Make some changes to instance to trigger its "dirty" state.
+            c.rdfs_comment = "Test Instance %d" % i
+
+        self.assertEquals(len(Resource._dirty_instances), 100)
+        session.commit()
+        self.assertEquals(len(Resource._dirty_instances), 0)
