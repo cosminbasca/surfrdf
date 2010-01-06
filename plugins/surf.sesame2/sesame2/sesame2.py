@@ -245,9 +245,11 @@ class Sesame2(httplib.HTTPConnection):
         content = response.read()
 
         format = 'text'
-        for type in Sesame2.response_format:
-            if Sesame2.response_format[type] == content_type:
-                format = type
+        if isinstance(content_type, str):
+            for type, mimetype in Sesame2.response_format.items():
+                if content_type.startswith(mimetype):
+                    format = type
+        
         ser_content = content
         if format in ['nt', 'xml', 'n3', 'turtle']:
             graph = ConjunctiveGraph()

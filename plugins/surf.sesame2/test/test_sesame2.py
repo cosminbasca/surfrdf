@@ -37,3 +37,13 @@ class TestSesame2(TestCase):
         """ Test that getting store and session works.  """
         
         self._get_store_session()
+        
+    def test_get_persons(self):
+        """ Test querying for persons.  """
+        
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        persons = Person.all()
+        self.assertEqual(len(persons), 3)        
+        
+        
