@@ -53,12 +53,12 @@ class ReaderPlugin(RDFQueryReader):
         self.__use_allegro_extensions = kwargs['use_allegro_extensions'] if 'use_allegro_extensions' in kwargs else False
 
         self.log.info('INIT : ' + str(self.server) + ',' + str(self.port) + ',' + str(self.root_path) + ',' + str(self.repository_path))
-        self.__allegro = Allegro(self.server, self.port, self.root_path, self.repository_path)
+
         if not self.repository:
             raise Exception('No <repository> argument supplied.')
 
         if self.__use_allegro_extensions:
-            opened = self.allegro.open_repository(self.repository)
+            opened = self.get_allegro().open_repository(self.repository)
             self.log.info('ALLEGRO repository opened: ' + str(opened))
 
     server = property(lambda self: self.__server)
@@ -66,7 +66,7 @@ class ReaderPlugin(RDFQueryReader):
     root_path = property(lambda self: self.__root_path)
     repository_path = property(lambda self: self.__repository_path)
     repository = property(lambda self: self.__repository)
-    allegro = property(lambda self: self.__allegro)
+    use_allegro_extensions = property(lambda self: self.__use_allegro_extensions)
 
     def _to_table(self, result):
         return result
@@ -77,12 +77,16 @@ class ReaderPlugin(RDFQueryReader):
         '''
         return result
 
+    def get_allegro(self):
+        return Allegro(self.server, self.port, self.root_path, 
+                       self.repository_path)
+
     # execute
     def _execute(self, query):
         q_string = SparqlTranslator(query).translate()
         try:
             self.log.debug(q_string)
-            results = self.allegro.sparql_query(self.repository, q_string, infer = self.inference, format = 'sparql')
+            results = self.get_allegro().sparql_query(self.repository, q_string, infer = self.inference, format = 'sparql')
             return results
         except Exception, e:
             self.log.error('Exception on query : \n' + str(e))

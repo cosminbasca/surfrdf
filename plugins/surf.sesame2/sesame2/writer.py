@@ -51,7 +51,7 @@ class WriterPlugin(RDFWriter):
             self.__root_path = self.reader.root_path
             self.__repository_path = self.reader.repository_path
             self.__repository = self.reader.repository
-            self.__allegro = self.reader.allegro
+            self.__use_allegro_extensions = self.reader.use_allegro_extensions
 
         else:
             self.__server = kwargs['server'] if 'server' in kwargs else 'localhost'
@@ -59,65 +59,80 @@ class WriterPlugin(RDFWriter):
             self.__root_path = kwargs['root_path'] if 'root_path' in kwargs else '/sesame'
             self.__repository_path = kwargs['repository_path'] if 'repository_path' in kwargs else ''
             self.__repository = kwargs['repository'] if 'repository' in kwargs else None
+            self.__use_allegro_extensions = kwargs['use_allegro_extensions'] if 'use_allegro_extensions' in kwargs else False
 
             self.log.info('INIT : ' + str(self.server) + ',' + str(self.port) + ',' + str(self.root_path) + ',' + str(self.repository_path))
-            self.__allegro = Allegro(self.server, self.port, self.root_path, self.repository_path)
+
             if not self.repository:
                 raise Exception('No <repository> argument supplyed.')
-            opened = self.allegro.open_repository(self.repository)
-            self.log.info('ALLEGRO Repo opened : ' + str(opened))
+
+            if self.__use_allegro_extensions:
+                opened = self.get_allegro().open_repository(self.repository)
+                self.log.info('ALLEGRO repository opened: ' + str(opened))
 
     server = property(lambda self: self.__server)
     port = property(lambda self: self.__port)
     root_path = property(lambda self: self.__root_path)
     repository_path = property(lambda self: self.__repository_path)
     repository = property(lambda self: self.__repository)
-    allegro = property(lambda self: self.__allegro)
+
+    def get_allegro(self):
+        return Allegro(self.server, self.port, self.root_path,
+                       self.repository_path)
+
 
     def _save(self, resource):
+        allegro = self.get_allegro()
         s = resource.subject
-        self.__allegro.remove_statements(self.__repository, s = s.n3())
+        allegro.remove_statements(self.__repository, s = s.n3())
         graph = resource.graph()
-        self.__allegro.add_statements(self.__repository,
-                                      graph.serialize(format = 'nt'), update = True, content_type = 'nt')
+        allegro.add_statements(self.__repository,
+                               graph.serialize(format = 'nt'), update = True, content_type = 'nt')
 
     def _update(self, resource):
+        allegro = self.get_allegro()
         graph = resource.graph()
         for s, p, o in graph:
-            self.__allegro.remove_statements(self.__repository, s = s.n3(), p = p.n3())
-        self.__allegro.add_statements(self.__repository,
-                                      graph.serialize(format = 'nt'), update = True, content_type = 'nt')
+            allegro.remove_statements(self.__repository, s = s.n3(), p = p.n3())
+        allegro.add_statements(self.__repository,
+                               graph.serialize(format = 'nt'), update = True, content_type = 'nt')
 
     def _remove(self, resource):
-        self.__allegro.remove_statements(self.__repository, s = resource.subject.n3())
-        self.__allegro.remove_statements(self.__repository, o = resource.subject.n3())
+        allegro = self.get_allegro()
+        allegro.remove_statements(self.__repository, s = resource.subject.n3())
+        allegro.remove_statements(self.__repository, o = resource.subject.n3())
 
     def _size(self):
-        return self.__allegro.size(self.__repository)
+        return self.get_allegro().size(self.__repository)
 
     def _add_triple(self, s = None, p = None, o = None, context = None):
-        self.__allegro.add_statements(self.__repository,
-                                      self.__tontriples(s, p, o), update = True, content_type = 'nt')
+        self.get_allegro().add_statements(self.__repository,
+                                          self.__tontriples(s, p, o), update = True, content_type = 'nt')
 
     def _set_triple(self, s = None, p = None, o = None, context = None):
+        allegro = self.get_allegro()
         sn3 = s.n3() if s else None
         pn3 = p.n3() if p else None
         on3 = o.n3() if o else None
-        self.__allegro.remove_statements(self.__repository, s = sn3, p = pn3, context = context)
-        self.__allegro.add_statements(self.__repository,
-                                      self.__tontriples(s, p, o), update = True, content_type = 'nt')
+        allegro.remove_statements(self.__repository, s = sn3, p = pn3, 
+                                  context = context)
+        
+        allegro.add_statements(self.__repository,
+                               self.__tontriples(s, p, o), 
+                               update = True, 
+                               content_type = 'nt')
 
     def _remove_triple(self, s = None, p = None, o = None, context = None):
         sn3 = s.n3() if s else None
         pn3 = p.n3() if p else None
         on3 = o.n3() if o else None
-        self.__allegro.remove_statements(self.__repository, s = sn3, p = pn3, o = on3, context = context)
+        self.get_allegro().remove_statements(self.__repository, s = sn3, p = pn3, o = on3, context = context)
 
     def __tontriples(self, s, p, o):
         return '%s %s %s.' % (s.n3(), p.n3(), o.n3())
 
     def _clear(self, context = None):
-        self.__allegro.remove_all_statements(self.__repository)
+        self.get_allegro().remove_all_statements(self.__repository)
 
     def load_triples(self, **kwargs):
         '''
@@ -131,12 +146,12 @@ class WriterPlugin(RDFWriter):
         baseURI = kwargs['baseURI'] if 'baseURI' in kwargs else None
         externalFormat = kwargs['externalFormat'] if 'externalFormat' in kwargs else None
         saveStrings = kwargs['saveStrings'] if 'saveStrings' in kwargs else None
-        self.__allegro.load_statements(self.__repository,
-                                       location,
-                                       update = update,
-                                       format = format,
-                                       context = context,
-                                       baseURI = baseURI,
-                                       externalFormat = externalFormat,
-                                       saveStrings = saveStrings)
+        self.get_allegro().load_statements(self.__repository,
+                                           location,
+                                           update = update,
+                                           format = format,
+                                           context = context,
+                                           baseURI = baseURI,
+                                           externalFormat = externalFormat,
+                                           saveStrings = saveStrings)
         return True
