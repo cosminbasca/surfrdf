@@ -208,19 +208,22 @@ class Resource(object):
     __metaclass__ = ResourceMeta
     _dirty_instances = set()
 
-    def __init__(self, subject = None, block_auto_load = False, context = None):
+    def __init__(self, subject = None, block_auto_load = False, context = None,
+                 namespace = None):
         """ Initialize a Resource, with the `subject` (a URI - either a string 
         or a URIRef). 
         
         If ``subject`` is None than a unique subject will be 
-        generated using the :func:`surf.util.uuid_subject` function.
-        
+        generated using the :func:`surf.util.uuid_subject` function. If 
+        ``namespace`` is specified, generated subject will be in that 
+        namespace.
+                
         ``block_autoload`` will prevent the resource from autoloading all rdf 
         attributes associated with the subject of the resource.
 
         """
         
-        self.__subject = subject if subject else uuid_subject()
+        self.__subject = subject if subject else uuid_subject(namespace)
         if not type(self.__subject) in [URIRef, BNode]:
             self.__subject = URIRef(self.__subject)
         self.__context = context

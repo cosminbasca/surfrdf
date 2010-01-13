@@ -4,6 +4,8 @@ from unittest import TestCase
 
 import surf
 from surf import Resource
+from surf.rdf import URIRef
+from surf.util import uri_split
 
 class TestResource(TestCase):
     """ Tests for Resource class. """
@@ -87,3 +89,29 @@ class TestResource(TestCase):
         self.assertEquals(len(Resource._dirty_instances), 100)
         session.commit()
         self.assertEquals(len(Resource._dirty_instances), 0)
+
+    def test_init_namespace(self):
+        """ Test resource initialization in specified namespace. """
+        
+        _, session = self._get_store_session()
+
+        Person = session.get_class(surf.ns.FOAF.Person)
+        surf.ns.register(nstest = "http://example.com/ns#")
+
+        # namespace is an instance of Namespace
+        p = Person(namespace = surf.ns.NSTEST)
+        ns, _ = uri_split(p.subject)
+        self.assertEqual(ns, "NSTEST")
+        
+        # namespace is an instance of URIRef
+        p = Person(namespace = URIRef("http://example.com/ns#"))
+        ns, _ = uri_split(p.subject)
+        self.assertEqual(ns, "NSTEST")
+
+        # namespace is string
+        p = Person(namespace = "http://example.com/ns#")
+        ns, _ = uri_split(p.subject)
+        self.assertEqual(ns, "NSTEST")
+
+
+
