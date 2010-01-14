@@ -41,7 +41,8 @@ import re
 from urlparse import urlparse
 from uuid import uuid4
 
-from surf.namespace import get_namespace, get_namespace_url, SURF
+from surf.namespace import get_namespace, get_namespace_url 
+from surf.namespace import get_fallback_namespace, SURF
 from surf.rdf import Literal, Namespace, URIRef
 
 pattern_direct = re.compile('^[a-z0-9]{1,}_[a-zA-Z0-9_]{1,}$', re.DOTALL)
@@ -168,7 +169,7 @@ def uri_to_class(uri):
     '''
     return new.classobj(str(uri_to_classname(uri)),(),{'uri':uri})
 
-def uuid_subject(namespace = SURF):
+def uuid_subject(namespace = None):
     '''the function generates a unique subject in the provided `namespace` based on
     the :func:`uuid.uuid4()` method,
     If `namespace` is not specified than the default `SURF` namespace is used
@@ -181,12 +182,12 @@ def uuid_subject(namespace = SURF):
     '''
     
     if not namespace:
-        namespace = SURF
+        namespace = get_fallback_namespace()
     
     if not isinstance(namespace, Namespace):
         namespace = Namespace(namespace)
         
-    return namespace[str(uuid4())] if namespace else SURF[str(uuid4())]
+    return namespace[str(uuid4())]
 
 DE_CAMEL_CASE_DEFAULT = 2**0
 DE_CAMEL_CASE_FORCE_LOWER_CASE = 2**1

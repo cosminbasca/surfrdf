@@ -114,4 +114,13 @@ class TestResource(TestCase):
         self.assertEqual(ns, "NSTEST")
 
 
+    def test_default_namespace(self):
+        """ Test resource initialization in specified namespace. """
+        
+        _, session = self._get_store_session()
 
+        Person = session.get_class(surf.ns.FOAF.Person)
+        surf.ns.register_fallback("http://example.com/ns#")
+        p = Person()
+        print p.subject
+        self.assertTrue(str(p.subject).startswith("http://example.com/ns#"))

@@ -98,6 +98,7 @@ XMLNS         = Namespace('http://www.w3.org/XML/1998/namespace')
 XSD           = Namespace("http://www.w3.org/2001/XMLSchema#")
 YAGO          = Namespace('http://dbpedia.org/class/yago/')
 
+__fallback_namespace = SURF 
 
 # an internal inverted dict - for fast access
 __inverted_dict__ = {}
@@ -157,6 +158,30 @@ def register(**namespaces):
         ns_dict[prefix] = uri if type(uri) in [Namespace, ClosedNamespace] else Namespace(uri)
         # also keep inverted dict up-to-date
         __add_inverted(prefix)
+
+def register_fallback(namespace):
+    """ Register a fallback namespace to use when creating resource without
+    specifying subject.
+
+    .. code-block:: python
+
+        >>> ns.register_fallback('http://example.com/fallback#')
+        >>> Person = session.get_class(ns.FOAF.Person)
+        >>> p = Person()
+        >>> p.subject
+        http://example.com/fallback#093d460a-a768-49a9-8813-aa5b321d94a8
+
+    """
+
+    if not isinstance(namespace, Namespace):
+        namespace = Namespace(namespace)
+
+    global __fallback_namespace
+    __fallback_namespace = namespace
+
+def get_fallback_namespace():
+    global __fallback_namespace
+    return __fallback_namespace
 
 def get_namespace(base):
     """ Returns the `namespace` short hand notation and the uri based on the
