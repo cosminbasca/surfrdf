@@ -69,6 +69,9 @@ class NamedGroup(Group):
 class OptionalGroup(Group):
     pass
 
+class Union(Group):
+    pass
+
 class Filter(unicode):
     @classmethod
     def regex(cls,var,pattern,flag=None):
@@ -101,7 +104,7 @@ class Query(object):
     """
 
     STATEMENT_TYPES     = [list, tuple, Group, NamedGroup, OptionalGroup,
-                           Filter] # + Query, but cannot reference it here.
+                           Union, Filter] # + Query, but cannot reference it here.
     AGGREGATE_FUCTIONS  = ["count", "min", "max", "avg"]
     TYPES               = [SELECT, ASK, CONSTRUCT, DESCRIBE]
 
@@ -211,6 +214,12 @@ class Query(object):
         self._data.append(g)
         return self
 
+    def union(self, *statements):
+        g = Union()
+        g.extend([stmt for stmt in statements if validate_statement(stmt)])
+        self._data.append(g)
+        return self
+    
     def named_group(self,name,*statements):
         """ Add ``GROUP ?name { ... }`` construct to *WHERE* clause.
 

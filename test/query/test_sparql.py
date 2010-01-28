@@ -101,3 +101,18 @@ class TestSparqlTranslator(TestCase):
         
         query = select("?s")
         self.assertRaises(ValueError, lambda: query.from_(None))
+
+    def test_union(self):
+        """ Try to produce query containing union. """
+        
+        expected = canonical("""
+            SELECT ?s
+            WHERE {
+                { ?s ?v1 ?v2} UNION { ?s ?v3  ?v4 }
+            }
+        """)
+
+        query = select("?s").union(("?s", "?v1", "?v2"), ("?s", "?v3", "?v4"))
+        result = canonical(SparqlTranslator(query).translate())
+        
+        self.assertEqual(expected, result)

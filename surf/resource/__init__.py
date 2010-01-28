@@ -170,7 +170,7 @@ class Resource(object):
 
 
         >>> resource.foaf_knows = [URIRef("http://p1"), URIRef("http://p2")]
-        >>>resource.foaf_knows.one
+        >>> resource.foaf_knows.one
         Traceback (most recent call last):
             ....
         Exception: list has more elements than one
