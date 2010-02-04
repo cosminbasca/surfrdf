@@ -116,12 +116,6 @@ class WriterPlugin(RDFWriter):
         try:
             query_str = SparulTranslator(query).translate()
             self.log.debug(query_str)
-            if isinstance(query_str, unicode):
-                # SPARQLWrapper doesn't like unicode
-                query_str = query_str.encode("utf-8")
-                #import sys
-                #sys.stderr.write("add: %s \n" % query_str)
-                #print "add:", query_str
             self.__sparql_wrapper.setQuery(query_str)
             self.__sparql_wrapper.query().convert()
             return True
@@ -131,7 +125,7 @@ class WriterPlugin(RDFWriter):
         except QueryBadFormed, badquery:
             raise SparqlWriterException("Bad query: %s" % query_str), None, sys.exc_info()[2]
         except Exception, e:
-            raise SparqlWriterException(), None, sys.exc_info()[2]
+            raise SparqlWriterException("Exception: %s" % e), None, sys.exc_info()[2]
     
     def __add(self,s, p, o, context = None):
         return self.__add_many([(s, p, o)], context)
@@ -154,9 +148,6 @@ class WriterPlugin(RDFWriter):
             
             query_str = SparulTranslator(query).translate()
             self.log.debug(query_str)
-            if isinstance(query_str, unicode):
-                # SPARQLWrapper doesn't like unicode
-                query_str = query_str.encode("utf-8")
             self.__sparql_wrapper.setQuery(query_str)
             self.__sparql_wrapper.query().convert()
             return True

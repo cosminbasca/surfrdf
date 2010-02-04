@@ -58,7 +58,7 @@ class SparqlTranslator(QueryTranslator):
         if query.query_type == DESCRIBE:
             query_type = "DESCRIBE"
 
-        rep = '%(query_type)s %(modifier)s %(vars)s %(from_)s WHERE { %(where)s } %(order_by)s %(limit)s %(offset)s '
+        rep = u'%(query_type)s %(modifier)s %(vars)s %(from_)s WHERE { %(where)s } %(order_by)s %(limit)s %(offset)s '
         modifier = query.query_modifier.upper() if query.query_modifier else ''
         limit = ' LIMIT %d ' % (query.query_limit) if query.query_limit else ''
         offset = ' OFFSET %d ' % (query.query_offset) if query.query_offset else ''
@@ -80,7 +80,7 @@ class SparqlTranslator(QueryTranslator):
                      'order_by'     : order_by, })
 
     def _translate_ask(self, query):
-        rep = 'ASK { %(where)s }'
+        rep = u'ASK { %(where)s }'
         where = '. '.join([self._statement(stmt) for stmt in self.query.query_data])
         return rep % ({'where'        : where})
 

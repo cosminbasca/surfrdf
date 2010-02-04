@@ -67,7 +67,7 @@ setup(
     requires_python = '>=2.5', # Future in PEP 345
     packages=['sparql_protocol'],
     install_requires=['surf>=1.0.0',
-                      'sparqlwrapper>=1.3.1',],
+                      'sparqlwrapper>=1.4.0',],
     entry_points={
     'surf.plugins.reader': 'sparql_protocol = sparql_protocol.reader:ReaderPlugin',
     'surf.plugins.writer': 'sparql_protocol = sparql_protocol.writer:WriterPlugin',

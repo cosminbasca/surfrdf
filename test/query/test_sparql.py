@@ -37,8 +37,12 @@ class TestSparqlTranslator(TestCase):
         
         expected = canonical("SELECT ?s ?p ?o WHERE { ?s ?p ?o }")
         query = select("?s", "?p", "?o").where(("?s", "?p", "?o"))
-        result = canonical(SparqlTranslator(query).translate())
+        result = SparqlTranslator(query).translate()
+
+        # Translated query should be unicode object.
+        self.assertTrue(isinstance(result, unicode))
         
+        result = canonical(result)
         self.assertEqual(expected, result)
         
         

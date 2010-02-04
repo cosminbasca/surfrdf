@@ -50,13 +50,13 @@ class ReaderPlugin(RDFQueryReader):
         RDFQueryReader.__init__(self,*args,**kwargs)
         
         self.__endpoint         = kwargs['endpoint'] if 'endpoint' in kwargs else None
-        #self.__results_format  = kwargs['results_format'] if 'results_format' in kwargs else JSON
         self.__results_format   = JSON
         
-        #if self.__results_format not in [JSON, XML]:
-        #    raise UnsupportedResultType('Result of type %s is unsupported'%self.__results_format)
         self.__sparql_wrapper   = SPARQLWrapper(self.__endpoint, self.__results_format)
-
+        if kwargs.get("use_keepalive"):
+            if hasattr(SPARQLWrapper, "setUseKeepAlive"):
+                self.__sparql_wrapper.setUseKeepAlive()
+        
         # Try to use cjson
         try: 
             import cjson
@@ -81,9 +81,6 @@ class ReaderPlugin(RDFQueryReader):
     def execute_sparql(self, q_string, format = 'JSON'):
         try:
             self.log.debug(q_string)
-            if isinstance(q_string, unicode):
-                # SPARQLWrapper doesn't like unicode
-                q_string = q_string.encode("utf-8")
             self.__sparql_wrapper.setQuery(q_string)
             results = self.__sparql_wrapper.query().convert()
             return self._toRdflib(results)
@@ -92,7 +89,7 @@ class ReaderPlugin(RDFQueryReader):
         except QueryBadFormed, badquery:
             raise SparqlReaderException("Bad query: %s" % q_string), None, sys.exc_info()[2]
         except Exception, e:
-            raise SparqlReaderException(), None, sys.exc_info()[2]
+            raise SparqlReaderException("Exception: %s" % e), None, sys.exc_info()[2]
     
     # execute
     def _execute(self, query):

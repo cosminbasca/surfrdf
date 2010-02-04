@@ -18,6 +18,7 @@ for actually making requests and converting data from and to Python structures.
     `endpoint`, `None`, Address of SPARQL HTTP endpoint.
     `default_context`, `None`, The default context (graph) to be queried against (this is useful in particular for the Virtuoso RDF store).
     `use_subqueries`,`None`, whether use of SPARQL 1.1 subqueries is allowed (whether SPARQL endpoint supports that)
+    `use_keepalive`,`False`, whether to use HTTP 1.1 keep-alive connections.  
     
 The parameters are passed as key-value arguments to the 
 :class:`surf.store.Store` class::

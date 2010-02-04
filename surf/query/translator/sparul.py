@@ -88,7 +88,7 @@ class SparulTranslator(SparqlTranslator):
         where = ""
         if query.query_type == INSERT and where_pattern:
             where       = "WHERE { %s }" % (where_pattern)
-
+        
         return rep%({'data'     :data,
                      'into'     :into,
                      'template' :template,

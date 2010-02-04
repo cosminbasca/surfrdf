@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 """ Module for sparql_protocol plugin tests. """
 
 from unittest import TestCase
@@ -111,13 +112,13 @@ class TestSparqlProtocol(TestCase):
         jane.save()
 
         persons = list(Person.all().context(context))
-        self.assertAlmostEquals(len(persons), 1)
+        self.assertEquals(len(persons), 1)
 
         persons = Person.get_by(foaf_name = Literal("Jane")).context(context)
-        self.assertAlmostEquals(len(list(persons)), 1)
+        self.assertEquals(len(list(persons)), 1)
 
         persons = Person.get_by_attribute(["foaf_name"], context = context)
-        self.assertAlmostEquals(len(persons), 1)
+        self.assertEquals(len(persons), 1)
 
     def test_get_by(self):
         """ Test reader.get_by() """
@@ -311,3 +312,14 @@ class TestSparqlProtocol(TestCase):
             store.add_triple("?s", "?p", "?o") 
 
         self.assertRaises(SparqlWriterException, try_add_triple)
+
+
+    def test_save_unicode(self):
+        """ Test that saving unicode data works.  """
+        
+        # Read from different session.
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        john = session.get_resource("http://John", Person)
+        john.foaf_name = u"Jānis"
+        john.save()
