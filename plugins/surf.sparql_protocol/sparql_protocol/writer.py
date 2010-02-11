@@ -41,6 +41,7 @@ from SPARQLWrapper.SPARQLExceptions import EndPointNotFound, QueryBadFormed, SPA
 from reader import ReaderPlugin
 from surf.plugin.writer import RDFWriter
 from surf.query.translator.sparul import SparulTranslator
+from surf.query import Filter, Group, NamedGroup
 from surf.query.update import insert, delete, clear
 from surf.rdf import BNode, Literal, URIRef
 
@@ -58,6 +59,7 @@ class WriterPlugin(RDFWriter):
         
         print "endpoint: %s" % self.__endpoint
         self.__sparql_wrapper   = SPARQLWrapper(self.__endpoint, self.__results_format)
+        self.__sparql_wrapper.setMethod("POST")
                 
     endpoint        = property(lambda self: self.__endpoint)
             
@@ -111,11 +113,19 @@ class WriterPlugin(RDFWriter):
             remove_query = remove_query.from_(context)
         
         remove_query.template(("?s", "?p", "?o"))
-        remove_query.where(("?s", "?p", "?o"))
+
+        if context:
+            remove_where = NamedGroup(context)
+        else:
+            remove_where = Group
+            
+        remove_where.append(("?s", "?p", "?o"))
         
         subjects = [resource.subject for resource in resources]
         filter = " OR ".join(["?s = <%s>" % subject for subject in subjects])
-        remove_query.filter("(%s)" % filter)
+        filter = Filter("(%s)" % filter)
+        remove_where.append(filter)
+        remove_query.where(remove_where)
         
         # Next, add new representations
         insert_query = insert()
@@ -190,6 +200,7 @@ class WriterPlugin(RDFWriter):
                     query = delete().from_(context)
                     
                 query.template(("?s", "?p", "?o"))
+                # FIXME: specify graph in where 
                 query.where(("?s", "?p", "?o"))
                 query.filter("(" + self.__build_filter(s,p,o) + ")")
             
