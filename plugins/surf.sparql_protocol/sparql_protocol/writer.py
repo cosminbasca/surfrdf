@@ -200,9 +200,17 @@ class WriterPlugin(RDFWriter):
                     query = delete().from_(context)
                     
                 query.template(("?s", "?p", "?o"))
-                # FIXME: specify graph in where 
-                query.where(("?s", "?p", "?o"))
-                query.filter("(" + self.__build_filter(s,p,o) + ")")
+                
+                if context:
+                    where_group = NamedGroup(context)
+                else:
+                    where_group = Group()
+                    
+                where_group.append(("?s", "?p", "?o"))
+                filter = Filter("(" + self.__build_filter(s,p,o) + ")")
+                where_group.append(filter)
+                
+                query.where(where_group)
             
             query_str = SparulTranslator(query).translate()
             self.log.debug(query_str)
