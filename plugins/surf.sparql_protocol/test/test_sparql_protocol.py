@@ -5,6 +5,7 @@ from unittest import TestCase
 
 from sparql_protocol.reader import SparqlReaderException
 from sparql_protocol.writer import SparqlWriterException
+
 import surf
 from surf.query import select
 from surf.rdf import Literal, URIRef
@@ -31,7 +32,8 @@ class TestSparqlProtocol(TestCase):
                            writer = "sparql_protocol",
                            endpoint = "http://localhost:9980/sparql",
                            default_context = "http://surf_test_graph/dummy2",
-                           use_subqueries = True)
+                           use_subqueries = True,
+                           combine_queries = True)
 
         session = surf.Session(store)
         if cleanup: 
@@ -343,3 +345,23 @@ class TestSparqlProtocol(TestCase):
         john = session.get_resource("http://John", Person)
         john.foaf_name = u"Jānis"
         john.save()
+
+    def test_update_multiple(self):
+        """ Test that saving multiple resources work.  """
+        
+        # Read from different session.
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        
+        jane = session.get_resource("http://Jane", Person)
+        jane.foaf_mbox = "jane@example.com"
+
+        mary = session.get_resource("http://Mary", Person)
+        mary.foaf_mbox = "mary@example.com"
+        
+        store = session.default_store
+        store.update(jane, mary)
+
+        # Check that names are still set
+        self.assertEquals(jane.foaf_name.first, "Jane")
+        self.assertEquals(mary.foaf_name.first, "Mary")
