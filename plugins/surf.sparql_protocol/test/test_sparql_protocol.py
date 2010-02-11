@@ -62,6 +62,26 @@ class TestSparqlProtocol(TestCase):
         john = session.get_resource("http://John", Person)
         self.assertEquals(john.foaf_name.first, None)
         
+    def test_save_multiple(self):
+        """ Test that saving multiple resources work.  """
+        
+        # Read from different session.
+        _, session = self._get_store_session(cleanup = False)
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        
+        rob = session.get_resource("http://Robert", Person)
+        rob.foaf_name = "Robert"
+        michael = session.get_resource("http://Michael", Person)
+        michael.foaf_name = "Michael"
+        
+        store = session.default_store
+        writer = store.writer
+        
+        writer.save(rob, michael)
+        
+        self.assertTrue(rob.is_present())
+        self.assertTrue(michael.is_present())
+        
     def test_ask(self):
         """ Test ask method. """
         

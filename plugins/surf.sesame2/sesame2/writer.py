@@ -81,26 +81,29 @@ class WriterPlugin(RDFWriter):
                        self.repository_path)
 
 
-    def _save(self, resource):
-        allegro = self.get_allegro()
-        s = resource.subject
-        allegro.remove_statements(self.__repository, s = s.n3())
-        graph = resource.graph()
-        allegro.add_statements(self.__repository,
-                               graph.serialize(format = 'nt'), update = True, content_type = 'nt')
+    def _save(self, *resources):
+        for resource in resources:
+            allegro = self.get_allegro()
+            s = resource.subject
+            allegro.remove_statements(self.__repository, s = s.n3())
+            graph = resource.graph()
+            allegro.add_statements(self.__repository,
+                                   graph.serialize(format = 'nt'), update = True, content_type = 'nt')
 
-    def _update(self, resource):
-        allegro = self.get_allegro()
-        graph = resource.graph()
-        for s, p, o in graph:
-            allegro.remove_statements(self.__repository, s = s.n3(), p = p.n3())
-        allegro.add_statements(self.__repository,
-                               graph.serialize(format = 'nt'), update = True, content_type = 'nt')
+    def _update(self, *resources):
+        for resource in resources:
+            allegro = self.get_allegro()
+            graph = resource.graph()
+            for s, p, o in graph:
+                allegro.remove_statements(self.__repository, s = s.n3(), p = p.n3())
+            allegro.add_statements(self.__repository,
+                                   graph.serialize(format = 'nt'), update = True, content_type = 'nt')
 
-    def _remove(self, resource):
-        allegro = self.get_allegro()
-        allegro.remove_statements(self.__repository, s = resource.subject.n3())
-        allegro.remove_statements(self.__repository, o = resource.subject.n3())
+    def _remove(self, *resources):
+        for resource in resources:
+            allegro = self.get_allegro()
+            allegro.remove_statements(self.__repository, s = resource.subject.n3())
+            allegro.remove_statements(self.__repository, o = resource.subject.n3())
 
     def _size(self):
         return self.get_allegro().size(self.__repository)
@@ -114,12 +117,12 @@ class WriterPlugin(RDFWriter):
         sn3 = s.n3() if s else None
         pn3 = p.n3() if p else None
         on3 = o.n3() if o else None
-        allegro.remove_statements(self.__repository, s = sn3, p = pn3, 
+        allegro.remove_statements(self.__repository, s = sn3, p = pn3,
                                   context = context)
-        
+
         allegro.add_statements(self.__repository,
-                               self.__tontriples(s, p, o), 
-                               update = True, 
+                               self.__tontriples(s, p, o),
+                               update = True,
                                content_type = 'nt')
 
     def _remove_triple(self, s = None, p = None, o = None, context = None):

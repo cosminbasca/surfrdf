@@ -40,8 +40,6 @@ from surf.plugin.query_reader import RDFQueryReader
 from allegro import Allegro
 from surf.query.translator.sparql import SparqlTranslator
 
-from surf.rdf import BNode, Literal, URIRef
-
 class ReaderPlugin(RDFQueryReader):
     def __init__(self, *args, **kwargs):
         RDFQueryReader.__init__(self, *args, **kwargs)

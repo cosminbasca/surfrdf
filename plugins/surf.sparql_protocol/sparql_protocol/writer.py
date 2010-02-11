@@ -61,29 +61,30 @@ class WriterPlugin(RDFWriter):
                 
     endpoint        = property(lambda self: self.__endpoint)
             
-    def _save(self, resource):
-        s = resource.subject
-        self.__remove(s, context = resource.context)
+    def _save(self, *resources):
         
-        def statement_generator():
+        # Group resources by context
+        contexts = {}
+        for resource in resources:
+            context_group = contexts.setdefault(resource.context, [])
+            context_group.append(resource)
+        
+        # Execute "__save_many" for resources of each context.
+        for context, context_resources in contexts.items():
+            self.__save_many(context_resources, context)
+    
+    def _update(self, *resources):
+        for resource in resources:
+            s = resource.subject
+            for p in resource.rdf_direct:
+                self.__remove(s, p)
             for p, objs in resource.rdf_direct.items():
                 for o in objs:
-                    yield (s, p, o)
-            
-        self.__add_many(statement_generator(), resource.context)
+                    self.__add(s, p, o)
     
-    def _update(self, resource):
-        s = resource.subject
-        for p in resource.rdf_direct:
-            self.__remove(s, p)
-        for p, objs in resource.rdf_direct.items():
-            for o in objs:
-                self.__add(s, p, o)
-    
-    def _remove(self, resource, inverse = False):
-        self.__remove(s = resource.subject, context = resource.context)
-        if inverse: 
-            self.__remove(o = resource.subject, context = resource.context)
+    def _remove(self, *resources):
+        for resource in resources:
+            self.__remove(s = resource.subject, context = resource.context)
     
     def _size(self):
         '''
@@ -101,6 +102,52 @@ class WriterPlugin(RDFWriter):
     
     def _remove_triple(self, s = None, p = None, o = None, context = None):
         self.__remove(s,p,o,context)
+
+    def __save_many(self, resources, context = None):
+
+        # First, remove old representations
+        remove_query = delete()
+        if context:
+            remove_query = remove_query.from_(context)
+        
+        remove_query.template(("?s", "?p", "?o"))
+        remove_query.where(("?s", "?p", "?o"))
+        
+        subjects = [resource.subject for resource in resources]
+        filter = " OR ".join(["?s = <%s>" % subject for subject in subjects])
+        remove_query.filter("(%s)" % filter)
+        
+        # Next, add new representations
+        insert_query = insert()
+
+        if context:
+            insert_query.into(context)
+        
+        for resource in resources:
+            for p, objs in resource.rdf_direct.items():
+                for o in objs:
+                    insert_query.template((resource.subject, p, o))
+            
+        # Now, execute both.
+        try:
+            remove_query_str = SparulTranslator(remove_query).translate()
+            insert_query_str = SparulTranslator(insert_query).translate()
+            
+            # Let's try to execute them both at the same time.
+            query_str = remove_query_str + "\n" + insert_query_str
+
+            self.log.debug(query_str)
+            self.__sparql_wrapper.setQuery(query_str)
+            self.__sparql_wrapper.query()
+
+            return True
+
+        except EndPointNotFound, _: 
+            raise SparqlWriterException("Endpoint not found"), None, sys.exc_info()[2]
+        except QueryBadFormed, _:
+            raise SparqlWriterException("Bad query: %s" % query_str), None, sys.exc_info()[2]
+        except Exception, e:
+            raise SparqlWriterException("Exception: %s" % e), None, sys.exc_info()[2]
 
     def __add_many(self, triples, context = None):
         self.log.debug("ADD several triples")

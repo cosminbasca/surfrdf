@@ -59,13 +59,13 @@ class RDFWriter(Plugin):
     def _clear(self,context = None):
         pass
 
-    def _save(self, resource):
+    def _save(self, *resources):
         pass
 
-    def _update(self, resource):
+    def _update(self, *resources):
         pass
 
-    def _remove(self, resource):
+    def _remove(self, *resources):
         pass
 
     def _size(self):
@@ -92,24 +92,34 @@ class RDFWriter(Plugin):
 
         self._clear(context = context)
 
-    def save(self, resource):
-        """ Replace the ``resource`` in store with its current state. """
+    def save(self, *resources):
+        """ Replace the ``*resources`` in store with their current state. """
 
-        if hasattr(resource, 'subject'): self._save(resource)
-        else: raise InvalidResourceException('argument must be of type surf.resource.Resource')
+        for resource in resources:
+            if not hasattr(resource, "subject"):
+                raise InvalidResourceException("Arguments must be of type surf.resource.Resource")
 
-    def update(self, resource):
-        """ Update the current ``resource`` to the `store` - persist. """
+        self._save(*resources)
 
-        if hasattr(resource,'subject'): self._update(resource)
-        else: raise InvalidResourceException('argument must be of type surf.resource.Resource')
+    def update(self, *resources):
+        """ Update the ``*resources`` to the `store` - persist. """
 
-    def remove(self, resource):
-        """ Completely remove the ``resource`` from the `store`. """
+        for resource in resources:
+            if not hasattr(resource, "subject"):
+                raise InvalidResourceException("Arguments must be of type surf.resource.Resource")
 
-        #TODO: decide whether triples that are indirect (belong to other resource should be rremoved as well)
-        if hasattr(resource, 'subject'): self._remove(resource)
-        else: raise InvalidResourceException('argument must be of type surf.resource.Resource')
+        self._update(resource)
+
+    def remove(self, *resources):
+        """ Completely remove the ``*resources`` from the `store`. """
+
+        #TODO: decide whether triples that are indirect (belong to other 
+        # resource should be removed as well)
+        for resource in resources:
+            if not hasattr(resource, "subject"):
+                raise InvalidResourceException("Arguments must be of type surf.resource.Resource")
+
+        self._remove(*resources)
 
     def size(self):
         """ Return the number of `triples` in the current `store`. """

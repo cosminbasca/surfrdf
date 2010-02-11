@@ -81,6 +81,7 @@ class ReaderPlugin(RDFQueryReader):
     def execute_sparql(self, q_string, format = 'JSON'):
         try:
             self.log.debug(q_string)
+            #print q_string
             self.__sparql_wrapper.setQuery(q_string)
             results = self.__sparql_wrapper.query().convert()
             return self._toRdflib(results)

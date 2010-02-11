@@ -3,7 +3,6 @@
 from unittest import TestCase
 
 import surf
-from surf.rdf import URIRef
 
 class TestRdfLib(TestCase):
     """ Tests for sparql_protocol plugin. """
@@ -21,7 +20,7 @@ class TestRdfLib(TestCase):
     def test_is_present(self):
         """ Test that is_present returns True / False.  """
         
-        store, session = self._get_store_session()
+        _, session = self._get_store_session()
         Person = session.get_class(surf.ns.FOAF + "Person")
         john = session.get_resource("http://john", Person)
 
@@ -77,3 +76,23 @@ class TestRdfLib(TestCase):
         names = map(str, FoafPerson.all().limit(10).order(surf.ns.FOAF.name))
         assert "John" in names
         assert "Jane" in names
+        
+    def test_save_multiple(self):
+        """ Test that saving multiple resources work.  """
+        
+        # Read from different session.
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        
+        rob = session.get_resource("http://Robert", Person)
+        rob.foaf_name = "Robert"
+        michael = session.get_resource("http://Michael", Person)
+        michael.foaf_name = "Michael"
+        
+        store = session.default_store
+        writer = store.writer
+        
+        writer.save(rob, michael)
+        
+        self.assertTrue(rob.is_present())
+        self.assertTrue(michael.is_present())        
