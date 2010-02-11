@@ -228,17 +228,27 @@ class Store(object):
 
         self.writer.save(*resources)
 
+        for resource in resources:
+            resource.dirty = False
+
     # crUd
     def update(self, *resources):
         """ See :func:`surf.plugin.writer.RDFWriter.update` method. """
 
         self.writer.update(*resources)
 
+        for resource in resources:
+            resource.dirty = False
+
     # cruD
     def remove(self, *resources):
         """ See :func:`surf.plugin.writer.RDFWriter.remove` method. """
 
         self.writer.remove(*resources)
+
+        for resource in resources:
+            resource.dirty = False
+
 
     def size(self):
         """ See :func:`surf.plugin.writer.RDFWriter.size` method. """

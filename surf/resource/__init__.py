@@ -565,6 +565,8 @@ class Resource(object):
         instance.__set_predicate_values(data.get("direct", {}), True)
         instance.__set_predicate_values(data.get("inverse", {}), False)
         instance.__full = bool(params.get("full"))
+        # __setattr__ marked it as dirty but it's freshly loaded!
+        instance.dirty = False 
 
         return instance
 
@@ -671,13 +673,11 @@ class Resource(object):
         """ Save the `resource` to the data `store`. """
 
         self.session[self.store_key].save(self)
-        self.dirty = False
 
     def remove(self):
         """ Remove the `resource` from the data `store`. """
 
         self.session[self.store_key].remove(self)
-        self.dirty = False
 
     def update(self):
         """ Update the resource in the data `store`.
@@ -689,7 +689,6 @@ class Resource(object):
         """
 
         self.session[self.store_key].update(self)
-        self.dirty = False
 
     def is_present(self):
         """ Return True if the `resource` is present in data `store`.
