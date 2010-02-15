@@ -124,6 +124,12 @@ class QueryUpdate(Query):
         self._clear_uri = uri
         return self
 
+    def __unicode__(self):
+        # Importing here to avoid circular imports.
+        from surf.query.translator.sparul import SparulTranslator
+        return SparulTranslator(self).translate()
+
+
 def insert(data = False):
     q_type = INSERT_DATA if data else INSERT
     return QueryUpdate(q_type)

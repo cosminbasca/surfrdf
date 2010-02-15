@@ -102,10 +102,17 @@ class TestSparulTranslator(TestCase):
         result = SparulTranslator(query).translate()
         self.assertTrue(isinstance(result, unicode))
         
+    def test_str(self):
+        """ Test that __str__ translates query to string. """
         
+        expected = canonical(u"INSERT { <http://a> <http://b> <http://c> }")
+        statement = URIRef("http://a"), URIRef("http://b"), URIRef("http://c")  
+        query = insert().template(statement)
         
-        
-        
+        # test str()
+        self.assertEqual(expected, canonical(unicode(str(query))))        
+        # test unicode()
+        self.assertEqual(expected, canonical(unicode(query)))        
         
         
         

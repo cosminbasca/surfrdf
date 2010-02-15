@@ -285,6 +285,14 @@ class Query(object):
 
         return self
 
+    def __unicode__(self):
+        # Importing here to avoid circular imports.
+        from surf.query.translator.sparql import SparqlTranslator
+        return SparqlTranslator(self).translate()
+
+    def __str__(self):
+        return unicode(self).encode("utf-8")
+
 def validate_statement(statement):
     if type(statement) in Query.STATEMENT_TYPES or isinstance(statement, Query):
         if type(statement) in [list, tuple]:

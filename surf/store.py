@@ -202,8 +202,9 @@ class Store(object):
     def execute(self, query):
         """ :func:`surf.plugin.reader.RDFQueryReader.execute` method. """
 
-        if hasattr(self.reader, 'execute') and type(query) is Query:
+        if hasattr(self.reader, 'execute') and isinstance(query, Query):
             return self.reader.execute(query)
+
         return None
 
     def execute_sparql(self, sparql_query, format = 'JSON'):

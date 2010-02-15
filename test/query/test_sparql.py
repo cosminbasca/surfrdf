@@ -14,6 +14,8 @@ def canonical(sparql_string):
     capitalization differences.
     
     """
+
+    assert(isinstance(sparql_string, unicode))
     
     result = sparql_string.strip().lower()
     result = re.sub("\s\s+", " ", result)
@@ -35,7 +37,7 @@ class TestSparqlTranslator(TestCase):
     def test_simple(self):
         """ Try to produce a simple "SELECT ... WHERE ..." query.  """
         
-        expected = canonical("SELECT ?s ?p ?o WHERE { ?s ?p ?o }")
+        expected = canonical(u"SELECT ?s ?p ?o WHERE { ?s ?p ?o }")
         query = select("?s", "?p", "?o").where(("?s", "?p", "?o"))
         result = SparqlTranslator(query).translate()
 
@@ -49,7 +51,7 @@ class TestSparqlTranslator(TestCase):
     def test_subquery(self):
         """ Try to produce query that contains subquery in WHERE clause. """
         
-        expected = canonical("""
+        expected = canonical(u"""
             SELECT ?s ?p ?o 
             WHERE { 
                 ?s ?p ?o. 
@@ -68,7 +70,7 @@ class TestSparqlTranslator(TestCase):
     def test_from(self):
         """ Try to produce query that contains FROM clauses. """
         
-        expected = canonical("""
+        expected = canonical(u"""
             SELECT ?s ?p ?o
             FROM <http://uri1>
             FROM <http://uri2> 
@@ -86,7 +88,7 @@ class TestSparqlTranslator(TestCase):
     def test_describe(self):
         """ Try to produce DESCRIBE query. """
         
-        expected = canonical("""
+        expected = canonical(u"""
             DESCRIBE ?s
             FROM <http://uri1>
             WHERE { 
@@ -109,7 +111,7 @@ class TestSparqlTranslator(TestCase):
     def test_union(self):
         """ Try to produce query containing union. """
         
-        expected = canonical("""
+        expected = canonical(u"""
             SELECT ?s
             WHERE {
                 { ?s ?v1 ?v2} UNION { ?s ?v3  ?v4 }
@@ -120,3 +122,20 @@ class TestSparqlTranslator(TestCase):
         result = canonical(SparqlTranslator(query).translate())
         
         self.assertEqual(expected, result)
+
+    def test_str(self):
+        """ Try str(query). """
+        
+        expected = canonical(u"""
+            SELECT ?s ?p ?o
+            WHERE { 
+                ?s ?p ?o 
+            }
+        """)
+        
+        query = select("?s", "?p", "?o").where(("?s", "?p", "?o"))
+        # test str()
+        self.assertEqual(expected, canonical(unicode(str(query))))
+        # test unicode()
+        self.assertEqual(expected, canonical(unicode(query)))
+

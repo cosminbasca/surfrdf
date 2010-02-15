@@ -36,11 +36,11 @@
 __author__ = 'Cosmin Basca'
 
 import sys
+
 from SPARQLWrapper import SPARQLWrapper, jsonlayer, JSON
-from SPARQLWrapper.SPARQLExceptions import EndPointNotFound, QueryBadFormed, SPARQLWrapperException
+from SPARQLWrapper.SPARQLExceptions import EndPointNotFound, QueryBadFormed
 
 from surf.plugin.query_reader import RDFQueryReader
-from surf.query.translator.sparql import SparqlTranslator
 from surf.rdf import BNode, ConjunctiveGraph, Literal, URIRef
 
 class SparqlReaderException(Exception): pass
@@ -53,7 +53,7 @@ class ReaderPlugin(RDFQueryReader):
         self.__results_format   = JSON
         
         self.__sparql_wrapper   = SPARQLWrapper(self.__endpoint, self.__results_format)
-        if kwargs.get("use_keepalive"):
+        if kwargs.get("use_keepalive", "").lower().strip() == "true":
             if hasattr(SPARQLWrapper, "setUseKeepAlive"):
                 self.__sparql_wrapper.setUseKeepAlive()
         
@@ -84,17 +84,16 @@ class ReaderPlugin(RDFQueryReader):
             self.__sparql_wrapper.setQuery(q_string)
             results = self.__sparql_wrapper.query().convert()
             return self._toRdflib(results)
-        except EndPointNotFound, notfound: 
+        except EndPointNotFound, _: 
             raise SparqlReaderException("Endpoint not found"), None, sys.exc_info()[2]
-        except QueryBadFormed, badquery:
+        except QueryBadFormed, _:
             raise SparqlReaderException("Bad query: %s" % q_string), None, sys.exc_info()[2]
         except Exception, e:
             raise SparqlReaderException("Exception: %s" % e), None, sys.exc_info()[2]
     
     # execute
     def _execute(self, query):
-        q_string = SparqlTranslator(query).translate()
-        return self.execute_sparql(q_string)
+        return self.execute_sparql(unicode(query))
     
     def close(self):
         pass

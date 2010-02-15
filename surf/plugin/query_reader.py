@@ -342,9 +342,9 @@ class RDFQueryReader(RDFReader):
     def execute(self, query):
         """ Execute a `query` of type :class:`surf.query.Query`. """
 
-        q = query if type(query) is Query else None
-        if q:
-            return self._execute(q)
+        if isinstance(query, Query):
+            return self._execute(query)
+        
         return None
 
     def convert(self, query_result, * keys):
