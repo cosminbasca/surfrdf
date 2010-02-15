@@ -38,7 +38,6 @@ __author__ = 'Cosmin Basca'
 
 from surf.plugin.query_reader import RDFQueryReader
 from allegro import Allegro
-from surf.query.translator.sparql import SparqlTranslator
 
 class ReaderPlugin(RDFQueryReader):
     def __init__(self, *args, **kwargs):
@@ -81,11 +80,13 @@ class ReaderPlugin(RDFQueryReader):
 
     # execute
     def _execute(self, query):
-        q_string = SparqlTranslator(query).translate()
+        q_string = unicode(query)
         try:
             self.log.debug(q_string)
-            results = self.get_allegro().sparql_query(self.repository, q_string, infer = self.inference, format = 'sparql')
-            return results
+            return self.get_allegro().sparql_query(self.repository, 
+                                                   q_string, 
+                                                   infer = self.inference, 
+                                                   format = 'sparql')
         except Exception, e:
             self.log.error('Exception on query : \n' + str(e))
         return None

@@ -3,8 +3,6 @@
 from unittest import TestCase
 
 import surf
-from surf.query import select
-from surf.rdf import Literal, URIRef
 
 class TestSesame2(TestCase):
     """ Tests for sesame2 plugin. """

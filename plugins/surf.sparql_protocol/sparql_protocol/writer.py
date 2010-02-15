@@ -40,7 +40,6 @@ from SPARQLWrapper.SPARQLExceptions import EndPointNotFound, QueryBadFormed, SPA
 
 from reader import ReaderPlugin
 from surf.plugin.writer import RDFWriter
-from surf.query.translator.sparul import SparulTranslator
 from surf.query import Filter, Group, NamedGroup
 from surf.query.update import insert, delete, clear
 from surf.rdf import BNode, Literal, URIRef
@@ -160,7 +159,7 @@ class WriterPlugin(RDFWriter):
     def __execute(self, *queries):
         """ Execute several queries. """
         
-        translated = [SparulTranslator(query).translate() for query in queries]
+        translated = [unicode(query) for query in queries]  
         if self.__combine_queries:
             translated = ["\n".join(translated)]
 
@@ -193,7 +192,7 @@ class WriterPlugin(RDFWriter):
             query.template((s, p, o))
 
         try:
-            query_str = SparulTranslator(query).translate()
+            query_str = unicode(query)
             self.log.debug(query_str)
             self.__sparql_wrapper.setQuery(query_str)
             self.__sparql_wrapper.query().convert()
@@ -234,7 +233,7 @@ class WriterPlugin(RDFWriter):
 
                 query.where(where_group)
 
-            query_str = SparulTranslator(query).translate()
+            query_str = unicode(query)
             self.log.debug(query_str)
             self.__sparql_wrapper.setQuery(query_str)
             self.__sparql_wrapper.query().convert()

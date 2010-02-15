@@ -39,21 +39,12 @@ __author__ = 'Cosmin Basca'
 from surf.plugin.writer import RDFWriter
 
 from allegro_franz.reader import ReaderPlugin
-from allegro_franz.util import toRdfLib, toSesame, toStatement, toTuple
+from allegro_franz.util import toSesame
 
 try:
     from franz.openrdf.sail.allegrographserver import AllegroGraphServer
     from franz.openrdf.repository.repository import Repository
-    from franz.miniclient import repository
-    from franz.openrdf.query.query import QueryLanguage
-    from franz.openrdf.vocabulary.rdf import RDF
-    from franz.openrdf.vocabulary.xmlschema import XMLSchema
-    from franz.openrdf.query.dataset import Dataset
     from franz.openrdf.rio.rdfformat import RDFFormat
-    from franz.openrdf.rio.rdfwriter import  NTriplesWriter
-    from franz.openrdf.rio.rdfxmlwriter import RDFXMLWriter
-    from franz.openrdf.model import value as sv
-    from franz.openrdf.model import literal as sl
 
     print 'surf.plugin allegro_franz writer : franz libraries installed'
     class WriterPlugin(RDFWriter):

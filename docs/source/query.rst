@@ -40,8 +40,7 @@ Here's an example how to use tools in :mod:`surf.query`:
 
     >>> import surf
     >>> from surf.query import a, select
-    >>> from surf.query.translator.sparql import SparqlTranslator
     >>> query = select("?s", "?src")
     >>> query.named_group("?src", ("?s", a, surf.ns.FOAF['Person']))
-    >>> SparqlTranslator(query).translate()
-    u'SELECT  ?s ?src  WHERE {  GRAPH ?src {  ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person>  }  }    '
+    >>> print unicode(query)
+    SELECT  ?s ?src  WHERE {  GRAPH ?src {  ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person>  }  }

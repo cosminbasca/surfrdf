@@ -227,7 +227,8 @@ def pretty_rdf(uri):
     return ''
 
 def value_to_rdf(value):
-    '''converts the value to an `rdflib` compatible type if appropriate'''
+    """ Convert the value to an `rdflib` compatible type if appropriate. """
+    
     if type(value) in [str, unicode, basestring, float, int, long, bool, datetime, date, time]:
         return Literal(value)
     elif type(value) in [list, tuple]:

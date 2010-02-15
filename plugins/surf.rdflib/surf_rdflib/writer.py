@@ -43,20 +43,20 @@ from reader import ReaderPlugin
 
 class WriterPlugin(RDFWriter):
     def __init__(self, reader, *args, **kwargs):
-            RDFWriter.__init__(self, reader, *args, **kwargs)
-            if isinstance(self.reader, ReaderPlugin):
-                self.__rdflib_store = self.reader.rdflib_store
-                self.__rdflib_identifier = self.reader.rdflib_identifier
-                self.__commit_pending_transaction_on_close = self.reader.commit_pending_transaction_on_close
+        RDFWriter.__init__(self, reader, *args, **kwargs)
+        if isinstance(self.reader, ReaderPlugin):
+            self.__rdflib_store = self.reader.rdflib_store
+            self.__rdflib_identifier = self.reader.rdflib_identifier
+            self.__commit_pending_transaction_on_close = self.reader.commit_pending_transaction_on_close
 
-                self.__graph = self.reader.graph
-            else:
-                self.__rdflib_store = kwargs['rdflib_store'] if 'rdflib_store' in kwargs else 'IOMemory'
-                self.__rdflib_identifier = kwargs['rdflib_identifier'] if 'rdflib_identifier' in kwargs else None
-                self.__commit_pending_transaction_on_close = kwargs['commit_pending_transaction_on_close'] if 'commit_pending_transaction_on_close' in kwargs else True
+            self.__graph = self.reader.graph
+        else:
+            self.__rdflib_store = kwargs['rdflib_store'] if 'rdflib_store' in kwargs else 'IOMemory'
+            self.__rdflib_identifier = kwargs['rdflib_identifier'] if 'rdflib_identifier' in kwargs else None
+            self.__commit_pending_transaction_on_close = kwargs['commit_pending_transaction_on_close'] if 'commit_pending_transaction_on_close' in kwargs else True
 
-                self.__graph = ConjunctiveGraph(store = self.__rdflib_store, identifier = self.__rdflib_identifier)
-                warnings.warn("the graph is not readable through the reader plugin", UserWarning)
+            self.__graph = ConjunctiveGraph(store = self.__rdflib_store, identifier = self.__rdflib_identifier)
+            warnings.warn("the graph is not readable through the reader plugin", UserWarning)
 
     rdflib_store = property(lambda self: self.__rdflib_store)
     rdflib_identifier = property(lambda self: self.__rdflib_identifier)
@@ -132,7 +132,7 @@ class WriterPlugin(RDFWriter):
 
     def _clear(self, context = None):
         """ Clear the triple-store. """
-        
+
         self.__graph.remove((None, None, None))
 
     def close(self):
