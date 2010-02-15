@@ -104,9 +104,12 @@ try:
                     for o in objs:
                         self.__add(s, p, o)
 
-        def _remove(self, *resources):
+        def _remove(self, *resources, **kwargs):
+            inverse = kwargs.get("inverse")
             for resource in resources:
                 self.__remove(s = resource.subject)
+                if inverse:
+                    self.__remove(o = resource.subject)
 
         def _size(self):
             return self.__con.size()

@@ -80,3 +80,19 @@ class TestAllegro(TestCase):
         res = self.Logic.all().limit(1).first()
         con = res.concept(res.subject)[0]
         self.assertEquals(con, self.Logic.uri)
+        
+    def test_remove_inverse(self):
+        
+        session = self.rdf_session
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        
+        jane = session.get_resource("http://Jane", Person)
+        mary = session.get_resource("http://Mary", Person)
+        jane.foaf_knows = mary
+        jane.update()
+        
+        # This should also remove <jane> foaf:knows <mary>.
+        mary.remove(inverse = True)
+
+        jane = session.get_resource("http://Jane", Person)
+        self.assertEquals(len(jane.foaf_knows), 0)        

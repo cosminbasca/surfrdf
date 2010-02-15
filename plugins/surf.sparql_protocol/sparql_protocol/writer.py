@@ -40,7 +40,7 @@ from SPARQLWrapper.SPARQLExceptions import EndPointNotFound, QueryBadFormed, SPA
 
 from reader import ReaderPlugin
 from surf.plugin.writer import RDFWriter
-from surf.query import Filter, Group, NamedGroup
+from surf.query import Filter, Group, NamedGroup, Union
 from surf.query.update import insert, delete, clear
 from surf.rdf import BNode, Literal, URIRef
 
@@ -86,10 +86,11 @@ class WriterPlugin(RDFWriter):
             insert_query = self.__prepare_add_many_query(items, context)
             self.__execute(remove_query, insert_query)
 
-    def _remove(self, *resources):
+    def _remove(self, *resources, **kwargs):
         for context, items in self.__group_by_context(resources).items():
             # Deletes all triples with matching subjects.
-            query = self.__prepare_delete_many_query(items, context)
+            inverse = kwargs.get("inverse")
+            query = self.__prepare_delete_many_query(items, context, inverse)
             self.__execute(query)
 
     def _size(self):
@@ -121,7 +122,7 @@ class WriterPlugin(RDFWriter):
 
         return query
     
-    def __prepare_delete_many_query(self, resources, context = None):
+    def __prepare_delete_many_query(self, resources, context, inverse = False):
         query = delete()
         if context:
             query.from_(context)
@@ -133,12 +134,21 @@ class WriterPlugin(RDFWriter):
         else:
             where_clause = Group
 
-        where_clause.append(("?s", "?p", "?o"))
-
         subjects = [resource.subject for resource in resources]
         filter = " OR ".join(["?s = <%s>" % subject for subject in subjects])
         filter = Filter("(%s)" % filter)
-        where_clause.append(filter)
+
+        if inverse:
+            filter2 = " OR ".join(["?o = <%s>" % subject for subject in subjects])
+            filter2 = Filter("(%s)" % filter2)
+
+            where1 = Group([("?s", "?p", "?o"), filter])
+            where2 = Group([("?s", "?p", "?o"), filter2])
+            where_clause.append(Union([where1, where2]))
+        else:
+            where_clause.append(("?s", "?p", "?o"))
+            where_clause.append(filter)
+
         query.where(where_clause)
         
         return query        

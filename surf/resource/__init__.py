@@ -674,10 +674,10 @@ class Resource(object):
 
         self.session[self.store_key].save(self)
 
-    def remove(self):
+    def remove(self, inverse = False):
         """ Remove the `resource` from the data `store`. """
 
-        self.session[self.store_key].remove(self)
+        self.session[self.store_key].remove(self, inverse = inverse)
 
     def update(self):
         """ Update the resource in the data `store`.

@@ -65,7 +65,7 @@ class RDFWriter(Plugin):
     def _update(self, *resources):
         pass
 
-    def _remove(self, *resources):
+    def _remove(self, *resources, **kwargs):
         pass
 
     def _size(self):
@@ -110,7 +110,7 @@ class RDFWriter(Plugin):
 
         self._update(resource)
 
-    def remove(self, *resources):
+    def remove(self, *resources, **kwargs):
         """ Completely remove the ``*resources`` from the `store`. """
 
         #TODO: decide whether triples that are indirect (belong to other 
@@ -119,7 +119,7 @@ class RDFWriter(Plugin):
             if not hasattr(resource, "subject"):
                 raise InvalidResourceException("Arguments must be of type surf.resource.Resource")
 
-        self._remove(*resources)
+        self._remove(*resources, **kwargs)
 
     def size(self):
         """ Return the number of `triples` in the current `store`. """

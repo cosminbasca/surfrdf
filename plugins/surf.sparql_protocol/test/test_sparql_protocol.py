@@ -365,3 +365,28 @@ class TestSparqlProtocol(TestCase):
         # Check that names are still set
         self.assertEquals(jane.foaf_name.first, "Jane")
         self.assertEquals(mary.foaf_name.first, "Mary")
+
+
+    def test_remove_inverse(self):
+        """ Test removing inverse attributes of resource. """
+        
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        
+        jane = session.get_resource("http://Jane", Person)
+        mary = session.get_resource("http://Mary", Person)
+        jane.foaf_knows = mary
+        jane.update()
+        
+        # This should also remove <jane> foaf:knows <mary>.
+        mary.remove(inverse = True)
+
+        jane = session.get_resource("http://Jane", Person)
+        self.assertEquals(len(jane.foaf_knows), 0)
+        
+        
+        
+        
+        
+        
+        

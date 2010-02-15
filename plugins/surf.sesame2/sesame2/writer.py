@@ -99,11 +99,17 @@ class WriterPlugin(RDFWriter):
             allegro.add_statements(self.__repository,
                                    graph.serialize(format = 'nt'), update = True, content_type = 'nt')
 
-    def _remove(self, *resources):
+    def _remove(self, *resources, **kwargs):
+        inverse = kwargs.get("inverse")
+        
+        allegro = self.get_allegro()
         for resource in resources:
-            allegro = self.get_allegro()
-            allegro.remove_statements(self.__repository, s = resource.subject.n3())
-            allegro.remove_statements(self.__repository, o = resource.subject.n3())
+            allegro.remove_statements(self.__repository, 
+                                      s = resource.subject.n3())
+            
+            if inverse:
+                allegro.remove_statements(self.__repository, 
+                                          o = resource.subject.n3())
 
     def _size(self):
         return self.get_allegro().size(self.__repository)

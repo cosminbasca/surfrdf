@@ -44,4 +44,18 @@ class TestSesame2(TestCase):
         persons = Person.all()
         self.assertEqual(len(persons), 3)        
         
+    def test_remove_inverse(self):
         
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        
+        jane = session.get_resource("http://Jane", Person)
+        mary = session.get_resource("http://Mary", Person)
+        jane.foaf_knows = mary
+        jane.update()
+        
+        # This should also remove <jane> foaf:knows <mary>.
+        mary.remove(inverse = True)
+
+        jane = session.get_resource("http://Jane", Person)
+        self.assertEquals(len(jane.foaf_knows), 0)             

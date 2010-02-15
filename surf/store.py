@@ -242,10 +242,10 @@ class Store(object):
             resource.dirty = False
 
     # cruD
-    def remove(self, *resources):
+    def remove(self, *resources, **kwargs):
         """ See :func:`surf.plugin.writer.RDFWriter.remove` method. """
 
-        self.writer.remove(*resources)
+        self.writer.remove(*resources, **kwargs)
 
         for resource in resources:
             resource.dirty = False
