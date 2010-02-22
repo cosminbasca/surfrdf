@@ -520,15 +520,24 @@ class Resource(object):
 
         """
 
-        subjects = {}
-        subjects.update(cls.session[cls.store_key].instances_by_attribute(cls, attributes, True, context))
-        subjects.update(cls.session[cls.store_key].instances_by_attribute(cls, attributes, False, context))
+        direct_attributes = []
+        inverse_attributes = []
+        attribute_uris = [inverse_attributes, direct_attributes]
+        for attribute_name in attributes:
+            attribute_uri, direct = attr2rdf(attribute_name)
+            # Using boolean as array index.
+            attribute_uris[direct].append(attribute_uri)
 
+        subjects = {}
+        subjects.update(cls.session[cls.store_key].instances_by_attribute(cls, direct_attributes, True, context))
+        subjects.update(cls.session[cls.store_key].instances_by_attribute(cls, inverse_attributes, False, context))
+        
         instances = []
         for s, types in subjects.items():
             if type(s) is URIRef:
                 instances.append(cls._instance(s, [cls.uri] if cls.uri else types))
-        return instances if len(instances) > 0 else []
+        
+        return instances
 
     @classmethod
     def __instancemaker(cls, params, instance_data):
