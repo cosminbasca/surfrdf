@@ -154,16 +154,19 @@ class WriterPlugin(RDFWriter):
         return query        
     
     def __prepare_selective_delete_query(self, resources, context = None):
-        query = delete(data = True)
+        query = delete()
         if context:
             query.from_(context)
 
-        for resource in resources:
-            s = resource.subject
-            for p, objs in resource.rdf_direct.items():
-                for o in objs:
-                    query.template((s, p, o))
+        query.template(("?s", "?p", "?o"))
         
+        clauses = []
+        for resource in resources:
+            for p in resource.rdf_direct:
+                filter = Filter("(?s = <%s> AND ?p = <%s>)" % (resource.subject, p))
+                clauses.append(Group([("?s", "?p", "?o"), filter]))
+                 
+        query.union(*clauses)
         return query        
     
     def __execute(self, *queries):

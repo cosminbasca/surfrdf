@@ -125,9 +125,10 @@ class TestSparqlProtocol(TestCase):
     def test_queries_context(self):
         """ Test resource.all() and get_by() with specified context. """
         
-        _, session = self._get_store_session()
+        store, session = self._get_store_session()
         Person = session.get_class(surf.ns.FOAF + "Person")
         context = URIRef("http://my_context_1")
+        store.clear(context)
         
         jane = session.get_resource("http://jane", Person, context = context)
         jane.foaf_name = "Jane"
@@ -384,9 +385,22 @@ class TestSparqlProtocol(TestCase):
         jane = session.get_resource("http://Jane", Person)
         self.assertEquals(len(jane.foaf_knows), 0)
         
+    def test_update_integrity(self):
+        """ Test resource.update().  """
         
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
         
+        # Update 1
+        jane = session.get_resource("http://Jane", Person)
+        jane.foaf_mbox = "jane@example.com"
+        jane.update()
         
+        # Update 2
+        jane = session.get_resource("http://Jane", Person)
+        jane.foaf_mbox = "anotherjane@example.com"
+        jane.update()
         
-        
-        
+        # Check that Jane has only the second email set.
+        jane = session.get_resource("http://Jane", Person)
+        self.assertEquals(len(jane.foaf_mbox), 1)
