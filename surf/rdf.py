@@ -14,8 +14,8 @@ if rdflib.__version__.startswith("2.4"):
     from rdflib.RDF import RDFNS as RDF
     from rdflib.RDFS import RDFSNS as RDFS
 
-# 2.5 style imports
-if rdflib.__version__.startswith("2.5"):
+# 3.0 style imports
+if rdflib.__version__.startswith("2.5") or rdflib.__version__.startswith("3.0"):
     from rdflib.term import BNode
     from rdflib.graph import Graph, ConjunctiveGraph
     from rdflib.term import Literal
