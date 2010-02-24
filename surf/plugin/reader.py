@@ -99,7 +99,7 @@ class RDFReader(Plugin):
 
         """
 
-        subj = resource.subject if hasattr(resource, 'subject') else resource
+        subj = hasattr(resource, 'subject') and resource.subject or resource
         return self._get(subj, attribute, direct, resource.context)
 
     def load(self, resource, direct):
@@ -112,13 +112,13 @@ class RDFReader(Plugin):
 
         """
 
-        subj = resource.subject if hasattr(resource, 'subject') else resource
+        subj = hasattr(resource, 'subject') and resource.subject or resource
         return self._load(subj, direct, resource.context)
 
     def is_present(self, resource):
         """ Return `True` if the ``resource`` is present in the `store`. """
 
-        subj = resource.subject if hasattr(resource, 'subject') else resource
+        subj = hasattr(resource, 'subject') and resource.subject or resource
         return self._is_present(subj, resource.context)
 
     def concept(self, resource):
@@ -128,7 +128,7 @@ class RDFReader(Plugin):
 
         """
 
-        subj = resource.subject if hasattr(resource, 'subject') else resource
+        subj = hasattr(resource, 'subject') and resource.subject or resource
         return self._concept(subj)
 
     def instances_by_attribute(self, resource, attributes, direct, context):
@@ -141,7 +141,7 @@ class RDFReader(Plugin):
 
         """
 
-        concept = resource.uri if hasattr(resource, 'uri') else resource
+        concept = hasattr(resource, 'uri') and  resource.uri or resource
         return self._instances_by_attribute(concept, attributes, direct,
                                             context)
 

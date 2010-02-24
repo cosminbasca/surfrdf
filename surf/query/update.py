@@ -131,11 +131,11 @@ class QueryUpdate(Query):
 
 
 def insert(data = False):
-    q_type = INSERT_DATA if data else INSERT
+    q_type = data and INSERT_DATA or INSERT
     return QueryUpdate(q_type)
 
 def delete(data = False):
-    q_type = DELETE_DATA if data else DELETE
+    q_type = data and DELETE_DATA or DELETE
     return QueryUpdate(q_type)
 
 def load():

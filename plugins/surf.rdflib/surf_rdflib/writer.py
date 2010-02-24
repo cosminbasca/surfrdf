@@ -47,21 +47,26 @@ class WriterPlugin(RDFWriter):
         if isinstance(self.reader, ReaderPlugin):
             self.__rdflib_store = self.reader.rdflib_store
             self.__rdflib_identifier = self.reader.rdflib_identifier
-            self.__commit_pending_transaction_on_close = self.reader.commit_pending_transaction_on_close
+            self.__commit_pending_transaction_on_close = \
+                self.reader.commit_pending_transaction_on_close
 
             self.__graph = self.reader.graph
         else:
-            self.__rdflib_store = kwargs['rdflib_store'] if 'rdflib_store' in kwargs else 'IOMemory'
-            self.__rdflib_identifier = kwargs['rdflib_identifier'] if 'rdflib_identifier' in kwargs else None
-            self.__commit_pending_transaction_on_close = kwargs['commit_pending_transaction_on_close'] if 'commit_pending_transaction_on_close' in kwargs else True
-
+            self.__rdflib_store = kwargs.get("rdflib_store", "IOMemory")
+            self.__rdflib_identifier = kwargs.get("rdflib_identifier") 
+            self.__commit_pending_transaction_on_close = \
+                kwargs.get("commit_pending_transaction_on_close", True)
+                        
             self.__graph = ConjunctiveGraph(store = self.__rdflib_store, identifier = self.__rdflib_identifier)
-            warnings.warn("the graph is not readable through the reader plugin", UserWarning)
+            
+            warnings.warn("Graph is not readable through the reader plugin", 
+                          UserWarning)
 
     rdflib_store = property(lambda self: self.__rdflib_store)
     rdflib_identifier = property(lambda self: self.__rdflib_identifier)
     graph = property(lambda self: self.__graph)
-    commit_pending_transaction_on_close = property(lambda self: self.__commit_pending_transaction_on_close)
+    commit_pending_transaction_on_close = \
+        property(lambda self: self.__commit_pending_transaction_on_close)
 
 
     def _save(self, *resources):
@@ -125,13 +130,16 @@ class WriterPlugin(RDFWriter):
         return True
 
     def load_triples(self, source = None, publicID = None, format = "xml", **args):
-        '''
-        load files (or resources on the web) into the triple-store
-        this method is kept for backward compatibility only
-        '''
+        """ Load files (or resources on the web) into the triple-store.
+        
+        This method is kept for backward compatibility only.
+        
+        """
+        
         if source:
             self.__graph.parse(source, publicID = publicID, format = format, **args)
             return True
+        
         return False
 
     def _clear(self, context = None):

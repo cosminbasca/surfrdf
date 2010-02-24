@@ -144,10 +144,13 @@ class Session(object):
 
         """
 
-        self.__auto_persist = val if type(val) is bool else False
+        if not isinstance(val, bool):
+            val = False
+            
+        self.__auto_persist = val
 
     auto_persist = property(fget = lambda self: self.__auto_persist,
-                                 fset = set_auto_persist)
+                            fset = set_auto_persist)
     """ Toggle `auto_persistence` (no need to explicitly call `commit`,
     `resources` are persisted to the `store` each time a modification occurs)
     on or off. Accepts boolean values. """
@@ -159,10 +162,13 @@ class Session(object):
 
         """
 
-        self.__auto_load = val if type(val) is bool else False
+        if not isinstance(val, bool):
+            val = False
+
+        self.__auto_load = val
 
     auto_load = property(fget = lambda self: self.__auto_load,
-                                 fset = set_auto_load)
+                         fset = set_auto_load)
     """Toggle `auto_load` (no need to explicitly call `load`, `resources` are
     loaded from the `store` automatically on creation) on or off.
     Accepts boolean values. """
@@ -299,7 +305,8 @@ class Session(object):
 
         """
 
-        store = self.default_store_key if not store else store
+        if store is None:
+            store = self.default_store_key
 
         uri = self.__uri(uri)
         if not uri:
@@ -307,7 +314,7 @@ class Session(object):
         name = uri_to_classname(uri)
 
         base_classes = [Resource]
-        base_classes.extend(list(classes) if classes != None else [])
+        base_classes.extend(classes)
 
         # Also take classes from session.mapping
         session_classes = self.mapping.get(uri, [])
@@ -360,8 +367,12 @@ class Session(object):
                      block_auto_load = False, context = None, *classes):
         """ Same as `map_type` but `set` the resource from the `graph`. """
 
-        subject = subject if type(subject) is URIRef else URIRef(str(subject))
-        uri = uri if uri else Resource.concept(subject)
+        if not isinstance(subject, URIRef):
+            subject = URIRef(str(subject))
+
+        if uri is None:
+            uri = Resource.concept(subject)
+
         resource = self.map_instance(uri, subject, store, classes,
                                      block_auto_load = block_auto_load,
                                      context = context)

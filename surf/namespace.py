@@ -155,8 +155,12 @@ def register(**namespaces):
     for key in namespaces:
         uri = namespaces[key]
         prefix = key.upper()
-        ns_dict[prefix] = uri if type(uri) in [Namespace, ClosedNamespace] else Namespace(uri)
-        # also keep inverted dict up-to-date
+        if not type(uri) in [Namespace, ClosedNamespace]:
+            uri = Namespace(uri)
+        
+        ns_dict[prefix] = uri
+        
+        # Also keep inverted dict up-to-date.
         __add_inverted(prefix)
 
 def register_fallback(namespace):
@@ -184,8 +188,9 @@ def get_fallback_namespace():
     return __fallback_namespace
 
 def get_namespace(base):
-    """ Returns the `namespace` short hand notation and the uri based on the
-    uri `base`.
+    """ Return the `namespace` short hand notation and the URI based on the
+    URI `base`.
+    
     The namespace is a `rdf.namespace.Namespace`
 
     .. code-block:: python
@@ -198,7 +203,9 @@ def get_namespace(base):
 
     global __anonymous_count
     ns_dict = sys.modules[__name__].__dict__
-    base = base if type(base) in [str, unicode] else str(base)
+    
+    if not type(base) in [str, unicode]:
+        base = str(base)
 
     try:
         prefix = __inverted_dict__[base]

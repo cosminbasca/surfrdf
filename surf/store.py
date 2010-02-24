@@ -49,7 +49,7 @@ __ENTRYPOINT_WRITER__ = 'surf.plugins.writer'
 __readers__ = {}
 __writers__ = {}
 
-def __init_plugins(plugins,entry_point):
+def __init_plugins(plugins, entry_point):
     for entrypoint in pkg_resources.iter_entry_points(entry_point):
         plugin_class = entrypoint.load()
         plugins[entrypoint.name] = plugin_class
@@ -58,8 +58,8 @@ __plugins_loaded = False
 def load_plugins():
     global __plugins_loaded
     if not __plugins_loaded:
-        __init_plugins(__readers__,__ENTRYPOINT_READER__)
-        __init_plugins(__writers__,__ENTRYPOINT_WRITER__)
+        __init_plugins(__readers__, __ENTRYPOINT_READER__)
+        __init_plugins(__writers__, __ENTRYPOINT_WRITER__)
         __plugins_loaded = True
 
 registered_readers = lambda : __readers__.keys()
@@ -71,8 +71,8 @@ registered_writers = lambda : __writers__.keys()
 NO_CONTEXT = "no-context"
 
 class PluginNotFoundException(Exception):
-    def __init__(self,*args,**kwargs):
-        super(PluginNotFoundException,self).__init__(self, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super(PluginNotFoundException, self).__init__(self, *args, **kwargs)
 
 class Store(object):
     """ The `Store` class is comprised of a reader and a writer, getting
@@ -84,7 +84,12 @@ class Store(object):
 
     """
 
-    def __init__(self,reader=None,writer=None,*args,**kwargs):
+    """ True if the `reader` plugin is using sub queries, False otherwise. """
+    use_subqueries = False
+
+    default_context = property(lambda self: self.__default_context)
+
+    def __init__(self, reader = None, writer = None, *args, **kwargs):
         self.log = logging.getLogger(self.__class__.__name__)
         self.log.info('initializing the store')
         load_plugins()
@@ -99,7 +104,7 @@ class Store(object):
             if reader in __readers__:
                 self.reader = __readers__[reader](*args, **kwargs)
             else:
-                raise PluginNotFoundException('The <%s> READER plugin was not found'%(reader))
+                raise PluginNotFoundException('The <%s> READER plugin was not found' % (reader))
         else:
             self.reader = RDFReader(*args, **kwargs)
 
@@ -107,15 +112,15 @@ class Store(object):
             if writer in __writers__:
                 self.writer = __writers__[writer](self.reader, *args, **kwargs)
             else:
-                raise PluginNotFoundException('The <%s> WRITER plugin was not found'%(reader))
+                raise PluginNotFoundException('The <%s> WRITER plugin was not found' % (reader))
         else:
             self.writer = RDFWriter(self.reader, *args, **kwargs)
+
+        if hasattr(self.reader, 'use_subqueries'):
+            self.use_subqueries = property(fget = lambda self: self.reader.use_subqueries)
+
         self.log.info('store initialized')
 
-    default_context = property(lambda self: self.__default_context)
-
-    use_subqueries = property(fget = lambda self: self.reader.use_subqueries if hasattr(self.reader,'use_subqueries') else False)
-    """ True if the `reader` plugin is using sub queries, False otherwise. """
 
     def __add_default_context(self, context):
         """ Return default context if context is None. """
@@ -130,14 +135,14 @@ class Store(object):
     def enable_logging(self, enable):
         """ Toggle `logging` on or off. """
 
-        level = logging.DEBUG if enable else logging.NOTSET
+        level = enable and logging.DEBUG or logging.NOTSET
         self.log.setLevel(level)
         self.reader.enable_logging(enable)
         self.writer.enable_logging(enable)
 
     def is_enable_logging(self):
         """ True if `logging` is enabled, False otherwise. """
-        return False if self.log.level == logging.NOTSET else True
+        return (self.log.level == logging.DEBUG)
 
     def close(self):
         """ Close the `store`.
@@ -152,12 +157,12 @@ class Store(object):
             self.reader.close()
             self.log('reader closed successfully')
         except Exception, e:
-            self.log('error on closing the reader '+str(e))
+            self.log('error on closing the reader ' + str(e))
         try:
             self.writer.close()
             self.log('writer closed successfully')
         except Exception, e:
-            self.log('error on closing the writer '+str(e))
+            self.log('error on closing the writer ' + str(e))
 
     #---------------------------------------------------------------------------
     # the reader interface
@@ -221,7 +226,7 @@ class Store(object):
     def clear(self, context = None):
         """ See :func:`surf.plugin.writer.RDFWriter.clear` method. """
 
-        self.writer.clear(context=context)
+        self.writer.clear(context = context)
 
     # Crud
     def save(self, *resources):
@@ -263,7 +268,7 @@ class Store(object):
         context = self.__add_default_context(context)
         self.writer.add_triple(s = s, p = p, o = o, context = context)
 
-    def set_triple(self,s = None, p = None, o = None, context = None):
+    def set_triple(self, s = None, p = None, o = None, context = None):
         """ See :func:`surf.plugin.writer.RDFWriter.set_triple` method. """
 
         context = self.__add_default_context(context)

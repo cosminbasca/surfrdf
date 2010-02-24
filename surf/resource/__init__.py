@@ -81,8 +81,8 @@ class ResourceMeta(type):
         """
 
         if cls.session:
-            uri = vals[0] if len(vals) > 0 else None
-            classes = map(uri_to_class, vals[1:]) if len(vals) > 1 else []
+            uri = len(vals) > 0 and vals[0] or None
+            classes = len(vals) > 1 and map(uri_to_class, vals[1:]) or []
 
             if uri:
                 return cls.session.map_instance(uri, subject, classes = classes,
@@ -223,9 +223,12 @@ class Resource(object):
 
         """
         
-        self.__subject = subject if subject else uuid_subject(namespace)
-        if not type(self.__subject) in [URIRef, BNode]:
-            self.__subject = URIRef(self.__subject)
+        if subject is None:
+            subject = uuid_subject(namespace)
+        elif not type(subject) in [URIRef, BNode]:
+            subject = URIRef(subject)
+        
+        self.__subject = subject
         self.__context = context
         self.__expired = False
         self.__rdf_direct = {}
@@ -380,7 +383,7 @@ class Resource(object):
 
         predicate, direct = attr2rdf(name)
         if predicate:
-            rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
+            rdf_dict = direct and self.__rdf_direct or self.__rdf_inverse
             if not isinstance(value, list):
                 value = [value]
             rdf_dict[predicate] = []
@@ -414,7 +417,7 @@ class Resource(object):
         predicate, direct = attr2rdf(attr_name)
         if predicate:
             #value = self.__getattr__(attr_name)
-            rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
+            rdf_dict = direct and self.__rdf_direct or self.__rdf_inverse
             rdf_dict[predicate] = []
             self.dirty = True
         object.__delattr__(self, attr_name)
@@ -534,8 +537,15 @@ class Resource(object):
         
         instances = []
         for s, types in subjects.items():
-            if type(s) is URIRef:
-                instances.append(cls._instance(s, [cls.uri] if cls.uri else types))
+            if not isinstance(s, URIRef):
+                continue
+
+            if cls.uri:
+                concepts = [cls.uri]
+            else:
+                concepts = types
+
+            instances.append(cls._instance(s, concepts))
         
         return instances
 
@@ -788,9 +798,13 @@ class Resource(object):
 
         """
 
-        store_k = store if store else cls.store_key
-        store_k = store_k if store_k else cls.session.default_store_key
-        return cls.session[store_k].concept(subject)
+        if store is None:
+            if cls.store_key is None:
+                store = cls.session.default_store_key
+            else:
+                store = cls.store_key
+
+        return cls.session[store].concept(subject)
 
     @classmethod
     def rest_api(cls, resources_namespace):

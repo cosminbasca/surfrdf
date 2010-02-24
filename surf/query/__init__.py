@@ -43,15 +43,15 @@ from surf.rdf import RDF, URIRef
 
 a = RDF['type']
 
-SELECT      = 'select'
-ASK         = 'ask'
-CONSTRUCT   = 'construct'
-DESCRIBE    = 'describe'
+SELECT = 'select'
+ASK = 'ask'
+CONSTRUCT = 'construct'
+DESCRIBE = 'describe'
 
-DISTINCT    = 'distinct'
-REDUCED     = 'reduced'
+DISTINCT = 'distinct'
+REDUCED = 'reduced'
 
-UNION       = 'union'
+UNION = 'union'
 
 #the classes
 class Group(list):
@@ -59,7 +59,7 @@ class Group(list):
 
 class NamedGroup(Group):
 
-    def __init__(self,name = None):
+    def __init__(self, name = None):
         Group.__init__(self)
         if isinstance(name, URIRef) or (type(name) in [str, unicode] and name.startswith('?')):
             self.name = name
@@ -74,19 +74,22 @@ class Union(Group):
 
 class Filter(unicode):
     @classmethod
-    def regex(cls,var,pattern,flag=None):
+    def regex(cls, var, pattern, flag = None):
         if type(var) in [str, unicode] and var.startswith('?'): pass
         else: raise ValueError('not a filter variable')
 
         if type(pattern) in [str, unicode]:     pass
-        elif type(pattern) is Literal:          pattern = '"%s"@%s'%(pattern,pattern.language)
-        elif type(pattern) in [list, tuple]:    pattern = '"%s"@%s'%(pattern[0],pattern[1])
+        elif type(pattern) is Literal:          pattern = '"%s"@%s' % (pattern, pattern.language)
+        elif type(pattern) in [list, tuple]:    pattern = '"%s"@%s' % (pattern[0], pattern[1])
         else:                                   raise ValueError('regular expression')
 
-        if flag and type(flag) in [str, unicode] or not flag: pass
-        else: raise ValueError('not a filter flag')
+        if flag is None:
+            flag = ""
+        else:
+            if not type(flag) in [str, unicode]:
+                raise ValueError('not a filter flag')
 
-        return Filter('regex(%s,"%s"%s)'%(var, pattern, ',"%s"'%flag if flag else ''))
+        return Filter('regex(%s,"%s"%s)' % (var, pattern, ',"%s"' % flag))
 
 class Query(object):
     """
@@ -103,39 +106,39 @@ class Query(object):
 
     """
 
-    STATEMENT_TYPES     = [list, tuple, Group, NamedGroup, OptionalGroup,
+    STATEMENT_TYPES = [list, tuple, Group, NamedGroup, OptionalGroup,
                            Union, Filter] # + Query, but cannot reference it here.
-    AGGREGATE_FUCTIONS  = ["count", "min", "max", "avg"]
-    TYPES               = [SELECT, ASK, CONSTRUCT, DESCRIBE]
+    AGGREGATE_FUCTIONS = ["count", "min", "max", "avg"]
+    TYPES = [SELECT, ASK, CONSTRUCT, DESCRIBE]
 
     def __init__(self, type, *vars):
         if type not in self.TYPES:
             raise ValueError('''The query is not of a supported type [%s], supported
-                             types are %s'''%(type, str(Query.TYPES)))
-        self._type      = type
-        self._modifier  = None
-        self._vars      = [var for var in vars if self._validate_variable(var)]
-        self._from      = []
-        self._data      = []
-        self._limit     = None
-        self._offset    = None
-        self._order_by  = []
+                             types are %s''' % (type, str(Query.TYPES)))
+        self._type = type
+        self._modifier = None
+        self._vars = [var for var in vars if self._validate_variable(var)]
+        self._from = []
+        self._data = []
+        self._limit = None
+        self._offset = None
+        self._order_by = []
 
-    query_type        = property(fget = lambda self: self._type)
+    query_type = property(fget = lambda self: self._type)
     '''the query `type` can be: *SELECT*, *ASK*, *DESCRIBE*or *CONSTRUCT*'''
-    query_modifier    = property(fget = lambda self: self._modifier)
+    query_modifier = property(fget = lambda self: self._modifier)
     '''the query `modifier` can be: *DISTINCT*, *REDUCED*, or `None`'''
-    query_vars        = property(fget = lambda self: self._vars)
+    query_vars = property(fget = lambda self: self._vars)
     '''the query `variables` to return as the resultset'''
-    query_from        = property(fget = lambda self: self._from)
+    query_from = property(fget = lambda self: self._from)
     '''list of URIs that will go into query FROM clauses'''
-    query_data        = property(fget = lambda self: self._data)
+    query_data = property(fget = lambda self: self._data)
     '''the query `data`, internal structure representing the contents of the *WHERE* clause'''
-    query_limit       = property(fget = lambda self: self._limit)
+    query_limit = property(fget = lambda self: self._limit)
     '''the query `limit`, can be a number or None'''
-    query_offset      = property(fget = lambda self: self._offset)
+    query_offset = property(fget = lambda self: self._offset)
     '''the query `offset`, can be a number or None'''
-    query_order_by    = property(fget = lambda self: self._order_by)
+    query_order_by = property(fget = lambda self: self._order_by)
     '''the query `order by` variables'''
 
     def _validate_variable(self, var):
@@ -145,12 +148,12 @@ class Query(object):
                     if var.lower().startswith(aggregate):
                         return True
                 raise ValueError('''Not a variable : <%s>, check correct syntax ("?" or
-                                 supported aggregate %s)'''%(var,str(Query.AGGREGATE_FUCTIONS)))
+                                 supported aggregate %s)''' % (var, str(Query.AGGREGATE_FUCTIONS)))
             return True
         else:
             raise ValueError('''Unknown variable type, all variables must either
                              start with a "?" or be among the recognized aggregates :
-                             %s'''%Query.AGGREGATE_FUCTIONS)
+                             %s''' % Query.AGGREGATE_FUCTIONS)
 
     def distinct(self):
         """ Add *DISTINCT* modifier. """
@@ -178,7 +181,7 @@ class Query(object):
         self._from += uris
         return self
 
-    def where(self,*statements):
+    def where(self, *statements):
         """ Add graph pattern(s) to *WHERE* clause.
 
         `where()` accepts multiple arguments. Each argument represents a
@@ -195,7 +198,7 @@ class Query(object):
         self._data.extend([stmt for stmt in statements if validate_statement(stmt)])
         return self
 
-    def optional_group(self,*statements):
+    def optional_group(self, *statements):
         """ Add optional group graph pattern to *WHERE* clause.
 
         `optional_group()` accepts multiple arguments, similarly
@@ -208,7 +211,7 @@ class Query(object):
         self._data.append(g)
         return self
 
-    def group(self,*statements):
+    def group(self, *statements):
         g = Group()
         g.extend([stmt for stmt in statements if validate_statement(stmt)])
         self._data.append(g)
@@ -219,8 +222,8 @@ class Query(object):
         g.extend([stmt for stmt in statements if validate_statement(stmt)])
         self._data.append(g)
         return self
-    
-    def named_group(self,name,*statements):
+
+    def named_group(self, name, *statements):
         """ Add ``GROUP ?name { ... }`` construct to *WHERE* clause.
 
         ``name`` is the variable name that will be bound to graph IRI.
@@ -296,7 +299,7 @@ def validate_statement(statement):
     if type(statement) in Query.STATEMENT_TYPES or isinstance(statement, Query):
         if type(statement) in [list, tuple]:
             try:
-                s,p,o = statement
+                s, p, o = statement
             except:
                 raise ValueError('''Statement of type [list, tuple] does not
                                  have all the (s,p,o) members (the length of the
@@ -311,12 +314,12 @@ def validate_statement(statement):
 
             if type(o) in [URIRef, BNode, Literal] or \
                 (type(o) in [str, unicode] and o.startswith('?')): pass
-            else: 
+            else:
                 raise ValueError('The object is not a valid variable type: %s' % o)
 
         return True
     else:
-        raise ValueError('Statement type not in %s'%str(Query.STATEMENT_TYPES))
+        raise ValueError('Statement type not in %s' % str(Query.STATEMENT_TYPES))
 
 def optional_group(*statements):
     """ Return optional group graph pattern.
@@ -337,7 +340,7 @@ def group(*statements):
     g.extend([stmt for stmt in statements if validate_statement(stmt)])
     return g
 
-def named_group(name,*statements):
+def named_group(name, *statements):
     """ Return named group graph pattern.
 
     Returned object can be used as argument in :meth:`Query.where` method.

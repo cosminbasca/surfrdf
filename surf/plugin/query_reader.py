@@ -43,7 +43,7 @@ from surf.rdf import URIRef
 def query_SP(s, p, direct, context):
     """ Construct :class:`surf.query.Query` with `?v` and `?c` as unknowns. """
 
-    s, v = (s, '?v') if direct else ('?v', s)
+    s, v = direct and (s, '?v') or ('?v', s)
     query = select('?v', '?c').distinct()
     query.where((s, p, v)).optional_group(('?v', a, '?c'))
     if context:
@@ -55,7 +55,7 @@ def query_S(s, direct, context):
     """ Construct :class:`surf.query.Query` with `?p`, `?v` and `?c` as
     unknowns. """
 
-    s, v = (s, '?v') if direct else ('?v', s)
+    s, v = direct and (s, '?v') or ('?v', s)
     query = select('?p', '?v', '?c').distinct()
     query.where((s, '?p', v)).optional_group(('?v', a, '?c'))
     if context:
@@ -84,7 +84,7 @@ def query_P_S(c, p, direct, context):
         query.from_(context)
 
     for i in range(len(p)):
-        s, v = ('?s', '?v%d' % i) if direct else ('?v%d' % i, '?s')
+        s, v = direct and  ('?s', '?v%d' % i) or ('?v%d' % i, '?s')
         if type(p[i]) is URIRef:
             query.where((s, p[i], v))
 
@@ -104,7 +104,7 @@ class RDFQueryReader(RDFReader):
         RDFReader.__init__(self, *args, **kwargs)
         self.use_subqueries = kwargs.get('use_subqueries', False)
         if type(self.use_subqueries) in [str, tuple]:
-            self.use_subqueries = True if self.use_subqueries.lower() == 'true' else False
+            self.use_subqueries = (self.use_subqueries.lower() == 'true')
         elif type(self.use_subqueries) is not bool:
             raise ValueError('The use_subqueries parameter must be a bool or a string set to "true" or "false"')
 
@@ -344,7 +344,7 @@ class RDFQueryReader(RDFReader):
 
         if isinstance(query, Query):
             return self._execute(query)
-        
+
         return None
 
     def convert(self, query_result, * keys):

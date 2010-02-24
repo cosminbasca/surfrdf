@@ -63,46 +63,57 @@ class SparulTranslator(SparqlTranslator):
         elif self.query.query_type in [DELETE, DELETE_DATA]:
             return self._translate_delete(self.query)
 
-    def _translate_load(self,query):
+    def _translate_load(self, query):
         rep = 'LOAD %(remote_uri)s %(into_exp)s'
         if query.query_remote_uri:
             remote_uri = query.query_remote_uri
         else:
             raise ValueError('No Remote URI specified for a LOAD query')
-        into_exp = 'INTO %s'%(query.query_into_uri[0]) if len(query.query_into_uri) == 1 else ''
-        return rep%({'remote_uri':remote_uri,
-                     'into_exp':into_exp})
+        
+        into_exp = ""
+        if len(query.query_into_uri) == 1:
+            into_exp = "INTO %s" % query.query_into_uri[0]
 
-    def _translate_clear(self,query):
-        rep = 'CLEAR %(graph)s'
-        graph = 'GRAPH <%s>' % query.query_clear_uri if query.query_clear_uri else ''
-        return rep%({'graph':graph})
+        return rep % ({'remote_uri':remote_uri,
+                       'into_exp':into_exp})
 
-    def _translate_insert(self,query):
+    def _translate_clear(self, query):
+        
+        graph = ""
+        if query.query_clear_uri:
+            graph = "GRAPH <%s>" % query.query_clear_uri
+
+        return "CLEAR %s" % graph
+
+    def _translate_insert(self, query):
         rep = 'INSERT %(data)s %(into)s %(template)s %(where)s'
-        data            = 'DATA' if query.query_type == INSERT_DATA else ''
-        into            = ' '.join([ "INTO <%s>" % uri for uri in query.query_into_uri])
-        template        = '{ %s }'%('. '.join([self._statement(stmt) for stmt in self.query.query_template]))
-        where_pattern   = '. '.join([self._statement(stmt) for stmt in self.query.query_data])
+        data = query.query_type == INSERT_DATA and "DATA" or ""
+        into = ' '.join([ "INTO <%s>" % uri for uri in query.query_into_uri])
+        template = '{ %s }' % ('. '.join([self._statement(stmt) for stmt in self.query.query_template]))
+        where_pattern = '. '.join([self._statement(stmt) for stmt in self.query.query_data])
 
         where = ""
         if query.query_type == INSERT and where_pattern:
-            where       = "WHERE { %s }" % (where_pattern)
-        
-        return rep%({'data'     :data,
+            where = "WHERE { %s }" % (where_pattern)
+
+        return rep % ({'data'     :data,
                      'into'     :into,
                      'template' :template,
                      'where'    :where})
 
-    def _translate_delete(self,query):
+    def _translate_delete(self, query):
         rep = 'DELETE %(data)s %(from_)s %(template)s %(where)s'
-        data            = 'DATA' if query.query_type == DELETE_DATA else ''
+        data = query.query_type == DELETE_DATA and "DATA" or ""
 
-        from_        = ' '.join([ "FROM <%s>" % uri for uri in query.query_from_uri])
-        template        = '{ %s }'%('. '.join([self._statement(stmt) for stmt in self.query.query_template]))
-        where_pattern   = '. '.join([self._statement(stmt) for stmt in self.query.query_data])
-        where           = 'WHERE { %s }'%(where_pattern) if query.query_type == DELETE else ''
-        return rep%({'data'     :data,
+        from_ = ' '.join([ "FROM <%s>" % uri for uri in query.query_from_uri])
+        template = '{ %s }' % ('. '.join([self._statement(stmt) for stmt in self.query.query_template]))
+        
+        where = ""
+        if query.query_type == DELETE:
+            where_pattern = '. '.join([self._statement(stmt) for stmt in self.query.query_data])
+            where = 'WHERE { %s }' % where_pattern
+
+        return rep % ({'data'     :data,
                      'from_'    :from_,
                      'template' :template,
                      'where'    :where})

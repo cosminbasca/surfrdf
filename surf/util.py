@@ -41,7 +41,7 @@ import re
 from urlparse import urlparse
 from uuid import uuid4
 
-from surf.namespace import get_namespace, get_namespace_url 
+from surf.namespace import get_namespace, get_namespace_url
 from surf.namespace import get_fallback_namespace, SURF
 from surf.rdf import Literal, Namespace, URIRef
 
@@ -49,7 +49,7 @@ pattern_direct = re.compile('^[a-z0-9]{1,}_[a-zA-Z0-9_]{1,}$', re.DOTALL)
 pattern_inverse = re.compile('^is_[a-z0-9]{1,}_[a-zA-Z0-9_]{1,}_of$', re.DOTALL)
 
 def namespace_split(uri):
-    '''same as `uri_split`, but instead of the base of the uri, returns the
+    """ Same as `uri_split`, but instead of the base of the uri, returns the
     registered `namespace` for this uri
 
     .. code-block:: python
@@ -57,13 +57,14 @@ def namespace_split(uri):
         >>> print util.namespace_split('http://mynamespace/ns#some_property')
         (rdflib.URIRef('http://mynamespace/ns#'), 'some_property')
 
-    '''
-    sp = '#' if uri.rfind('#') != -1 else '/'
-    base, predicate = uri.rsplit(sp,1)
-    return get_namespace('%s%s'%(base,sp))[1], predicate
+    """
+
+    sp = uri.rfind('#') != -1 and '#' or '/'
+    base, predicate = uri.rsplit(sp, 1)
+    return get_namespace('%s%s' % (base, sp))[1], predicate
 
 def uri_split(uri):
-    '''splits the `uri` into base path and remainder,
+    """ Split the `uri` into base path and remainder,
     the base is everything that comes before the last *#*' or */* including it
 
     .. code-block:: python
@@ -71,10 +72,11 @@ def uri_split(uri):
         >>> print util.uri_split('http://mynamespace/ns#some_property')
         ('NS1', 'some_property')
 
-    '''
-    sp = '#' if uri.rfind('#') != -1 else '/'
-    base, predicate = uri.rsplit(sp,1)
-    return get_namespace('%s%s'%(base,sp))[0], predicate
+    """
+
+    sp = uri.rfind('#') != -1 and '#' or '/'
+    base, predicate = uri.rsplit(sp, 1)
+    return get_namespace('%s%s' % (base, sp))[0], predicate
 
 def uri_to_classname(uri):
     '''handy function to convert a `uri` to a Python valid `class name`
@@ -87,7 +89,7 @@ def uri_to_classname(uri):
 
     '''
     ns_key, predicate = uri_split(uri)
-    return '%s%s'%(ns_key.title().replace('-','_'),predicate)
+    return '%s%s' % (ns_key.title().replace('-', '_'), predicate)
 
 def attr2rdf(attrname):
     '''converts an `attribute name` in the form:
@@ -114,7 +116,7 @@ def attr2rdf(attrname):
     direct predicate or False if its an inverse predicate
     '''
     def tordf(attrname):
-        prefix, predicate = attrname.split('_',1)
+        prefix, predicate = attrname.split('_', 1)
         ns = get_namespace_url(prefix)
         try:
             return ns[predicate]
@@ -122,14 +124,14 @@ def attr2rdf(attrname):
             return None
 
     if pattern_inverse.match(attrname):
-        return  tordf(attrname.replace('is_','').replace('_of','')), False
+        return  tordf(attrname.replace('is_', '').replace('_of', '')), False
     elif pattern_direct.match(attrname):
         return  tordf(attrname), True
     return None, None
 
 def rdf2attr(uri, direct):
-    '''this functions is the inverse of `attr2rdf`, returns the attribute name,
-    given the `uri` and wether it is `direct` or not
+    """ Inverse of `attr2rdf`, return the attribute name,
+    given the URI and whether it is `direct` or not.
 
     .. code-block:: python
 
@@ -138,14 +140,15 @@ def rdf2attr(uri, direct):
         >>> print rdf2attr('http://xmlns.com/foaf/spec/#term_title',False)
         if_foaf_title_of
 
-    '''
+    """
+
     ns, predicate = uri_split(uri)
-    attribute = '%s_%s'%(ns.lower(),predicate)
-    return attribute if direct else 'is_%s_of'%attribute
+    attribute = '%s_%s' % (ns.lower(), predicate)
+    return direct and attribute or 'is_%s_of' % attribute
 
 
 def is_attr_direct(attrname):
-    '''True if it's a direct `attribute`
+    """ True if it's a direct `attribute`
 
     .. code-block:: python
 
@@ -154,8 +157,9 @@ def is_attr_direct(attrname):
         >>> util.is_attr_direct('is_foaf_name_of')
         False
 
-    '''
-    return False if pattern_inverse.match(attrname) else True
+    """
+
+    return not pattern_inverse.match(attrname)
 
 def uri_to_class(uri):
     '''returns a `class object` from the supplied `uri`, used `uri_to_class` to
@@ -167,7 +171,7 @@ def uri_to_class(uri):
         surf.util.Ns1some_class
 
     '''
-    return new.classobj(str(uri_to_classname(uri)),(),{'uri':uri})
+    return new.classobj(str(uri_to_classname(uri)), (), {'uri':uri})
 
 def uuid_subject(namespace = None):
     '''the function generates a unique subject in the provided `namespace` based on
@@ -180,20 +184,20 @@ def uuid_subject(namespace = None):
         http://rdfs.org/sioc/ns#1b6ca1d5-41ed-4768-b86a-42185169faff
 
     '''
-    
+
     if not namespace:
         namespace = get_fallback_namespace()
-    
+
     if not isinstance(namespace, Namespace):
         namespace = Namespace(namespace)
-        
+
     return namespace[str(uuid4())]
 
-DE_CAMEL_CASE_DEFAULT = 2**0
-DE_CAMEL_CASE_FORCE_LOWER_CASE = 2**1
+DE_CAMEL_CASE_DEFAULT = 2 ** 0
+DE_CAMEL_CASE_FORCE_LOWER_CASE = 2 ** 1
 pattern = re.compile('([A-Z][A-Z][a-z])|([a-z][A-Z])')
 
-def de_camel_case(camel_case,delim=' ',method=DE_CAMEL_CASE_FORCE_LOWER_CASE):
+def de_camel_case(camel_case, delim = ' ', method = DE_CAMEL_CASE_FORCE_LOWER_CASE):
     '''Adds spaces to a camel case string.  Failure to space out string returns the original string.'''
     if camel_case is None:
         return None
@@ -215,49 +219,49 @@ def is_uri(uri):
 def pretty_rdf(uri):
     '''Returns a string of the given URI under the form `namespace:symbol`, if `namespace` is registered,
     else returns an empty string'''
-    if hasattr(uri,'subject'):
+    if hasattr(uri, 'subject'):
         uri = uri.subject
     if type(uri) is URIRef:
         NS, symbol = uri_split(uri)
         if str(NS).startswith('NS'):
             pretty = symbol
         else:
-            pretty = NS.lower()+':'+symbol
+            pretty = NS.lower() + ':' + symbol
         return pretty
     return ''
 
 def value_to_rdf(value):
     """ Convert the value to an `rdflib` compatible type if appropriate. """
-    
+
     if type(value) in [str, unicode, basestring, float, int, long, bool, datetime, date, time]:
         return Literal(value)
     elif type(value) in [list, tuple]:
-        language = value[1] if len(value) > 1 else None
-        datatype = value[2] if len(value) > 2 else None
-        return Literal(value[0],lang=language,datatype=datatype)
+        language = len(value) > 1 and value[1] or None
+        datatype = len(value) > 2 and value[2] or None
+        return Literal(value[0], lang = language, datatype = datatype)
     elif type(value) is dict:
-        val = value['value'] if 'value' in value else None
-        language = value['language'] if 'language' in value else None
-        datatype = value['datatype'] if 'datatype' in value else None
+        val = value.get("value")
+        language = value.get("language")
+        datatype = value.get("datatype")
         if val:
-            return Literal(val,lang=language,datatype=datatype)
+            return Literal(val, lang = language, datatype = datatype)
         return value
     return value
 
 class single(object):
     """ Descriptor for easy access to attributes with single value. """
-    
+
     def __init__(self, attr):
         if isinstance(attr, URIRef):
             attr = rdf2attr(attr, True)
         self.attr = attr
-    
+
     def __get__(self, obj, type = None):
         return getattr(obj, self.attr).first
-    
+
     def __set__(self, obj, value):
-        setattr(obj, self.attr, value) 
+        setattr(obj, self.attr, value)
 
     def __delete__(self, obj):
-        setattr(obj, self.attr, []) 
-        
+        setattr(obj, self.attr, [])
+

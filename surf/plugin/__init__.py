@@ -53,13 +53,13 @@ class Plugin(object):
     def enable_logging(self, enable = True):
         """ Enables or disable `logging` for the current `plugin`. """
 
-        level = logging.DEBUG if enable else logging.NOTSET
+        level = enable and logging.DEBUG or logging.NOTSET
         self.log.setLevel(level)
 
     def is_enable_logging(self):
         """ `True` if `logging` is enabled. """
 
-        return False if self.log.level == logging.NOTSET else True
+        return (self.log.level == logging.DEBUG)
 
     def close(self):
         """ Close the `plugin` and free any resources it may hold. """
@@ -73,7 +73,10 @@ class Plugin(object):
 
         """
 
-        self.__inference = val if type(val) is bool else False
+        if not isinstance(val, bool):
+            val = False
+        
+        self.__inference = val
 
     inference = property(fget = lambda self:self.__inference,
                          fset = __set_inference)

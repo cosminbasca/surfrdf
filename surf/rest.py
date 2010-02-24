@@ -45,13 +45,19 @@ class Rest(object):
     note: The REST api exposed is designed in accordance with the REST controller
     used in `pylons` applications, it adheres to the REST specification and offers
     extra features'''
-    def __init__(self,resources_namespace, concept_class):
+    def __init__(self, resources_namespace, concept_class):
         '''the `resource` is the :class:`surf.resource.Resource` class for which
         the REST interface is exposed,
         the `resources_namespace` represents the URI that instances will be using as
         subjects'''
+
         self.__concept_class = concept_class
-        self.__namespace = resources_namespace if type(resources_namespace) is Namespace else Namespace(resources_namespace)
+
+        # Make sure resources_namespace is an instance of Namespace
+        if not isinstance(resources_namespace, Namespace):
+            resources_namespace = Namespace(resources_namespace)
+        
+        self.__namespace = resources_namespace
 
     # the REST methods
     def index(self, offset = None, limit = None):
@@ -100,6 +106,9 @@ class Rest(object):
 
     @classmethod
     def resource(cls, session, resources_namespace, concept, id):
-        ns = resources_namespace if type(resources_namespace) is Namespace else Namespace(resources_namespace)
+        # Make sure resources_namespace is an instance of Namespace
+        if not isinstance(resources_namespace, Namespace):
+            resources_namespace = Namespace(resources_namespace)
+
         Concept = session.get_class(concept)
-        return Concept(ns[id])
+        return Concept(resources_namespace[id])
