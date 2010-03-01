@@ -47,80 +47,89 @@ class SparqlReaderException(Exception): pass
 
 class ReaderPlugin(RDFQueryReader):
     def __init__(self, *args, **kwargs):
-        RDFQueryReader.__init__(self,*args,**kwargs)
-        
-        self.__endpoint         = kwargs['endpoint'] if 'endpoint' in kwargs else None
-        self.__results_format   = JSON
-        
-        self.__sparql_wrapper   = SPARQLWrapper(self.__endpoint, self.__results_format)
+        RDFQueryReader.__init__(self, *args, **kwargs)
+
+        self.__endpoint = kwargs['endpoint'] if 'endpoint' in kwargs else None
+        self.__results_format = JSON
+
+        self.__sparql_wrapper = SPARQLWrapper(self.__endpoint, self.__results_format)
         if kwargs.get("use_keepalive", "").lower().strip() == "true":
             if hasattr(SPARQLWrapper, "setUseKeepAlive"):
                 self.__sparql_wrapper.setUseKeepAlive()
-        
+
         # Try to use cjson
-        try: 
+        try:
             import cjson
             jsonlayer.use("cjson")
             self.log.info("using cjson")
         except:
             self.log.warning("cjson not available, falling back on slower simplejson")
-        
-    endpoint        = property(lambda self: self.__endpoint)
-    results_format  = property(lambda self: self.__results_format)
-    
+
+    endpoint = property(lambda self: self.__endpoint)
+    results_format = property(lambda self: self.__results_format)
+
     def _to_table(self, result):
         return result['results']['bindings']
-        
+
     def _ask(self, result):
         '''
         returns the boolean value of a ASK query
         '''
 
         return result.get("boolean")
-    
+
     def execute_sparql(self, q_string, format = 'JSON'):
         try:
             self.log.debug(q_string)
             self.__sparql_wrapper.setQuery(q_string)
             results = self.__sparql_wrapper.query().convert()
             return self._toRdflib(results)
-        except EndPointNotFound, _: 
+        except EndPointNotFound, _:
             raise SparqlReaderException("Endpoint not found"), None, sys.exc_info()[2]
         except QueryBadFormed, _:
             raise SparqlReaderException("Bad query: %s" % q_string), None, sys.exc_info()[2]
         except Exception, e:
             raise SparqlReaderException("Exception: %s" % e), None, sys.exc_info()[2]
-    
+
     # execute
     def _execute(self, query):
         return self.execute_sparql(unicode(query))
-    
+
     def close(self):
         pass
-    
-    def _toRdflib(self,results):
-        """Convert the result dict to rdfLib types."""
-        
-        if isinstance(results, ConjunctiveGraph):
-            return results        
 
-        if results:
-            if results.has_key('results'):
-                for i in range(len(results['results']['bindings'])):
-                    json_item = results['results']['bindings'][i]
-                    rdf_item = {}
-                    for key in json_item:
-                        type = json_item[key].get('type')
-                        value = json_item[key].get('value')
-                        rdfType = None
-                        if type == 'uri': rdfType = URIRef(value)
-                        elif type == 'literal':
-                            rdfType = Literal(value,lang=json_item[key]['xml:lang']) if 'xml:lang' in json_item[key] else Literal(value)  
-                        elif type == 'typed-literal':
-                            rdfType = Literal(value,datatype=URIRef(json_item[key]['datatype']))
-                        elif type == 'bnode': rdfType = BNode(value)
-                        rdf_item[key] = rdfType 
-                    results['results']['bindings'][i] = rdf_item
-        return results
+    def _toRdflib(self, json_data):
+        """Convert the result dict to rdfLib types."""
+
+        if not isinstance(json_data, dict):
+            return json_data
+
+        if not "results" in json_data:
+            return json_data
         
-    
+        converted = []
+        for binding in json_data["results"]["bindings"]:
+            rdf_item = {}
+            for key, obj in binding.items():
+                type = obj["type"]
+
+                rdfType = None
+                if type == 'uri': 
+                    rdfType = URIRef(obj["value"])
+                elif type == 'literal':
+                    if "xml:lang" in obj:
+                        rdfType = Literal(obj["value"], lang = obj['xml:lang'])
+                    else:
+                        rdfType = Literal(obj["value"])
+                elif type == 'typed-literal':
+                    rdfType = Literal(obj["value"], datatype = URIRef(obj['datatype']))
+                elif type == 'bnode': 
+                    rdfType = BNode(obj["value"])
+                
+                rdf_item[key] = rdfType
+            
+            converted.append(rdf_item)
+
+        return {"results" : {"bindings" : converted} } 
+
+
