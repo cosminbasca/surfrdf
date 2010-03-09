@@ -1,4 +1,11 @@
 =============
+Version 1.1.1
+=============
+  * Changes to support Python 2.4
+  * Added new vocabularies to the default namespace manager
+  * Bug fixes
+
+=============
 Version 1.1.0
 =============
   * Class mapping based on rdf:type in session
