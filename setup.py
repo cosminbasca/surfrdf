@@ -44,7 +44,7 @@ from setuptools import setup, find_packages
 
 setup(
       name='SuRF',
-      version='1.1.0',
+      version='1.1.1',
       description='Object RDF Mapper',
       long_description = '''SuRF is a Python library for working with RDF data in an Object-Oriented way. In SuRF, RDF nodes (subjects and objects) are represented as Python objects and RDF arcs (predicates) as their attributes. SuRF is an Object RDF Mapper (ORM), similar in concept to Object Relational Mappers like SQLAlchemy. SuRF was inspired by ActiveRDF for Ruby.''',
       license = 'New BSD SOFTWARE', 
