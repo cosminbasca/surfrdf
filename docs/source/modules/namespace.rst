@@ -147,6 +147,15 @@ describing the ontology / vocabulary
     Web developers on the FOAF (foaf-dev@lists.foaf-project.org) mailing list. The
     name 'FOAF' is derived from traditional internet usage, an acronym for "Friend of a Friend"
 
+.. data:: GR
+
+    http://purl.org/goodrelations/v1#
+
+    GoodRelations is a standardized vocabulary for product, price, and company data that can (1)
+    be embedded into existing static and dynamic Web pages and that (2) can be processed by other
+    computers. This increases the visibility of your products and services in the latest generation
+    of search engines, recommender systems, and other novel applications.
+
 .. data:: WIKIONT
 
     http://sw.deri.org/2005/04/wikipedia/wikiont.owl
