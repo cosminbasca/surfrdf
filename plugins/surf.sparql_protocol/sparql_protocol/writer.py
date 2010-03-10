@@ -132,7 +132,7 @@ class WriterPlugin(RDFWriter):
         if context:
             where_clause = NamedGroup(context)
         else:
-            where_clause = Group
+            where_clause = Group()
 
         subjects = [resource.subject for resource in resources]
         filter = " OR ".join(["?s = <%s>" % subject for subject in subjects])

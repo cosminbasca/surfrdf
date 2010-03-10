@@ -111,6 +111,9 @@ class ReaderPlugin(RDFQueryReader):
         for binding in json_data["results"]["bindings"]:
             rdf_item = {}
             for key, obj in binding.items():
+                if not "type" in obj:
+                    continue
+                
                 type = obj["type"]
 
                 rdfType = None
