@@ -46,7 +46,7 @@ from surf.resource.value import ResourceValue
 from surf.resource.result_proxy import ResultProxy
 from surf.rest import Rest
 from surf.serializer import to_json
-from surf.store import Store
+from surf.store import NO_CONTEXT, Store
 from surf.util import attr2rdf, namespace_split, rdf2attr
 from surf.util import uri_to_class, uuid_subject, value_to_rdf
 
@@ -227,9 +227,16 @@ class Resource(object):
             subject = uuid_subject(namespace)
         elif not type(subject) in [URIRef, BNode]:
             subject = URIRef(subject)
-        
+
         self.__subject = subject
-        self.__context = context
+        
+        if context == NO_CONTEXT:
+            self.__context = None
+        elif context:
+            self.__context = URIRef(str(context))
+        elif self.session and self.store_key:
+            self.__context = self.session[self.store_key].default_context
+        
         self.__expired = False
         self.__rdf_direct = {}
         self.__rdf_direct[a] = [self.uri]
@@ -238,6 +245,7 @@ class Resource(object):
         # __full is set to true after doing full load. This is used by
         # __getattr__ to decide if it's worth to query triplestore.
         self.__full = False
+
         if self.session:
             if not self.store_key:
                 self.store_key = self.session.default_store_key

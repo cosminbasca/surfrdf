@@ -352,13 +352,6 @@ class Session(object):
         if not store:
             store = self.default_store_key
 
-        if context == NO_CONTEXT:
-            context = None
-        elif context:
-            context = URIRef(str(context))
-        else:
-            context = self[store].default_context
-
         Concept = self.map_type(uri, store, *classes)
         return Concept(subject, block_auto_load = block_auto_load,
                        context = context)
