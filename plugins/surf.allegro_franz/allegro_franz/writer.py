@@ -151,8 +151,14 @@ try:
             '''
             format = kwargs['format'] if 'format' in kwargs else RDFFormat.RDFXML
             format = RDFFormat.NTRIPLES if format is 'nt' else RDFFormat.RDFXML
-            self.__con.addFile(file, base = base, format = format, context = toSesame(context, self.__f), serverSide = server_side)
-            return True
+            source = kwargs['source'] if 'source' in kwargs else None
+            base = kwargs['base'] if 'base' in kwargs else None
+            context = kwargs['context'] if 'context' in kwargs else None
+            server_side = kwargs['server_side'] if 'server_side' in kwargs else True
+            if source:
+                self.__con.addFile(source, base = base, format = format, context = toSesame(context, self.__f), serverSide = server_side)
+                return True
+            return False
 
         def _clear(self, context = None):
             """ Clear the triple-store. """
