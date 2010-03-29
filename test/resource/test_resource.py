@@ -124,3 +124,17 @@ class TestResource(TestCase):
         p = Person()
         print p.subject
         self.assertTrue(str(p.subject).startswith("http://example.com/ns#"))
+
+    def test_multiple_sessions(self):
+        """ Test that multiple sessions coexist correctly. """
+        
+        s1 = surf.Session(surf.Store(reader = "rdflib"))
+        P = s1.get_class(surf.ns.FOAF.Person)
+
+        self.assertEquals(P.session, s1)
+        
+        _ = surf.Session(surf.Store(reader = "rdflib"))
+        
+        # Making another session shouldn't change session of already
+        # instantiated classes and instances:
+        self.assertEquals(P.session, s1)

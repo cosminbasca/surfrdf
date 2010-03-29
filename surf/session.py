@@ -85,9 +85,6 @@ class Session(object):
 
         self.mapping = mapping
 
-        setattr(Resource, 'session', self)
-        setattr(ResourceMeta, 'session', self)
-
         self.__auto_persist = auto_persist
         self.__auto_load = auto_load
         #self.__use_cached = use_cached
@@ -323,7 +320,9 @@ class Session(object):
         base_classes.extend(session_classes)
 
         return new.classobj(str(name), tuple(base_classes),
-                            {'uri' : uri, 'store_key' : store})
+                            {'uri' : uri, 
+                             'store_key' : store,
+                             'session' : self})
 
     def get_class(self, uri, store = None, context = None, *classes):
         """
