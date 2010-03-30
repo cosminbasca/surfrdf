@@ -152,8 +152,8 @@ class TestResource(TestCase):
     def test_type_mapping(self):
         """ Test that XSD types are mapped to Python types. """
         
-		# type mapping hasn't been implemented yet
-		# so skip this test for now.
+        # type mapping hasn't been implemented yet
+        # so skip this test for now.
         return True
         
         _, session = self._get_store_session() 
