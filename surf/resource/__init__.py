@@ -50,11 +50,7 @@ from surf.store import NO_CONTEXT, Store
 from surf.util import attr2rdf, namespace_split, rdf2attr
 from surf.util import uri_to_class, uuid_subject, value_to_rdf
 
-
 a = RDF.type
-
-#-------------------------------------------------------------------------------
-
 class ResourceMeta(type):
     def __new__(mcs, classname, bases, class_dict):
         ResourceClass = super(ResourceMeta, mcs).__new__(mcs, classname, bases, 
@@ -62,56 +58,8 @@ class ResourceMeta(type):
         
         if "uri" not in class_dict:
             ResourceClass.uri = None
-        
-        ResourceClass._instance = mcs._instance
-        ResourceClass._lazy = mcs._lazy
+            
         return ResourceClass
-
-    def __init__(self, *args, **kwargs):
-        pass
-
-    @classmethod
-    def _instance(cls, subject, vals, context = None, store = None):
-        """
-        Create an instance from the `subject` and it's associated
-        `concept` (`vals`) URIs.
-
-        Only the first `concept` URI is considered for inheritance.
-
-        """
-
-        if cls.session:
-            uri = len(vals) > 0 and vals[0] or None
-            classes = len(vals) > 1 and map(uri_to_class, vals[1:]) or []
-
-            if uri:
-                return cls.session.map_instance(uri, subject, classes = classes,
-                                                block_auto_load = True,
-                                                context = context,
-                                                store = store)
-            else:
-                return subject
-        else:
-            return None
-
-    @classmethod
-    def _lazy(cls, value):
-        """
-        Do `lazy` instantiation of rdf predicates
-        value is a dictionary {val:[concept,concept,...]},
-        returns a instance of `Resource`.
-
-        """
-
-        attr_value = []
-        for r in value:
-            inst = r
-            if isinstance(value[r], Resource) :
-                inst = value[r]
-            elif type(r) in [URIRef, BNode]:
-                inst = cls._instance(r, value[r])
-            attr_value.append(inst)
-        return attr_value
 
     def __getattr__(self, attr_name):
         """
@@ -124,6 +72,9 @@ class ResourceMeta(type):
 
         """
 
+        if attr_name == "session":
+            return None
+
         # Don't want to reimplement Resource.__getattr__.
         # Instantiate this class as instance of owl:Class and
         # proxy to its __getattr__.
@@ -131,10 +82,9 @@ class ResourceMeta(type):
         # If this method gets used often, we'll need to add caching
         # for self_as_instance.
 
-        self_as_instance = self._instance(self.uri, [OWL["Class"]])
+        self_as_instance = self._instance(self.uri, [OWL.Class])
         return getattr(self_as_instance, attr_name)
 
-#-------------------------------------------------------------------------------
 
 class Resource(object):
     """
@@ -326,6 +276,52 @@ class Resource(object):
         instance.remove()
 
     """
+    
+    @classmethod
+    def _instance(cls, subject, vals, context = None, store = None):
+        """
+        Create an instance from the `subject` and it's associated
+        `concept` (`vals`) URIs.
+
+        Only the first `concept` URI is considered for inheritance.
+
+        """
+
+        # vals is list of rdf:type URIs for this instance.
+        # If there are none, don't instantiate Resource, return URIRef. 
+        if not vals:
+            return subject
+            
+        # Don't have reference to session, cannot instantiate Resource
+        if not cls.session:
+            return None
+            
+        uri = vals[0]
+        classes = map(uri_to_class, vals[1:])
+
+        return cls.session.map_instance(uri, subject, classes = classes,
+                                        block_auto_load = True,
+                                        context = context,
+                                        store = store)    
+
+    @classmethod
+    def _lazy(cls, value):
+        """
+        Do `lazy` instantiation of rdf predicates
+        value is a dictionary {val:[concept,concept,...]},
+        returns a instance of `Resource`.
+
+        """
+
+        attr_value = []
+        for r in value:
+            inst = r
+            if isinstance(value[r], Resource) :
+                inst = value[r]
+            elif type(r) in [URIRef, BNode]:
+                inst = cls._instance(r, value[r])
+            attr_value.append(inst)
+        return attr_value
 
     def bind_namespaces(self, *namespaces):
         """ Bind the `namespace` to the `resource`.
@@ -361,9 +357,7 @@ class Resource(object):
     def to_rdf(cls, value):
         """ Convert any value to it's appropriate `rdflib` construct. """
 
-        if type(value) is ResourceMeta:
-            return value.uri
-        elif hasattr(value, 'subject'):
+        if hasattr(value, 'subject'):
             return value.subject
         return value_to_rdf(value)
 
@@ -519,7 +513,7 @@ class Resource(object):
         for p, v in results.items():
             attr = rdf2attr(p, direct)
             value = self._lazy(v)
-            if value or (type(value) is list and len(value) > 0):
+            if value:
                 self.__setattr__(attr, value)
 
 

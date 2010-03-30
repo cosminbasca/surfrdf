@@ -38,7 +38,7 @@ __author__ = 'Cosmin Basca'
 import new
 
 from surf.rdf import BNode, URIRef
-from surf.resource import Resource, ResourceMeta
+from surf.resource import Resource
 from surf.store import Store, NO_CONTEXT
 from surf.util import DE_CAMEL_CASE_DEFAULT
 from surf.util import attr2rdf, de_camel_case, is_uri, uri_to_classname
@@ -267,8 +267,6 @@ class Session(object):
 
         if type(uri) is URIRef:
             return uri
-        elif type(uri) is ResourceMeta:
-            return uri.uri
         else:
             if not is_uri(uri):
                 attrname = de_camel_case(uri, '_', DE_CAMEL_CASE_DEFAULT)
@@ -291,9 +289,6 @@ class Session(object):
             del self.__stores[store]
 
         self.mapping = None
-        setattr(Resource, 'session', None)
-        setattr(ResourceMeta, 'session', None)
-        # expire resources (stop timers)
 
     def map_type(self, uri, store = None, *classes):
         """ Create and return a `class` based on the `uri` given.
@@ -318,7 +313,6 @@ class Session(object):
         if type(session_classes) not in [list, tuple, set]:
             session_classes = [session_classes]
         base_classes.extend(session_classes)
-
         return new.classobj(str(name), tuple(base_classes),
                             {'uri' : uri, 
                              'store_key' : store,
@@ -340,7 +334,7 @@ class Session(object):
 
         return self.map_type(uri, store, *classes)
 
-    def map_instance(self, uri, subject, store = None, classes = [],
+    def map_instance(self, concept, subject, store = None, classes = [],
                      block_auto_load = False, context = None):
         """Create a `instance` of the `class` specified by `uri` and `classes`
         to be inherited, see `map_type` for more information. """
@@ -351,8 +345,10 @@ class Session(object):
         if not store:
             store = self.default_store_key
 
-        Concept = self.map_type(uri, store, *classes)
-        return Concept(subject, block_auto_load = block_auto_load,
+        if not (isinstance(concept, type) and issubclass(concept, Resource)):
+            concept = self.map_type(concept, store, *classes)
+            
+        return concept(subject, block_auto_load = block_auto_load,
                        context = context)
 
     def get_resource(self, subject, uri = None, store = None, graph = None,

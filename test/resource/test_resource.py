@@ -138,3 +138,38 @@ class TestResource(TestCase):
         # Making another session shouldn't change session of already
         # instantiated classes and instances:
         self.assertEquals(P.session, s1)
+
+    def test_instance(self):
+        """ Test Resource._instance(). """
+        
+        _, session = self._get_store_session() 
+        Thing = session.get_class(surf.ns.OWL.Thing)
+        
+        subject = surf.ns.SURF.test1
+        Thing._instance(subject, [surf.ns.OWL.Thing], store = Thing.store_key)        
+
+    
+    def test_type_mapping(self):
+        """ Test that XSD types are mapped to Python types. """
+        
+		# type mapping hasn't been implemented yet
+		# so skip this test for now.
+        return True
+        
+        _, session = self._get_store_session() 
+        Thing = session.get_class(surf.ns.OWL.Thing)
+        
+        t1 = Thing("http://t1")
+        t1.surf_string_value = "text"
+        t1.surf_bool_value = True
+        t1.surf_float_value = 3.14
+        t1.surf_int_value = 2010
+        t1.save()
+        
+        t1 = Thing("http://t1")
+        self.assertEquals(type(t1.surf_string_value.first), unicode)
+        self.assertEquals(type(t1.surf_bool_value.first), bool)
+        self.assertEquals(type(t1.surf_float_value.first), float)
+        self.assertEquals(type(t1.surf_int_value.first), int)
+
+
