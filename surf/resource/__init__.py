@@ -38,7 +38,7 @@ __author__ = 'Cosmin Basca'
 import re
 import new
 
-from surf.namespace import get_namespace_url, get_prefix, OWL
+from surf.namespace import get_namespace_url, get_prefix, OWL, all
 from surf.query import Query
 from surf.rdf import BNode, ClosedNamespace, ConjunctiveGraph, Graph, Literal
 from surf.rdf import Namespace, RDF, RDFS, URIRef
@@ -191,7 +191,7 @@ class Resource(object):
         self.__rdf_direct = {}
         self.__rdf_direct[a] = [self.uri]
         self.__rdf_inverse = {}
-        self.__namespaces = {}
+        self.__namespaces = all()
         # __full is set to true after doing full load. This is used by
         # __getattr__ to decide if it's worth to query triplestore.
         self.__full = False
@@ -340,8 +340,8 @@ class Resource(object):
         """ Bind the 'resources' registered namespaces to the supplied `graph`.
 
         """
-
-        if graph:
+        
+        if graph is not None:
             for prefix in self.namespaces:
                 graph.namespace_manager.bind(prefix, self.namespaces[prefix])
 

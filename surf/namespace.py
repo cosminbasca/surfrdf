@@ -106,11 +106,25 @@ __inverted_dict__ = {}
 for k, v in sys.modules[__name__].__dict__.items():
     if isinstance(v, Namespace) or isinstance(v, ClosedNamespace):
         __inverted_dict__[str(v)] = k
-
+        
+__direct_dict__ = {}
+for k, v in sys.modules[__name__].__dict__.items():
+    if isinstance(v, Namespace) or isinstance(v, ClosedNamespace):
+        __direct_dict__[k] = v
+        
 def __add_inverted(prefix):
     ns_dict = sys.modules[__name__].__dict__
     __inverted_dict__[str(ns_dict[prefix])] = prefix
-
+    
+def __add_direct(prefix):
+    ns_dict = sys.modules[__name__].__dict__
+    __direct_dict__[prefix] = ns_dict[prefix]
+    
+def all():
+    """ Return all the namespaces registered as a dict.
+    """
+    return __direct_dict__
+            
 def base(property):
     """ Return the base part of a URI, `property` is a string denoting a URI.
 
@@ -163,6 +177,7 @@ def register(**namespaces):
         
         # Also keep inverted dict up-to-date.
         __add_inverted(prefix)
+        __add_direct(prefix)
 
 def register_fallback(namespace):
     """ Register a fallback namespace to use when creating resource without
