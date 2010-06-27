@@ -1,12 +1,8 @@
 """ Module for ResultProxy. """
 
+from surf.exc import CardinalityException
 from surf.rdf import Literal
 from surf.util import attr2rdf
-
-class CardinalityException(Exception):
-    """ Used by ResultProxy.one() when list length != 1. """
-
-    pass
 
 class ResultProxy(object):
     """ Interface to :meth:`surf.store.get_by()`.
