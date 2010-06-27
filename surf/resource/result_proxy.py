@@ -1,6 +1,6 @@
 """ Module for ResultProxy. """
 
-from surf.exc import CardinalityException
+from surf.exc import NoResultFound, MultipleResultsFound
 from surf.rdf import Literal
 from surf.util import attr2rdf
 
@@ -244,7 +244,7 @@ class ResultProxy(object):
         try:
             item = iterator.next()
         except StopIteration:
-            raise CardinalityException("List is empty")
+            raise NoResultFound("List is empty")
 
         try:
             iterator.next()
@@ -252,4 +252,4 @@ class ResultProxy(object):
             # As expected, return item
             return item
 
-        raise CardinalityException("List has more than one item")
+        raise MultipleResultsFound("List has more than one item")

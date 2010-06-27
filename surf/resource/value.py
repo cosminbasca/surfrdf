@@ -35,7 +35,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-from surf.exc import CardinalityException
+from surf.exc import NoResultFound, MultipleResultsFound
 
 class ResourceValue(list):
     def __init__(self, values_source, resource, attribute_name):
@@ -61,9 +61,9 @@ class ResourceValue(list):
         if len(self) == 1:
             return self[0]
         elif len(self) == 0:
-            raise CardinalityException('list is empty')
+            raise NoResultFound('list is empty')
         else:
-            raise CardinalityException('list has more elements than one')
+            raise MultipleResultsFound('list has more elements than one')
 
     one = property(fget = get_one)
 
