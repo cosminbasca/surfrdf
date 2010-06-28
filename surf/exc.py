@@ -1,16 +1,34 @@
 """ Module for SuRF exceptions. """
 
 class CardinalityException(Exception):
-    """ Used by ResultProxy.one() and ResultValue.one when list length != 1. """
+    """ Raised when list length != 1.   
+    
+    Subclasses of this exception are raised by 
+    :meth:`surf.resource.result_proxy.ResultProxy.one()` and 
+    :meth:`surf.resource.value.ResultValue.get_one()`. 
+    
+    """
 
     pass
 
 class NoResultFound(CardinalityException):
-    """ Used by ResultProxy.one() and ResultValue.one when list length == 0. """
+    """ Raised when list length == 0. 
+
+    This exception is raised by 
+    :meth:`surf.resource.result_proxy.ResultProxy.one()` and 
+    :meth:`surf.resource.value.ResultValue.get_one()`. 
+    
+    """
 
     pass
 
 class MultipleResultsFound(CardinalityException):
-    """ Used by ResultProxy.one() and ResultValue.one when list length > 1. """
+    """ Raised when list length > 1.  
+ 
+    This exception is raised by 
+    :meth:`surf.resource.result_proxy.ResultProxy.one()` and 
+    :meth:`surf.resource.value.ResultValue.get_one()`. 
+
+    """
 
     pass

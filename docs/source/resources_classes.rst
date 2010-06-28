@@ -96,7 +96,9 @@ A SuRF resource represents a single RDF resource. Its URI is stored in
 	http://john.com/me
 
 RDF triples that describe this resource are available as object attributes.
-SuRF follows "prefix_predicate" convention for attribute names, thus:
+SuRF follows "prefix_predicate" convention for attribute names. These
+attributes are instances of :class:`surf.resource.value.ResourceValue` class. 
+They are list-like, with some extra convenience functions:
 
 .. doctest::
 
@@ -113,7 +115,7 @@ SuRF follows "prefix_predicate" convention for attribute names, thus:
 	>>> print john.foaf_nonexistant_predicate.one
 	Traceback (most recent call last):
 	...
-	Exception: list is empty
+	NoResultFound: list is empty
 	
 
 RDF triples that have resource as object, are available as "inverse" 

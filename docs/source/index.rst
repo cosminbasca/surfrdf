@@ -67,16 +67,17 @@ API reference
 .. toctree::
    :maxdepth: 2
    
+   modules/exc
    modules/namespace
+   modules/plugin
    modules/query
    modules/resource/index
    modules/resource/result_proxy
+   modules/rest
    modules/serializer
    modules/session
    modules/store
    modules/util
-   modules/plugin
-   modules/rest
    
 Indices and tables
 ------------------

@@ -238,7 +238,14 @@ class ResultProxy(object):
         return item
 
     def one(self):
-        """ Return the only resource or raise if resource count != 1. """
+        """ Return the only resource or raise if resource count != 1. 
+        
+        If the query matches no resources, this method will raise
+        :class:`surf.exc.NoResultFound` exception. If the query matches 
+        more than one resource, this method will raise
+        :class:`surf.exc.MultipleResultsFound` exception. 
+        
+        """
 
         iterator = iter(self)
         try:
