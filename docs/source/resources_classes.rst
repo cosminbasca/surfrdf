@@ -127,7 +127,23 @@ attributes, they follow "is_prefix_predicate_of" convention:
 	>>> print john.is_foaf_knows_of
 	[<surf.session.FoafPerson object at ...>]
 
-Attributes can also be used as starting points for more involved querying:
+Alternatively, dictionary-style attribute access can be used. It is 
+useful in cases where "prefix_predicate" naming convention would yield
+attribute names that are not valid in Python, like "vcard_postal-code".
+It can also be used for easy iterating over a list of attributes:
+
+.. doctest::
+	
+	>>> for attr in ["name", "surname"]: print john["foaf_%s" % attr].first
+	John
+	Smith
+		
+	# URIRefs are also accepted as dictionary keys:
+	>>> for attr in ["name", "surname"]: print john[surf.ns.FOAF[attr]].first
+	John
+	Smith
+
+Attributes can be used as starting points for more involved querying:
 
 .. doctest::
 

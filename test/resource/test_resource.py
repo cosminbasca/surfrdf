@@ -172,4 +172,23 @@ class TestResource(TestCase):
         self.assertEquals(type(t1.surf_float_value.first), float)
         self.assertEquals(type(t1.surf_int_value.first), int)
 
+    def test_dict_access(self):
+        """ Test that resources support dictionary-style attribute access. """
+        
+        session = surf.Session(surf.Store(reader = "rdflib"))
+        Person = session.get_class(surf.ns.FOAF.Person)
+        person = Person()
+        person.foaf_name = "John"
 
+        # Reading
+        self.assertEquals(person["foaf_name"].first, "John")
+        self.assertEquals(person[surf.ns.FOAF.name].first, "John")
+
+        # Writing
+        person["foaf_name"] = "Dave"
+        self.assertEquals(person.foaf_name.first, "Dave")
+
+        # Deleting
+        del person["foaf_name"]
+        self.assertEquals(person.foaf_name.first, None)
+        

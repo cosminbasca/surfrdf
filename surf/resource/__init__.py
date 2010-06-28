@@ -404,6 +404,14 @@ class Resource(object):
 
         object.__setattr__(self, name, value)
 
+    def __setitem__(self, attr_name, value):
+        """ Dictionary-style attribute access. """
+
+        if isinstance(attr_name, URIRef):
+            attr_name = rdf2attr(attr_name, True)
+
+        return setattr(self, attr_name, value)
+
     #TODO: add the auto_persist feature...
     def __delattr__(self, attr_name):
         """
@@ -424,6 +432,14 @@ class Resource(object):
             self.dirty = True
         object.__delattr__(self, attr_name)
 
+    def __delitem__(self, attr_name):
+        """ Dictionary-style attribute access. """
+
+        if isinstance(attr_name, URIRef):
+            attr_name = rdf2attr(attr_name, True)
+
+        return delattr(self, attr_name)
+
     # TODO: reuse already existing instances - CACHED
     # TODO: shoud we raise an error when predicate not foud ? or just return 
     # an empty list ? hmmm --- error :]
@@ -439,6 +455,7 @@ class Resource(object):
         """
 
         predicate, direct = attr2rdf(attr_name)
+            
         if not predicate:
             raise AttributeError('Not a predicate: %s' % attr_name)
 
@@ -486,6 +503,14 @@ class Resource(object):
 
         return attr_value
 
+    def __getitem__(self, attr_name):
+        """ Dictionary-style attribute access. """
+
+        if isinstance(attr_name, URIRef):
+            attr_name = rdf2attr(attr_name, True)
+
+        return getattr(self, attr_name)
+    
     def load(self):
         """
         Load all attributes from the data store:
