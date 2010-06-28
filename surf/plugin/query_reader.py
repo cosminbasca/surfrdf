@@ -241,8 +241,10 @@ class RDFQueryReader(RDFReader):
 
         inner_query = select("?s")
         inner_params = params.copy()
-        if "order" in inner_params:
-            del inner_params["order"]
+        if "order" in params:
+            # "order" needs to stay in subquery,
+            # but doesn't do anything useful in main query
+            del params["order"]
         self.__apply_limit_offset_order_get_by_filter(inner_params, inner_query)
 
         query = select("?s", "?p", "?v", "?c").distinct()
