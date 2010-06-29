@@ -1,12 +1,22 @@
+""" Module for surf.util tests. """
+
 from unittest import TestCase
 
 import surf
-from surf.util import rdf2attr, single
+from surf.util import attr2rdf, rdf2attr, single
 
 class TestUtil(TestCase):
+    """ Tests for surf.util module. """
+    
     def test_rdf2attr(self):
         uri = "http://www.w3.org/2000/01/rdf-schema#label"
         self.assertEqual(rdf2attr(uri, True), "rdfs_label")
+
+    def test_attr2rdf_period(self):
+        """ Check that attr2rdf handles minus symbol in predicate names. """
+        
+        uriref, _ = attr2rdf("surf_predicate-with-minus")
+        self.assertEquals(uriref, surf.ns.SURF["predicate-with-minus"])
         
     def test_single(self):
         class ResourceValueMock(object):

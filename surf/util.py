@@ -45,8 +45,8 @@ from surf.namespace import get_namespace, get_namespace_url
 from surf.namespace import get_fallback_namespace, SURF
 from surf.rdf import Literal, Namespace, URIRef
 
-pattern_direct = re.compile('^[a-z0-9]{1,}_[a-zA-Z0-9_]{1,}$', re.DOTALL)
-pattern_inverse = re.compile('^is_[a-z0-9]{1,}_[a-zA-Z0-9_]{1,}_of$', re.DOTALL)
+pattern_direct = re.compile('^[a-z0-9]{1,}_[a-zA-Z0-9_\-]{1,}$', re.DOTALL)
+pattern_inverse = re.compile('^is_[a-z0-9]{1,}_[a-zA-Z0-9_\-]{1,}_of$', re.DOTALL)
 
 def namespace_split(uri):
     """ Same as `uri_split`, but instead of the base of the uri, returns the
