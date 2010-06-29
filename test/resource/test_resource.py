@@ -191,4 +191,18 @@ class TestResource(TestCase):
         # Deleting
         del person["foaf_name"]
         self.assertEquals(person.foaf_name.first, None)
+
+    def test_auto_load(self):
+        """ Test that session.auto_load works. """
+        
+        store = surf.Store(reader = "rdflib", writer = "rdflib")
+        session = surf.Session(store, auto_load = True)
+        Person = session.get_class(surf.ns.FOAF.Person)
+        person = Person()
+        person.foaf_name = "John"
+        person.save()
+
+        same_person = Person(person.subject)
+        # Check that rdf_direct is filled
+        self.assertTrue(surf.ns.FOAF.name in same_person.rdf_direct)
         
