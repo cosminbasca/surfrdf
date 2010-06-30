@@ -278,7 +278,7 @@ class Resource(object):
     """
     
     @classmethod
-    def _instance(cls, subject, vals, context = None, store = None):
+    def _instance(cls, subject, vals, context = None, store = None, block_auto_load = True):
         """
         Create an instance from the `subject` and it's associated
         `concept` (`vals`) URIs.
@@ -300,7 +300,7 @@ class Resource(object):
         classes = map(uri_to_class, vals[1:])
 
         return cls.session.map_instance(uri, subject, classes = classes,
-                                        block_auto_load = True,
+                                        block_auto_load = block_auto_load,
                                         context = context,
                                         store = store)    
 
@@ -606,7 +606,8 @@ class Resource(object):
         instance = cls._instance(subject,
                                  [rdf_type],
                                  context = context,
-                                 store = cls.store_key)
+                                 store = cls.store_key,
+                                 block_auto_load = False)
 
         instance.__set_predicate_values(data.get("direct", {}), True)
         instance.__set_predicate_values(data.get("inverse", {}), False)
