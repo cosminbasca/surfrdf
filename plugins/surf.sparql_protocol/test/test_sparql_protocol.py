@@ -166,6 +166,15 @@ class TestSparqlProtocol(TestCase):
         persons = list(persons)
         self.assertTrue(persons[0].foaf_name.first, "Jay")
 
+    def test_get_by_alternatives(self):
+        """ Test reader.get_by() with several values """
+
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+
+        persons = Person.all().get_by(foaf_name = ["John", "Mary"])
+        self.assertEquals(len(persons), 2)
+
     def test_full(self):
         """ Test loading details. """
 

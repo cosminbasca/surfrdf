@@ -101,7 +101,7 @@ class SparqlTranslator(QueryTranslator):
         elif type(term) is type and hasattr(term, 'uri'):
             return '%s' % term.uri().n3()
         elif hasattr(term, 'subject'):
-            return '%s' % term.subject().n3()
+            return '%s' % term.subject.n3()
         return term.__str__()
 
     def _triple_pattern(self, statement):

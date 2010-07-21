@@ -36,7 +36,8 @@
 __author__ = 'Cosmin Basca'
 
 from surf.plugin.reader import RDFReader
-from surf.query import Query, a, ask, select, optional_group, named_group
+from surf.query import Query, Union
+from surf.query import a, ask, select, optional_group, named_group
 
 from surf.rdf import URIRef
 
@@ -153,11 +154,20 @@ class RDFQueryReader(RDFReader):
                 query.order_by("?o")
 
         if "get_by" in params:
-            for attribute, value, direct  in params["get_by"]:
+            for attribute, values, direct  in params["get_by"]:
                 if direct:
-                    query.where(("?s", attribute, value))
+                    order_terms = lambda a, b ,c: (a, b, c)
                 else:
-                    query.where((value, attribute, "?s"))
+                    order_terms = lambda a, b ,c: (c, b, a)
+                    
+                if hasattr(values, "__iter__"):
+                    where_clause = Union()
+                    for value in values:
+                        where_clause.append(order_terms("?s", attribute, value))
+                else:
+                    where_clause = order_terms("?s", attribute, values) 
+                
+                query.where(where_clause)
 
         if "filter" in params:
             filter_idx = 0

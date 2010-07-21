@@ -297,7 +297,10 @@ class Resource(object):
             return None
             
         uri = vals[0]
-        classes = map(uri_to_class, vals[1:])
+        # vals might be an iterator, but we want each 
+        # element from it as separate argument, so
+        # converting to list.
+        classes = map(uri_to_class, list(vals[1:]))
 
         return cls.session.map_instance(uri, subject, classes = classes,
                                         block_auto_load = block_auto_load,
@@ -589,7 +592,10 @@ class Resource(object):
         rdf_type = None
         # Let's see if rdf:type was specified in query parameters
         for predicate, value, _ in params.get("get_by", []):
-            if predicate == a:
+            # if rdf:type was filtered against several values,
+            # we cannot use it for assigning type. 
+            # Check here if value is list-like.
+            if predicate == a and not hasattr(value, "__iter__"):
                 rdf_type = value
                 break
 
@@ -603,6 +609,7 @@ class Resource(object):
             return subject
 
         context = params.get("context", None)
+        print "instantiating ", subject
         instance = cls._instance(subject,
                                  [rdf_type],
                                  context = context,
@@ -649,7 +656,9 @@ class Resource(object):
 
         store = cls.session[cls.store_key]
         filters = filters.copy()
-        filters["rdf_type"] = cls.uri
+        # Client specified rdf_type(s) override our own.
+        if not "rdf_type" in filters:
+            filters["rdf_type"] = cls.uri
         proxy = ResultProxy(store = store,
                             instancemaker = cls.__instancemaker)
 
