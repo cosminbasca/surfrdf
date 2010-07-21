@@ -609,7 +609,6 @@ class Resource(object):
             return subject
 
         context = params.get("context", None)
-        print "instantiating ", subject
         instance = cls._instance(subject,
                                  [rdf_type],
                                  context = context,
