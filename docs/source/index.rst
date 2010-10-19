@@ -7,9 +7,10 @@ SuRF – Object RDF mapper
 ========================
 
 .. image:: images/surf-logo.png
+   :align: center
    :scale: 70
    :alt: SuRF
-   :align: center
+   
 
 `SuRF` is an Object - RDF Mapper based on the popular `rdflib` python library.
 It exposes the RDF triple sets as sets of resources and seamlessly integrates 
@@ -69,15 +70,21 @@ API reference
    
    modules/exc
    modules/namespace
+   modules/rdf
    modules/plugin
    modules/query
-   modules/resource/index
-   modules/resource/result_proxy
+   modules/resource
    modules/rest
    modules/serializer
    modules/session
    modules/store
    modules/util
+   
+Acknowledgements
+----------------
+
+A great deal of thanks goes to `Peteris Caune <mailto:cuu508@gmail.com>`_ for his 
+contributions and ideas put into `SuRF`.
    
 Indices and tables
 ------------------

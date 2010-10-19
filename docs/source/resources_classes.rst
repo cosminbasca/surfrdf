@@ -102,16 +102,16 @@ They are list-like, with some extra convenience functions:
 
 .. doctest::
 
-	# Print all foaf:name values:
+    >>> # Print all foaf:name values
 	>>> print john.foaf_name
 	[rdflib.Literal(u'John')]	
 
-	# Print first foaf:name value or None if there aren't any:
+	>>> # Print first foaf:name value or None if there aren't any:
 	>>> print john.foaf_name.first
 	John	
 	
-	# Print first foaf:name value or raise exception if there aren't any or 
-	# there are more than one:
+	>>> # Print first foaf:name value or raise exception if there aren't any or 
+	>>> # there are more than one:
 	>>> print john.foaf_nonexistant_predicate.one
 	Traceback (most recent call last):
 	...
@@ -123,7 +123,7 @@ attributes, they follow "is_prefix_predicate_of" convention:
 
 .. doctest::
 
-	# Print all persons that know john:
+	>>> # Print all persons that know john
 	>>> print john.is_foaf_knows_of
 	[<surf.session.FoafPerson object at ...>]
 
@@ -138,7 +138,7 @@ It can also be used for easy iterating over a list of attributes:
 	John
 	Smith
 		
-	# URIRefs are also accepted as dictionary keys:
+	>>> # URIRefs are also accepted as dictionary keys:
 	>>> for attr in ["name", "surname"]: print john[surf.ns.FOAF[attr]].first
 	John
 	Smith
@@ -147,7 +147,7 @@ Attributes can be used as starting points for more involved querying:
 
 .. doctest::
 
-	# Get first item from ordered list of all friends named "Jane": 
+	>>> # Get first item from ordered list of all friends named "Jane": 
 	>>> john.foaf_knows.get_by(foaf_name = "Jane").order().first()
 	<surf.session.FoafPerson object at ...>
 

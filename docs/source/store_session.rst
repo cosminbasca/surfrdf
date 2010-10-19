@@ -1,11 +1,11 @@
 The `Store` and the `Session`
 =============================
 
-What do :class:`surf.store.Store` and :class:`surf.store.Session` do?
----------------------------------------------------------------------
+What do :class:`surf.store.Store` and :class:`surf.session.Session` do?
+-----------------------------------------------------------------------
 
 The `Session` establishes all conversations to the backend storage service. Resources 
-use it to load and save their constituting triples. `Session` keeps  
+use it to load and save their constituting triples. The `Session` keeps  
 a cache of already loaded data, and it uses one or more stores to do actual  
 loading and presistence of data. 
 
@@ -26,11 +26,11 @@ Instantiation of `store` and `session` objects is illustrated below:
     
 the `Store` is configured using its constructor arguments. ``reader`` and ``writer``
 arguments specify which plugin is to be used for reading and writing RDF
-data. Possible values for these two arguments are `sparql_protocol`, 
+data. Possible values (but not limited to) for these two arguments are `sparql_protocol`, 
 `rdflib`, `allegro_franz` and `sesame2`. Plugin-specific configuration options 
 are also specified as constructor argument for Store. 
-In this example, store is configured to use `sparql_protocol` 
-plugin and address of SPARQL HTTP endpoint is also specified:
+In this example, `store` is configured to use the `sparql_protocol` 
+plugin and the address of the **SPARQL HTTP** endpoint is also specified:
 
 .. testcode::
 
@@ -41,15 +41,20 @@ plugin and address of SPARQL HTTP endpoint is also specified:
 
 It is often convenient to load Store configuration options from file instead
 of specifying them in code. For example, consider an .ini file with 
-the following contents::
+the following contents:
 
+.. code-block:: ini
+    
     [surf]
     reader=sparql_protocol
-    endpoint=http://dbpedia.org/sparql 
+    endpoint=http://dbpedia.org/sparql
+    
 
 The following snippet loads all configuration keys from the **[surf]** section of the **ini** file
-and passes them to `Store` constructor::
+and passes them to `Store` constructor:
 
+.. code-block:: python
+    
     import ConfigParser
     import surf
     
@@ -58,5 +63,7 @@ and passes them to `Store` constructor::
     store_params = dict(config.items("surf"))
     store = surf.Store(**store_params)
     session = surf.Session(store)                          
-
-
+    
+    
+    
+    

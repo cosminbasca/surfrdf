@@ -1,4 +1,9 @@
 =============
+Version 1.1.2
+=============
+  * Support for loading plugins directly from folder if specified
+
+=============
 Version 1.1.1
 =============
   * Changes to support Python 2.4

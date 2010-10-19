@@ -6,7 +6,8 @@ Contents
 
 .. toctree::
    :maxdepth: 2
-   
+
+   /modules/plugin/manager
    /modules/plugin/reader
    /modules/plugin/query_reader
    /modules/plugin/writer

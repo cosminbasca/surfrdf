@@ -175,7 +175,7 @@ def uri_to_class(uri):
 
 def uuid_subject(namespace = None):
     '''the function generates a unique subject in the provided `namespace` based on
-    the :func:`uuid.uuid4()` method,
+    the :meth:`uuid.uuid4()` method,
     If `namespace` is not specified than the default `SURF` namespace is used
 
     .. code-block:: python

@@ -5,13 +5,13 @@ from surf.rdf import Literal
 from surf.util import attr2rdf
 
 class ResultProxy(object):
-    """ Interface to :meth:`surf.store.get_by()`.
+    """ Interface to :meth:`surf.store.Store.get_by`.
 
     ResultProxy collects filtering parameters. When iterated, it executes
-    :meth:`surf.store.get_by()` with collected parameters and yields results.
+    :meth:`surf.store.Store.get_by` with collected parameters and yields results.
 
     ResultProxy doesn't know how to convert data returned by
-    :meth:`surf.store.get_by()` into :class:`surf.Resource`, `URIRef`
+    :meth:`surf.store.Store.get_by` into :class:`surf.resource.Resource`, `URIRef`
     and `Literal` objects. It delegates this task to `instancemaker`
     function.
 

@@ -1,19 +1,19 @@
 Queries
 =======
 
-SuRF aims to integrate RDF with object-oriented paradigm so that manual 
-writing and execution of SPARQL queries is seldom needed. Resources and
-classes provide higher level of abstraction than queries do and they
+`SuRF` aims to integrate **RDF** with the `object-oriented` paradigm so that manual 
+writing and execution of **SPARQL** queries is seldom needed. Resources and
+classes provide a higher level of abstraction than queries do and they
 should cover the most common use cases. 
 
 Executing arbitrary SPARQL queries
 ----------------------------------
 
-For cases when you need to execute arbitrary queries, it is still possible.
-:class:`surf.store.Store` has method 
-:meth:`surd.store.Store.execute_sparql(query_string)` which accepts query 
-as string. This method will return raw results, SuRF will make no attempt to
-represent returned data as resource objects.
+It is still possible to execute arbitrary queries in the cases where this is needed.
+The :class:`surf.store.Store` class provides the method:
+:meth:`surf.store.Store.execute_sparql` which accepts the query 
+as a string. This method will return raw results, and `SuRF` will make no attempt to
+represent returned data as resource objects. 
 
 .. doctest::
 
@@ -28,13 +28,13 @@ represent returned data as resource objects.
 	>>> list(sess.default_store.execute_sparql("SELECT ?s ?p ?o WHERE { ?s ?p ?o }"))
 	[(rdflib.URIRef('http://s'), rdflib.URIRef('http://p'), 'value!')] 
     
-Constructing queries in programmatic way
-----------------------------------------
+Constructing queries in a programmatic way
+------------------------------------------
 
-SuRF provides utilities for programmatic construction of dynamic SPARQL 
-queries in :mod:`surf.query` module. Using them can sometimes result in 
+`SuRF` also provides utilities for programmatic construction of dynamic **SPARQL** 
+queries in the :mod:`surf.query` module. Using them can sometimes result in 
 cleaner code than constructing queries by string concatenation. 
-Here's an example how to use tools in :mod:`surf.query`:
+Here's an example on how to use the tools available in the :mod:`surf.query` module:
 
 .. doctest::
 

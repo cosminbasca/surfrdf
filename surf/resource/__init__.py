@@ -102,20 +102,20 @@ class Resource(object):
     "owl_Class".
 
     Resource instance attributes can be set and get. If get, they will
-    be structures of type :class:`ResourceValue`. This class is subclass of
+    be structures of type :class:`surf.resource.value.ResourceValue`. This class is subclass of
     `list` (to handle situations when there are several triples with the
     same subject and predicate but different objects) and have some some
     special features. Since `ResourceValue` is subtype of list, it can be
     iterated, sliced etc.
 
-    :meth:`ResourceValue.first` will return first element of list or `None`
+    :meth:`surf.resource.value.ResourceValue.first` will return first element of list or `None`
     if list is empty::
 
         >>> resource.foaf_knows = [URIRef("http://p1"), URIRef("http://p2")]
         >>> resource.foaf_knows.first
         rdflib.URIRef('http://p1')
 
-    :meth:`ResourceValue.one` will return first element of list or will
+    :meth:`surf.resource.value.ResourceValue.one` will return first element of list or will
     raise if list is empty or has more than one element::
 
 

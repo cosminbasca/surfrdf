@@ -1,0 +1,55 @@
+@echo off
+echo ------------------------------------------------------
+echo --- SURF
+echo ------------------------------------------------------
+
+python setup.py develop
+/usr/bin/python2.5 setup.py develop
+
+echo ------------------------------------------------------
+echo --- ALLEGRO
+echo ------------------------------------------------------
+
+cd plugins
+cd surf.allegro_franz
+
+python setup.py develop
+/usr/bin/python2.5 setup.py develop
+
+echo ------------------------------------------------------
+echo --- SESAME2
+echo ------------------------------------------------------
+
+cd ..
+cd surf.sesame2
+
+python setup.py develop
+/usr/bin/python2.5 setup.py develop
+
+echo ------------------------------------------------------
+echo --- SPARQL
+echo ------------------------------------------------------
+
+cd ..
+cd surf.sparql_protocol
+
+python setup.py develop
+/usr/bin/python2.5 setup.py develop
+
+echo ------------------------------------------------------
+echo --- RDFLIB
+echo ------------------------------------------------------
+
+cd ..
+cd surf.rdflib
+
+python setup.py develop
+/usr/bin/python2.5 setup.py develop
+
+cd ..
+cd ..
+
+echo ------------------------------------------------------
+echo --- DONE
+echo ------------------------------------------------------
+

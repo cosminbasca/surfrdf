@@ -35,7 +35,11 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-from simplejson import dumps
+# simplejson dependency is redundant on python2.7, due to the json module
+try:
+    from json import dumps
+except Exception, e:
+    from simplejson import dumps
 
 from surf.rdf import BNode, Literal, URIRef
 

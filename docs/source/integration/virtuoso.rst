@@ -9,7 +9,8 @@ were contributed by `Peteris Caune <mailto:cuu508@gmail.com>`_ further updates a
 information can be read `here <http://cuu508.wordpress.com/>`_ .
 
 
-    1. Download `virtuoso-opensource-win32-5.0.11.zip <http://go2.wordpress.com/?id=725X1342&site=cuu508.wordpress.com&url=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fvirtuoso%2Ffiles%2Fvirtuoso%2F5.0.11%2Fvirtuoso-opensource-win32-5.0.11.zip%2Fdownload>`_
+    1. Download `virtuoso-opensource-win32-5.0.11.zip <http://go2.wordpress.com/?id=725X1342&site=cuu508.wordpress.com&url=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fvirtuoso%2Ffiles%2Fvirtuoso%2F5.0.11%2Fvirtuoso-opensource-win32-5.0.11.zip%2Fdownload>`_ or a more
+    recent version (unavailable at the writing time of this document)
     
     .. note:: For the purpose of this example version 5.0.11 of `virtuoso` was used, any
                 other version can be used instead.

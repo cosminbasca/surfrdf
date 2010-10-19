@@ -55,10 +55,11 @@ UNION = 'union'
 
 #the classes
 class Group(list):
+    '''A **SPARQL** triple pattern group'''
     pass
 
 class NamedGroup(Group):
-
+    '''A **SPARQL** triple pattern named group'''
     def __init__(self, name = None):
         Group.__init__(self)
         if isinstance(name, URIRef) or (type(name) in [str, unicode] and name.startswith('?')):
@@ -67,12 +68,15 @@ class NamedGroup(Group):
             raise ValueError('The names')
 
 class OptionalGroup(Group):
+    '''A **SPARQL** triple pattern optional group'''
     pass
 
 class Union(Group):
+    '''A **SPARQL** union'''
     pass
 
 class Filter(unicode):
+    '''A **SPARQL** triple pattern filter'''
     @classmethod
     def regex(cls, var, pattern, flag = None):
         if type(var) in [str, unicode] and var.startswith('?'): pass
@@ -170,7 +174,7 @@ class Query(object):
     def from_(self, *uris):
         """ Add graph URI(s) that will go in separate *FROM* clause.
 
-        Each argument can be either `string` or :class:`URIRef`.
+        Each argument can be either `string` or :class:`surf.rdf.URIRef`.
 
         """
 
@@ -186,8 +190,8 @@ class Query(object):
 
         `where()` accepts multiple arguments. Each argument represents a
         a graph pattern and will be added to default group graph pattern.
-        Each argument can be `tuple`, `list`, :class:`Query`,
-        :class:`NamedGroup`, :class:`OptionalGroup`.
+        Each argument can be `tuple`, `list`, :class:`surf.query.Query`,
+        :class:`surf.query.NamedGroup`, :class:`surf.query.OptionalGroup`.
 
         Example:
 
@@ -249,7 +253,7 @@ class Query(object):
         """ Add *FILTER* construct to query *WHERE* clause.
 
         ``filter`` must be either `string`/`unicode` or
-        :class:`Filter` object, if it is `None` then no filter
+        :class:`surf.query.Filter` object, if it is `None` then no filter
         is appended.
 
         """
@@ -363,7 +367,7 @@ def named_group(name, *statements):
 
 # the query creators
 def select(*vars):
-    """ Construct and return :class:`Query` object of type **SELECT**
+    """ Construct and return :class:`surf.query.Query` object of type **SELECT**
 
     ``*vars`` are variables to be selected.
 
@@ -376,16 +380,16 @@ def select(*vars):
     return Query(SELECT, *vars)
 
 def ask():
-    """ Construct and return :class:`Query` object of type **ASK** """
+    """ Construct and return :class:`surf.query.Query` object of type **ASK** """
 
     return Query(ASK)
 
 def construct(*vars):
-    """ Construct and return :class:`Query` object of type **CONSTRUCT** """
+    """ Construct and return :class:`surf.query.Query` object of type **CONSTRUCT** """
 
     return Query(CONSTRUCT, *vars)
 
 def describe(*vars):
-    """ Construct and return :class:`Query` object of type **DESCRIBE** """
+    """ Construct and return :class:`surf.query.Query` object of type **DESCRIBE** """
 
     return Query(DESCRIBE, *vars)

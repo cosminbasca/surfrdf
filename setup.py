@@ -44,7 +44,7 @@ from setuptools import setup, find_packages
 
 setup(
       name='SuRF',
-      version='1.1.1',
+      version='1.1.2',
       description='Object RDF Mapper',
       long_description = '''SuRF is a Python library for working with RDF data in an Object-Oriented way. In SuRF, RDF nodes (subjects and objects) are represented as Python objects and RDF arcs (predicates) as their attributes. SuRF is an Object RDF Mapper (ORM), similar in concept to Object Relational Mappers like SQLAlchemy. SuRF was inspired by ActiveRDF for Ruby.''',
       license = 'New BSD SOFTWARE', 
@@ -63,10 +63,10 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 2.5',
-	'Programming Language :: Python :: 2.6',
-	'Topic :: Software Development :: Libraries :: Python Modules',
+	    'Programming Language :: Python :: 2.6',
+	    'Programming Language :: Python :: 2.7',
+        'Topic :: Software Development :: Libraries :: Python Modules',
       ],
       keywords = 'Python SPARQL RDF resource mapper ORM query Semantic Web RDFS rdflib Object-Oriented',
-      #requires_python = '>=2.5', # Future in PEP 345
       scripts = ['ez_setup.py']
 )

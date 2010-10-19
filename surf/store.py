@@ -36,43 +36,15 @@
 __author__ = 'Cosmin Basca'
 
 import logging
-import pkg_resources
+from plugin.manager import *
 from plugin.reader import RDFReader
 from plugin.writer import RDFWriter
 from surf.rdf import URIRef
-
-from surf.query import Query
-
-__ENTRYPOINT_READER__ = 'surf.plugins.reader'
-__ENTRYPOINT_WRITER__ = 'surf.plugins.writer'
-
-__readers__ = {}
-__writers__ = {}
-
-def __init_plugins(plugins, entry_point):
-    for entrypoint in pkg_resources.iter_entry_points(entry_point):
-        plugin_class = entrypoint.load()
-        plugins[entrypoint.name] = plugin_class
-
-__plugins_loaded = False
-def load_plugins():
-    global __plugins_loaded
-    if not __plugins_loaded:
-        __init_plugins(__readers__, __ENTRYPOINT_READER__)
-        __init_plugins(__writers__, __ENTRYPOINT_WRITER__)
-        __plugins_loaded = True
-
-registered_readers = lambda : __readers__.keys()
-registered_writers = lambda : __writers__.keys()
 
 # A constant to use as context argument when we want to avoid default context.
 # Example: sess.get_resource(uri, Concept, context = surf.NO_CONTEXT),
 # this explicitly says that no context should be used.
 NO_CONTEXT = "no-context"
-
-class PluginNotFoundException(Exception):
-    def __init__(self, *args, **kwargs):
-        super(PluginNotFoundException, self).__init__(self, *args, **kwargs)
 
 class Store(object):
     """ The `Store` class is comprised of a reader and a writer, getting
@@ -93,8 +65,6 @@ class Store(object):
         self.log = logging.getLogger(self.__class__.__name__)
         self.log.info('initializing the store')
         load_plugins()
-        self.log.info('registered readers : ' + str(registered_readers()))
-        self.log.info('registered writer : ' + str(registered_writers()))
 
         self.__default_context = None
         if "default_context" in kwargs:
@@ -205,7 +175,7 @@ class Store(object):
     #---------------------------------------------------------------------------
 
     def execute(self, query):
-        """ :func:`surf.plugin.reader.RDFQueryReader.execute` method. """
+        """see :meth:`surf.plugin.query_reader.RDFQueryReader.execute` method. """
 
         if hasattr(self.reader, 'execute') and isinstance(query, Query):
             return self.reader.execute(query)
@@ -213,7 +183,7 @@ class Store(object):
         return None
 
     def execute_sparql(self, sparql_query, format = 'JSON'):
-        """ :func:`surf.plugin.reader.RDFQueryReader.execute_sparql` method. """
+        """see :meth:`surf.plugin.query_reader.RDFQueryReader.execute_sparql` method. """
 
         if hasattr(self.reader, 'execute_sparql') and type(sparql_query) in [str, unicode]:
             return self.reader.execute_sparql(sparql_query, format = format)
