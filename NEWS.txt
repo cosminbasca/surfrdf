@@ -2,6 +2,7 @@
 Version 1.1.2
 =============
   * Support for loading plugins directly from folder if specified
+  * Indtroduced the plugin manager module
 
 =============
 Version 1.1.1
