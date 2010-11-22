@@ -93,11 +93,21 @@ just some of the plugins. Currently available plugins are:
         $ easy_install -U surf.sesame2
         
 
-Loading plugins from path
--------------------------
+Loading plugins from path or running `SuRF` in **embedded** mode
+----------------------------------------------------------------
 In the cases where `SuRF` is distributed bundled with an application, one can choose to load the
 plugins from a specific location. You can do so via the :meth:`surf.plugin.manager.add_plugin_path` method, as
 in the code snippet below:
+
+.. important::
+
+    In order to run the following code snippet, one needs to generate the **egg-info** directory if not present,
+    this can be done with the following command:
+
+    .. code-block:: bash
+
+        $ python setup.py egg_info
+
 
 .. code-block:: python
     

@@ -55,11 +55,13 @@ UNION = 'union'
 
 #the classes
 class Group(list):
-    '''A **SPARQL** triple pattern group'''
+    '''A **SPARQL** triple pattern group
+    '''
     pass
 
 class NamedGroup(Group):
-    '''A **SPARQL** triple pattern named group'''
+    '''A **SPARQL** triple pattern named group
+    '''
     def __init__(self, name = None):
         Group.__init__(self)
         if isinstance(name, URIRef) or (type(name) in [str, unicode] and name.startswith('?')):
@@ -68,15 +70,18 @@ class NamedGroup(Group):
             raise ValueError('The names')
 
 class OptionalGroup(Group):
-    '''A **SPARQL** triple pattern optional group'''
+    '''A **SPARQL** triple pattern optional group
+    '''
     pass
 
 class Union(Group):
-    '''A **SPARQL** union'''
+    '''A **SPARQL** union
+    '''
     pass
 
 class Filter(unicode):
-    '''A **SPARQL** triple pattern filter'''
+    '''A **SPARQL** triple pattern filter
+    '''
     @classmethod
     def regex(cls, var, pattern, flag = None):
         if type(var) in [str, unicode] and var.startswith('?'): pass

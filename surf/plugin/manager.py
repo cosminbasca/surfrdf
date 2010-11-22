@@ -38,6 +38,7 @@ __author__ = 'Cosmin Basca'
 import logging
 import pkg_resources
 import os
+from pkg_resources import *
 
 class PluginNotFoundException(Exception):
     """ Raised when the required Plugin is not found
@@ -72,21 +73,25 @@ def load_plugins(reload=False):
         __init_plugins(__writers__, __ENTRYPOINT_WRITER__)
         __plugins_loaded = True
 
-def __add_plugin(plugin):
-    ext = os.path.splitext(plugin)[1]
-    if ext == '.egg':
-        pkg_resources.working_set.add_entry(os.path.abspath(plugin))
+
+def __register_surf():
+    import surf
+    surf_parent = os.path.split(os.path.split(surf.__file__)[0])[0]
+    for dist in find_distributions(surf_parent):
+        if dist.key == 'surf':
+            pkg_resources.working_set.add(dist)
+            break
 
 def add_plugin_path(plugin_path):
-    ''' Add a `path` to the plugin manager. Can be a folder or a single file. If multiple paths (modules) need
-    to be added this method can be called multiple times
+    ''' Loads plugins from `path`. Method can be called multiple times, with different locations. (Plugins are loaded only once).
 
     '''
-    if os.path.isfile(plugin_path):
-        __add_plugin(plugin_path)
-    elif os.path.isdir(plugin_path):
-        for file in os.listdir(plugin_path):
-            __add_plugin(file)
+    __register_surf()
+    for dist in find_distributions(plugin_path):
+        # only load SURF plugins!
+        if __ENTRYPOINT_READER__ in dist.get_entry_map() or __ENTRYPOINT_WRITER__ in dist.get_entry_map():
+            pkg_resources.working_set.add(dist)
+
 
 # registered :cls:`surf.plugin.reader.RDFReader` plugins
 registered_readers = lambda : __readers__.keys()

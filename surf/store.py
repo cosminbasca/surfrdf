@@ -36,10 +36,14 @@
 __author__ = 'Cosmin Basca'
 
 import logging
-from plugin.manager import *
+from plugin import manager
+from plugin.manager import load_plugins, PluginNotFoundException, add_plugin_path, registered_readers, registered_writers
 from plugin.reader import RDFReader
 from plugin.writer import RDFWriter
 from surf.rdf import URIRef
+
+__readers__ = manager.__readers__
+__writers__ = manager.__writers__
 
 # A constant to use as context argument when we want to avoid default context.
 # Example: sess.get_resource(uri, Concept, context = surf.NO_CONTEXT),

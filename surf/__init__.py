@@ -57,8 +57,9 @@ from session import Session
 import sys
 import os
 import re
+from __version__ import *
 
-# get_svn_revision comes  from Django Project:
+# get_svn_revision comes from the Django project:
 # http://code.djangoproject.com/browser/django/trunk/django/utils/version.py
 def get_svn_revision(path=None):
     """ Return the `svn revision number` of the current surf source folder.
@@ -94,4 +95,4 @@ def get_svn_revision(path=None):
         return u'r%s' % rev
     return u'Sunknown'
 
-__version__ = (1, 0, 0, get_svn_revision())
+__version__ = (version[0], version[1], version[2], get_svn_revision())
