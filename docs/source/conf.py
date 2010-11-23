@@ -12,22 +12,33 @@
 # serve to show the default.
 
 import sys, os
+import imp
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
+surf_dir = os.path.join(os.path.split(os.path.split(os.path.split(__file__)[0])[0])[0], 'surf')
 pth = os.path.abspath(os.path.dirname(__file__))
-pth = os.path.join(os.path.join(os.path.join(pth,'..'),'..'),'surf')
-plug = os.path.join(pth,'plugin')
+plug = os.path.join(os.path.split(surf_dir)[0],'plugins')
+
+print 'SURF DIR = ',surf_dir
+print 'DOC_PATH = ',pth
+print 'PLUG_PATH= ',plug
 
 sys.path.append(os.path.abspath(plug))
 sys.path.append(os.path.abspath(pth))
+sys.path.append(os.path.abspath(surf_dir))
 
 # -- General configuration -----------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.coverage']
+extensions = ['sphinx.ext.autodoc',
+              'sphinx.ext.doctest',
+              'sphinx.ext.coverage',
+              'sphinx.ext.autosummary',
+              'sphinx.ext.viewcode',
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -50,8 +61,6 @@ copyright = u'2009, Cosmin Basca'
 # built documents.
 #
 # The short X.Y version.
-import imp
-surf_dir = os.path.join(os.path.split(os.path.split(os.path.split(__file__)[0])[0])[0], 'surf')
 surfver = imp.load_source('surfver',os.path.join(surf_dir, '__version__.py'))
 
 version = surfver.str_version

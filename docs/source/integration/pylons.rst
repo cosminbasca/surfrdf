@@ -5,6 +5,11 @@ The example is an adaptation of the following example
     
     - http://wiki.pylonshq.com/display/pylonscookbook/Making+a+Pylons+Blog
 
+.. note::
+
+    This was tested with `pylons 0.9.7`. To use the latest version of `pylons` update example accordingly.
+
+
 1. Install :mod:`pylons`
 
     .. code-block:: bash
@@ -327,11 +332,8 @@ The example is an adaptation of the following example
     
         import helpers as h
 
-    5.5. Thant's it :), Try it out.
-    Test the toolkit interface on:
+6. Thant's it :), Try it out.Test the toolkit interface on:
         
-        - http://localhost:5000/toolkit/index
-        
-    **Important** This was tested with `pylons 0.9.7`
-    
+    http://localhost:5000/toolkit/index
+
     
