@@ -31,9 +31,8 @@ first_album.load()
 print 'All covers'
 for a in all_albums:
     if a.dbpedia_name:
-        cvr = a.dbpedia_cover
-        print '\tCover %s for "%s"' % (str(a.dbpedia_cover), 
-                                       str(a.dbpedia_name))
+        print '\tCover %s for "%s"' % (a.dbpedia_cover.first, 
+                                       a.dbpedia_name.first)
 
 print '------------------------------------------------------------------------'
 print 'LOCAL'
