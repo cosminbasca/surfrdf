@@ -73,7 +73,13 @@ class TestRdfLib(TestCase):
         jane.foaf_name = "Jane"
         jane.save()
         
-        names = map(str, FoafPerson.all().limit(10).order(surf.ns.FOAF.name))
+        # This is currently broken in both rdflib 2.4.2 and 
+        # 3.0.0--ordering in SuRF uses OPTIONAL which doesn't seem to work
+        # in rdflib.
+        # See http://code.google.com/p/rdflib/issues/detail?id=92
+        # and http://code.google.com/p/rdfextras/issues/detail?id=8
+        query = FoafPerson.all().limit(10).order(surf.ns.FOAF.name)
+        names = [p.foaf_name.first for p in query]
         assert "John" in names
         assert "Jane" in names
         
