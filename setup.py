@@ -43,7 +43,7 @@ use_setuptools()
 from setuptools import setup, find_packages
 
 #read the version
-from surf.__version__ import *
+execfile('surf/__version__.py')
 
 setup(
       name='SuRF',
