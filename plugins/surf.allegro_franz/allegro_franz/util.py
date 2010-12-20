@@ -73,11 +73,11 @@ try:
     
     def toSesame(term,factory):
         if type(term) is URIRef:
-            return factory.createURI(str(term))
+            return factory.createURI(unicode(term))
         elif type(term) is Literal:
-            return factory.createLiteral(str(term),datatype=term.datatype,language=term.language)
+            return factory.createLiteral(unicode(term),datatype=term.datatype,language=term.language)
         elif type(term) is BNode:
-            return factory.createBNode(str(term))
+            return factory.createBNode(unicode(term))
         elif type(term) in [list, tuple]:
             return map(lambda item: toSesame(item,factory), term)
         return term

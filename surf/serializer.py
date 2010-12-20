@@ -74,12 +74,12 @@ def to_json(graph):
                 value['value'] = v
                 value['type'] = value_types[type(v)]
                 if type(v) is Literal and v.language:
-                    value['lang'] = str(v.language)
+                    value['lang'] = unicode(v.language)
                 if type(v) is Literal and v.datatype:
-                    value['datatype'] = str(v.datatype)
+                    value['datatype'] = unicode(v.datatype)
 
                 json_values.append(value)
-            json_subjects[str(p)] = json_values
-        json_root[str(s)] = json_subjects
+            json_subjects[unicode(p)] = json_values
+        json_root[unicode(s)] = json_subjects
 
     return dumps(json_root)

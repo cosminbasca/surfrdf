@@ -183,7 +183,7 @@ class Resource(object):
         if context == NO_CONTEXT:
             self.__context = None
         elif context:
-            self.__context = URIRef(str(context))
+            self.__context = URIRef(unicode(context))
         elif self.session and self.store_key:
             self.__context = self.session[self.store_key].default_context
         
@@ -670,7 +670,7 @@ class Resource(object):
         # query like friends = get_by(is_foaf_knows_of = john), thus the
         # attribute name inversion
         uri, direct = attr2rdf(attribute_name)
-        inverse_attribute_name = str(rdf2attr(uri, not direct))
+        inverse_attribute_name = unicode(rdf2attr(uri, not direct))
 
         store = self.session[self.store_key]
         proxy = ResultProxy(store = store,
@@ -791,11 +791,11 @@ class Resource(object):
         for s, p, o in graph:
             attr_name = None
             value = None
-            if str(s) == str(self.subject):
+            if unicode(s) == unicode(self.subject):
                 attr_name = rdf2attr(p, True)
                 #value = self.__lazy([o])
                 value = o
-            elif str(o) == str(self.subject):
+            elif unicode(o) == unicode(self.subject):
                 attr_name = rdf2attr(p, False)
                 #value = self.__lazy([s])
                 value = s

@@ -223,7 +223,7 @@ def pretty_rdf(uri):
         uri = uri.subject
     if type(uri) is URIRef:
         NS, symbol = uri_split(uri)
-        if str(NS).startswith('NS'):
+        if unicode(NS).startswith('NS'):
             pretty = symbol
         else:
             pretty = NS.lower() + ':' + symbol

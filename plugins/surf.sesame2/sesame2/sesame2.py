@@ -105,13 +105,13 @@ class RDFTransaction(object):
         node = None
         if type(entity) is URIRef:
             node = self.transaction.createElement('uri')
-            node.appendChild(self.transaction.createTextNode(str(entity)))
+            node.appendChild(self.transaction.createTextNode(unicode(entity)))
         elif type(entity) is BNode:
             node = self.transaction.createElement('bnode')
-            node.appendChild(self.transaction.createTextNode(str(entity)))
+            node.appendChild(self.transaction.createTextNode(unicode(entity)))
         elif type(entity) is Literal:
             node = self.transaction.createElement('literal')
-            node.appendChild(self.transaction.createTextNode(str(entity)))
+            node.appendChild(self.transaction.createTextNode(unicode(entity)))
             if entity.lang:
                 node.setAttribute('xml:lang', entity.lang)
             if entity.datatype:
@@ -125,7 +125,7 @@ class RDFTransaction(object):
             node.appendChild(self._rdf_node(p))
             node.appendChild(self._rdf_node(o))
             if context:
-                node.appendChild(self.transaction.createTextNode(str(context)))
+                node.appendChild(self.transaction.createTextNode(unicode(context)))
             self.root.appendChild(node)
         except:
             pass
@@ -138,7 +138,7 @@ class RDFTransaction(object):
                 node.appendChild(self._rdf_node(p))
                 node.appendChild(self._rdf_node(o))
                 if context:
-                    node.appendChild(self.transaction.createTextNode(str(context)))
+                    node.appendChild(self.transaction.createTextNode(unicode(context)))
             self.root.appendChild(node)
         except:
             pass
@@ -152,7 +152,7 @@ class RDFTransaction(object):
                 node.appendChild(self._rdf_node(p))
                 node.appendChild(self._rdf_node(o))
                 if context:
-                    node.appendChild(self.transaction.createTextNode(str(context)))
+                    node.appendChild(self.transaction.createTextNode(unicode(context)))
             self.root.appendChild(node)
         except:
             pass
@@ -160,7 +160,7 @@ class RDFTransaction(object):
     def clear(self, context = None):
         node = self.transaction.createElement('clear')
         if context:
-            node.appendChild(self.transaction.createTextNode(str(context)))
+            node.appendChild(self.transaction.createTextNode(unicode(context)))
         self.root.appendChild(node)
 
 
@@ -168,7 +168,7 @@ class RDFTransaction(object):
         for prefix in namespaces:
             node = self.transaction.createElement('setNamespace')
             node.setAttribute('prefix', prefix)
-            node.setAttribute('name', str(namespaces[prefix]))
+            node.setAttribute('name', unicode(namespaces[prefix]))
             self.root.appendChild(node)
 
     def remove_namespace(self, *namespaces):

@@ -340,7 +340,7 @@ class Session(object):
         to be inherited, see `map_type` for more information. """
 
         if not type(subject) in [URIRef, BNode]:
-            subject = URIRef(str(subject))
+            subject = URIRef(unicode(subject))
 
         if not store:
             store = self.default_store_key
@@ -356,7 +356,7 @@ class Session(object):
         """ Same as `map_type` but `set` the resource from the `graph`. """
 
         if not isinstance(subject, URIRef):
-            subject = URIRef(str(subject))
+            subject = URIRef(unicode(subject))
 
         if uri is None:
             uri = Resource.concept(subject)
