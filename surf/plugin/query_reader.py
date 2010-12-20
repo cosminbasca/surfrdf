@@ -373,5 +373,5 @@ class RDFQueryReader(RDFReader):
         try:
             return self.__convert(query_result, *keys)
         except Exception, e:
-            self.log.error('Error on Convert : ' + str(e))
+            self.log.exception("Error on convert")
         return []

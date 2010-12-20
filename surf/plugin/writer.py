@@ -51,7 +51,8 @@ class RDFWriter(Plugin):
         if isinstance(reader,RDFReader):
             self.__reader = reader
         else:
-            raise ValueError('The reader plugin must be of type RDFReader not %s'%(str(type(reader))))
+            raise ValueError("The reader plugin must be of type RDFReader " +
+                             "not %s" % type(reader))
 
     reader = property(fget = lambda self: self.__reader)
 
