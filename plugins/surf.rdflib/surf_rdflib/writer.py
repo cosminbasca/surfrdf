@@ -112,11 +112,11 @@ class WriterPlugin(RDFWriter):
         self.__remove(s, p, o, context)
 
     def __add(self, s = None, p = None, o = None, context = None):
-        self.log.info('ADD : ' + str(s) + ', ' + str(p) + ', ' + str(o) + ', ' + str(context))
+        self.log.info('ADD: %s, %s, %s, %s' % (s, p, o, context))
         self.__graph.add((s, p, o))
 
     def __remove(self, s = None, p = None, o = None, context = None):
-        self.log.info('REM : ' + str(s) + ', ' + str(p) + ', ' + str(o) + ', ' + str(context))
+        self.log.info('REM: %s, %s, %s, %s' % (s, p, o, context))
         self.__graph.remove((s, p, o))
 
     def index_triples(self, **kwargs):

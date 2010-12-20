@@ -126,11 +126,11 @@ try:
 
         # used by the sesame api
         def __add(self, s = None, p = None, o = None, context = None):
-            self.log.info('ADD TRIPLE: ' + str(s) + ', ' + str(p) + ', ' + str(o) + ', ' + str(context))
+            self.log.info('ADD TRIPLE: %s, %s, %s, %s' % (s, p, o, context))
             self.__con.addTriple(toSesame(s, self.__f), toSesame(p, self.__f), toSesame(o, self.__f), contexts = toSesame(context, self.__f))
 
         def __remove(self, s = None, p = None, o = None, context = None):
-            self.log.info('REM TRIPLE: ' + str(s) + ', ' + str(p) + ', ' + str(o) + ', ' + str(context))
+            self.log.info('REM TRIPLE: %s, %s, %s, %s' % (s, p, o, context))
             self.__con.removeTriples(toSesame(s, self.__f), toSesame(p, self.__f), toSesame(o, self.__f), contexts = toSesame(context, self.__f))
 
         def index_triples(self, **kwargs):
@@ -170,7 +170,7 @@ try:
             '''
             register free text search predicates
             '''
-            self.__allegro_repository.registerFreeTextPredicate(namespace = str(namespace), localname = localname)
+            self.__allegro_repository.registerFreeTextPredicate(namespace = unicode(namespace), localname = localname)
 
         def namespaces(self):
             return self.__con.getNamespaces()

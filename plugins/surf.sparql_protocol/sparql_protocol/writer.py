@@ -252,11 +252,11 @@ class WriterPlugin(RDFWriter):
             self.__sparql_wrapper.query().convert()
             return True
         except EndPointNotFound, notfound:
-            self.log.error('SPARQL ENDPOINT not found : \n' + str(notfound))
+            self.log.exception("SPARQL endpoint not found")
         except QueryBadFormed, badquery:
-            self.log.error('SPARQL EXCEPTION ON QUERY (BAD FORMAT): \n ' + str(badquery))
+            self.log.exception("Bad-formed SPARQL query")
         except SPARQLWrapperException, sparqlwrapper:
-            self.log.error('SPARQL WRAPPER Exception \n' + str(sparqlwrapper))
+            self.log.exception("SPARQLWrapper exception")
 
         return None
 
