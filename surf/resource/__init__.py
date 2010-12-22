@@ -562,8 +562,10 @@ class Resource(object):
             attribute_uris[direct].append(attribute_uri)
 
         subjects = {}
-        subjects.update(cls.session[cls.store_key].instances_by_attribute(cls, direct_attributes, True, context))
-        subjects.update(cls.session[cls.store_key].instances_by_attribute(cls, inverse_attributes, False, context))
+        if direct_attributes:
+            subjects.update(cls.session[cls.store_key].instances_by_attribute(cls, direct_attributes, True, context))
+        if inverse_attributes:
+            subjects.update(cls.session[cls.store_key].instances_by_attribute(cls, inverse_attributes, False, context))
         
         instances = []
         for s, types in subjects.items():
