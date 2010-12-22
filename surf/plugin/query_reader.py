@@ -147,11 +147,17 @@ class RDFQueryReader(RDFReader):
         if "order" in params:
             if params["order"] == True:
                 # Order by subject URI
-                query.order_by("?s")
+                if "desc" in params and params["desc"]:
+                    query.order_by("DESC(?s)")
+                else:
+                    query.order_by("?s")
             else:
                 # Match another variable, order by it
                 query.optional_group(("?s", params["order"], "?o"))
-                query.order_by("?o")
+                if "desc" in params and params["desc"]:
+                    query.order_by("DESC(?o)")
+                else:
+                    query.order_by("?o")
 
         if "get_by" in params:
             for attribute, values, direct  in params["get_by"]:

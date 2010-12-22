@@ -229,6 +229,22 @@ class TestSparqlProtocol(TestCase):
         self.assertEquals(len(persons), 1)
         self.assertEquals(persons[0].subject, URIRef("http://A9"))
 
+    def test_desc_order(self):
+        """ Test descending order by. """
+
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        for i in range(0, 10):
+            person = session.get_resource("http://Z%d" % i, Person)
+            person.foaf_name = "Z%d" % i
+            person.save()
+
+        sort_uri = surf.ns.FOAF["name"]
+        persons = list(Person.all().order(sort_uri).desc().limit(10))
+        self.assertEquals(len(persons), 10)
+        self.assert_(all((person.subject == URIRef("http://Z%d" % (9 - i)))
+                         for i, person in enumerate(persons)))
+
     def test_first(self):
         """ Test ResourceProxy.first(). """
 
