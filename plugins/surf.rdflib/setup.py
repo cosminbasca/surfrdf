@@ -64,7 +64,7 @@ setup(
       'Programming Language :: Python :: 2.5',
     ],
     keywords = 'python SPARQL RDF resource mapper',
-    requires_python = '>=2.5', # Future in PEP 345
+    #requires_python = '>=2.5', # Future in PEP 345
     packages=['surf_rdflib'],
     install_requires=['surf>=1.0.0',],
     entry_points={

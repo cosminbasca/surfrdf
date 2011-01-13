@@ -64,7 +64,7 @@ setup(
       'Programming Language :: Python :: 2.5',
     ],
     keywords = 'python SPARQL RDF resource mapper',
-    requires_python = '>=2.5', # Future in PEP 345
+    #requires_python = '>=2.5', # Future in PEP 345
     packages=['sesame2'],
     install_requires=['surf>=0.5.0',],
     entry_points={
