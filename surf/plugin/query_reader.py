@@ -144,21 +144,6 @@ class RDFQueryReader(RDFReader):
         if "offset" in params:
             query.offset(params["offset"])
 
-        if "order" in params:
-            if params["order"] == True:
-                # Order by subject URI
-                if "desc" in params and params["desc"]:
-                    query.order_by("DESC(?s)")
-                else:
-                    query.order_by("?s")
-            else:
-                # Match another variable, order by it
-                query.optional_group(("?s", params["order"], "?o"))
-                if "desc" in params and params["desc"]:
-                    query.order_by("DESC(?o)")
-                else:
-                    query.order_by("?o")
-
         if "get_by" in params:
             for attribute, values, direct  in params["get_by"]:
                 if direct:
@@ -182,6 +167,21 @@ class RDFQueryReader(RDFReader):
                 filter_variable = "?f%d" % filter_idx
                 query.where(("?s", attribute, filter_variable))
                 query.filter(value % filter_variable)
+
+        if "order" in params:
+            if params["order"] == True:
+                # Order by subject URI
+                if "desc" in params and params["desc"]:
+                    query.order_by("DESC(?s)")
+                else:
+                    query.order_by("?s")
+            else:
+                # Match another variable, order by it
+                query.optional_group(("?s", params["order"], "?o"))
+                if "desc" in params and params["desc"]:
+                    query.order_by("DESC(?o)")
+                else:
+                    query.order_by("?o")
 
 
         return query
