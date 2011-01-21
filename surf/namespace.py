@@ -101,11 +101,18 @@ YAGO          = Namespace('http://dbpedia.org/class/yago/')
 
 __fallback_namespace = SURF 
 
+# Fix for http://code.google.com/p/rdflib/issues/detail?id=154
+def __unicode(namespace):
+    uri = unicode(namespace)
+    if type(uri) not in (str, unicode) and hasattr(namespace, 'uri'):
+        uri = unicode(namespace.uri)
+    return uri
+
 # an internal inverted dict - for fast access
 __inverted_dict__ = {}
 for k, v in sys.modules[__name__].__dict__.items():
     if isinstance(v, Namespace) or isinstance(v, ClosedNamespace):
-        __inverted_dict__[unicode(v)] = k
+        __inverted_dict__[__unicode(v)] = k
         
 __direct_dict__ = {}
 for k, v in sys.modules[__name__].__dict__.items():
@@ -114,7 +121,7 @@ for k, v in sys.modules[__name__].__dict__.items():
         
 def __add_inverted(prefix):
     ns_dict = sys.modules[__name__].__dict__
-    __inverted_dict__[unicode(ns_dict[prefix])] = prefix
+    __inverted_dict__[__unicode(ns_dict[prefix])] = prefix
     
 def __add_direct(prefix):
     ns_dict = sys.modules[__name__].__dict__
@@ -226,11 +233,11 @@ def get_namespace(base):
     try:
         prefix = __inverted_dict__[base]
         uri = ns_dict[prefix]
-    except:
-        prefix = '%s%d'%(__anonymous,__anonymous_count + 1)
+    except KeyError:
+        prefix = '%s%d' % (__anonymous, __anonymous_count + 1)
         __anonymous_count += 1
         uri = Namespace(base)
-        register(**{prefix:uri})
+        register(**{prefix: uri})
     return prefix, uri
 
 def get_namespace_url(prefix):
