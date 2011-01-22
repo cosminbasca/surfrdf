@@ -96,7 +96,8 @@ class WriterPlugin(RDFWriter):
             self.__remove(s = resource.subject)
             if inverse:
                 self.__remove(o = resource.subject)
-            
+
+        self.__graph.commit()
 
     def _size(self):
         return len(self.__graph)
