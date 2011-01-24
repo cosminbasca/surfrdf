@@ -41,7 +41,7 @@ from SPARQLWrapper.SPARQLExceptions import EndPointNotFound, QueryBadFormed, SPA
 from reader import ReaderPlugin
 from surf.plugin.writer import RDFWriter
 from surf.query import Filter, Group, NamedGroup, Union
-from surf.query.update import insert, delete, clear
+from surf.query.update import insert, delete, clear, load
 from surf.rdf import BNode, Literal, URIRef
 
 class SparqlWriterException(Exception): pass
@@ -58,7 +58,6 @@ class WriterPlugin(RDFWriter):
         self.__combine_queries = kwargs.get("combine_queries")
         self.__results_format = JSON
 
-        print "endpoint: %s" % self.__endpoint
         self.__sparql_wrapper = SPARQLWrapper(self.__endpoint, self.__results_format)
         self.__sparql_wrapper.setMethod("POST")
 
@@ -276,6 +275,24 @@ class WriterPlugin(RDFWriter):
         '''
 
         # SPARQL/Update doesn't have standard way to force reindex. 
+        return False
+
+    def load_triples(self, source=None, context=None):
+        """ Load resources on the web into the triple-store. """
+
+        if source:
+            query = load()
+            query.load(remote_uri=source)
+
+            if context:
+                query.into(context)
+
+            query_str = unicode(query)
+            self.log.debug(query_str)
+            self.__sparql_wrapper.setQuery(query_str)
+            self.__sparql_wrapper.query().convert()
+            return True
+
         return False
 
     def _clear(self, context = None):

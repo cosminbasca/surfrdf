@@ -64,7 +64,7 @@ class SparulTranslator(SparqlTranslator):
             return self._translate_delete(self.query)
 
     def _translate_load(self, query):
-        rep = 'LOAD %(remote_uri)s %(into_exp)s'
+        rep = 'LOAD <%(remote_uri)s> %(into_exp)s'
         if query.query_remote_uri:
             remote_uri = query.query_remote_uri
         else:
@@ -72,7 +72,7 @@ class SparulTranslator(SparqlTranslator):
         
         into_exp = ""
         if len(query.query_into_uri) == 1:
-            into_exp = "INTO %s" % query.query_into_uri[0]
+            into_exp = "INTO <%s>" % query.query_into_uri[0]
 
         return rep % ({'remote_uri':remote_uri,
                        'into_exp':into_exp})

@@ -86,7 +86,7 @@ class QueryUpdate(Query):
     ''''''
 
     def into(self, *uris):
-        if self.query_type not in [INSERT_DATA, INSERT]:
+        if self.query_type not in [INSERT_DATA, INSERT, LOAD]:
             raise ValueError('The specified <%s> query type does not support the INTO clause' % (self.query_type))
         if self.query_type is LOAD and len(uris) != 1:
             raise ValueError('The LOAD query, supports only one uri for the INTO clause')

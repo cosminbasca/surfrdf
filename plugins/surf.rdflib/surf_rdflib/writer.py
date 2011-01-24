@@ -131,11 +131,7 @@ class WriterPlugin(RDFWriter):
         return True
 
     def load_triples(self, source = None, publicID = None, format = "xml", **args):
-        """ Load files (or resources on the web) into the triple-store.
-        
-        This method is kept for backward compatibility only.
-        
-        """
+        """ Load files (or resources on the web) into the triple-store. """
         
         if source:
             self.__graph.parse(source, publicID = publicID, format = format, **args)
