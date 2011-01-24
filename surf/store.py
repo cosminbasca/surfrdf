@@ -266,7 +266,8 @@ class Store(object):
 
         return self.writer.index_triples(**kwargs)
 
-    def load_triples(self, **kwargs):
+    def load_triples(self, context=None, **kwargs):
         """ See :func:`surf.plugin.writer.RDFWriter.load_triples` method. """
 
-        return self.writer.load_triples(**kwargs)
+        context = self.__add_default_context(context)
+        return self.writer.load_triples(context=context, **kwargs)
