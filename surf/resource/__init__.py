@@ -602,7 +602,8 @@ class Resource(object):
                 break
 
         # In results?
-        if not rdf_type and "direct" in data and a in data["direct"]:
+        if (not rdf_type and "direct" in data and a in data["direct"]
+            and data["direct"][a]):
             rdf_type = data["direct"][a].keys()[0]
 
         if rdf_type is None:
