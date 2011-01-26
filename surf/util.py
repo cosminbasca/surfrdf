@@ -92,7 +92,7 @@ def uri_to_classname(uri):
     return '%s%s' % (ns_key.title().replace('-', '_'), predicate)
 
 def attr2rdf(attrname):
-    '''converts an `attribute name` in the form:
+    """ Convert an `attribute name` in the form:
 
     .. code-block:: python
 
@@ -103,7 +103,6 @@ def attr2rdf(attrname):
 
     to
 
-
     .. code-block:: xml
 
         <!-- direct predicate -->
@@ -112,9 +111,11 @@ def attr2rdf(attrname):
         <http://xmlns.com/foaf/spec/#term_title>
 
 
-    the function returns two values, the `uri` representation and True if it's a
-    direct predicate or False if its an inverse predicate
-    '''
+    The function returns two values, the `uri` representation and True if it's 
+    a direct predicate or False if its an inverse predicate.
+    
+    """
+    
     def tordf(attrname):
         prefix, predicate = attrname.split('_', 1)
         ns = get_namespace_url(prefix)
