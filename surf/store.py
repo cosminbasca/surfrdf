@@ -207,6 +207,7 @@ class Store(object):
     def clear(self, context = None):
         """ See :func:`surf.plugin.writer.RDFWriter.clear` method. """
 
+        context = self.__add_default_context(context)
         self.writer.clear(context = context)
 
     # Crud
