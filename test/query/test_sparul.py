@@ -3,7 +3,7 @@
 import re 
 from unittest import TestCase
 
-from surf.query.update import insert, delete, clear
+from surf.query.update import insert, load, delete, clear
 from surf.query.translator.sparul import SparulTranslator 
 from surf.rdf import URIRef
 
@@ -91,6 +91,29 @@ class TestSparulTranslator(TestCase):
         """)        
         
         query = clear().graph(URIRef("a"))
+        result = canonical(SparulTranslator(query).translate())
+        self.assertEqual(expected, result)
+
+    def test_load(self):
+        """ LOAD ... """
+
+        expected = canonical(u"""
+            LOAD <http://example.com>
+        """)
+
+        query = load().load(URIRef("http://example.com"))
+        result = canonical(SparulTranslator(query).translate())
+        self.assertEqual(expected, result)
+
+    def test_load_into(self):
+        """ LOAD ... INTO ... """
+
+        expected = canonical(u"""
+            LOAD <http://example.com> INTO <http://example.com/graph>
+        """)
+
+        query = load().load(URIRef("http://example.com"))\
+                      .into(URIRef("http://example.com/graph"))
         result = canonical(SparulTranslator(query).translate())
         self.assertEqual(expected, result)
 
