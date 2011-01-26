@@ -205,3 +205,34 @@ class TestResource(TestCase):
         # Check that rdf_direct is filled
         self.assertTrue(surf.ns.FOAF.name in same_person.rdf_direct)
         
+    def test_query_attribute_unicode(self):
+        """ Test that query_attribute calls ResultProxy with string arguments. 
+        
+        query_attribute sets up and returns ResultProxy instance. Here we test
+        that it doesn't pass unicode keywords to it, these don't work
+        in Python 2.6.2.
+        
+        """
+
+        def mock_get_by(self, **kwargs):
+            """ Verify that all passed keywords are strings. """
+            
+            for keyword in kwargs.keys():
+                assert isinstance(keyword, str), \
+                    "Passed non-string keyword: %s" % keyword
+        
+
+        _, session = self._get_store_session()
+        resource = session.get_resource("http://p1", surf.ns.FOAF.Person)
+
+        RP = surf.resource.result_proxy.ResultProxy 
+        try:
+            # Patch ResultProxy with mock get_by method
+            original_get_by, RP.get_by = RP.get_by, mock_get_by
+            resource.query_attribute(u"foaf_knows")
+        finally:
+            # Regardless of results, revert our patch so other tests are not
+            # affected.
+            RP.get_by = original_get_by
+            
+        

@@ -157,7 +157,7 @@ class Resource(object):
 
     __metaclass__ = ResourceMeta
     _dirty_instances = set()
-
+    
     def __init__(self, subject = None, block_auto_load = False, context = None,
                  namespace = None):
         """ Initialize a Resource, with the `subject` (a URI - either a string 
@@ -168,7 +168,7 @@ class Resource(object):
         ``namespace`` is specified, generated subject will be in that 
         namespace.
                 
-        ``block_autoload`` will prevent the resource from autoloading all rdf 
+        ``block_auto_load`` will prevent the resource from autoloading all rdf 
         attributes associated with the subject of the resource.
 
         """
@@ -673,7 +673,11 @@ class Resource(object):
         # query like friends = get_by(is_foaf_knows_of = john), thus the
         # attribute name inversion
         uri, direct = attr2rdf(attribute_name)
-        inverse_attribute_name = unicode(rdf2attr(uri, not direct))
+        
+        # We'll be using inverse_attribute_name as keyword argument.
+        # Python 2.6.2 and older doesn't allow unicode keyword arguments, 
+        # so we do str().
+        inverse_attribute_name = str(rdf2attr(uri, not direct))
 
         store = self.session[self.store_key]
         proxy = ResultProxy(store = store,
