@@ -164,7 +164,7 @@ class TestSparqlProtocol(TestCase):
 
         persons = Person.all().get_by(foaf_name = Literal("Jay"))
         persons = list(persons)
-        self.assertTrue(persons[0].foaf_name.first, "Jay")
+        self.assertEquals(persons[0].foaf_name.first, "Jay")
 
     def test_get_by_alternatives(self):
         """ Test reader.get_by() with several values """
@@ -173,6 +173,37 @@ class TestSparqlProtocol(TestCase):
         Person = session.get_class(surf.ns.FOAF + "Person")
 
         persons = Person.all().get_by(foaf_name = ["John", "Mary"])
+        self.assertEquals(len(persons), 2)
+
+    def test_get_by_int(self):
+        """ Test reader.get_by() given an int value"""
+
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+
+        jay = session.get_resource("http://jay", Person)
+        jay.foaf_age = 40
+        jay.save()
+
+        persons = Person.all().get_by(foaf_age=40)
+        persons = list(persons)
+        self.assertEquals(persons[0].subject, URIRef("http://jay"))
+
+    def test_get_by_int_alternatives(self):
+        """ Test reader.get_by() with several int values """
+
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+
+        jane = session.get_resource("http://Jane", Person)
+        jane.foaf_age = 32
+        jane.save()
+
+        mary = session.get_resource("http://Mary", Person)
+        mary.foaf_age = 38
+        mary.save()
+
+        persons = Person.all().get_by(foaf_age=[32, 38])
         self.assertEquals(len(persons), 2)
 
     def test_full(self):
