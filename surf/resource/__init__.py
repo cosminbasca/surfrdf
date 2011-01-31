@@ -877,3 +877,6 @@ class Resource(object):
             return self.subject == other.subject
 
         return False
+
+    def __hash__(self):
+        return hash(self.subject)

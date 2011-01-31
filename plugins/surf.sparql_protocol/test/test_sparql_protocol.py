@@ -240,7 +240,6 @@ class TestSparqlProtocol(TestCase):
 
         persons = Person.all().order().limit(2).offset(5)
         uris = [person.subject for person in persons]
-        print uris
         self.assertEquals(len(uris), 2)
         self.assertTrue(URIRef("http://A5") in uris)
         self.assertTrue(URIRef("http://A6") in uris)
@@ -492,4 +491,36 @@ class TestSparqlProtocol(TestCase):
         p = Person()
         self.assertTrue(p.context, "Default context not set")
 
+    def test_equality(self):
+        """ Test __eq__ """
+
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+
+        jane = Person.get_by(foaf_name='Jane').one()
+        self.assertEquals(jane, session.get_resource("http://Jane", Person))
+
+    def test_contains(self):
+        """ Test resource in query """
+
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+
+        jane = session.get_resource("http://Jane", Person)
+        persons = Person.all()
+
+        self.assertTrue(jane in persons)
+
+    def test_set_contains(self):
+        """ Test resource in set() """
+
+        _, session = self._get_store_session()
+        Person = session.get_class(surf.ns.FOAF + "Person")
+
+        jane = session.get_resource("http://Jane", Person)
+        humbert = session.get_resource("http://Humbert", Person)
+        persons = Person.all()
+
+        self.assertTrue(jane in set(persons))
+        self.assertFalse(humbert in set(persons))
 
