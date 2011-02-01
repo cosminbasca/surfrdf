@@ -392,7 +392,7 @@ class TestSparqlProtocol(TestCase):
         Person = session.get_class(surf.ns.FOAF["Person"])
 
         # Select persons which have names starting with "J"
-        js = Person.all().filter(foaf_name = "(%s LIKE 'J%%')")
+        js = Person.all().filter(foaf_name = "regex(%s, '^J')")
         self.assertEqual(len(js), 2)
 
     def test_exceptions(self):
