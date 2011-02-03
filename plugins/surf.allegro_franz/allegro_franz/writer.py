@@ -90,26 +90,26 @@ try:
         def _save(self, *resources):
             for resource in resources:
                 s = resource.subject
-                self.__remove(s)
+                self.__remove(s, context=resource.context)
                 for p, objs in resource.rdf_direct.items():
                     for o in objs:
-                        self.__add(s, p, o)
+                        self.__add(s, p, o, resource.context)
 
         def _update(self, *resources):
             for resource in resources:
                 s = resource.subject
                 for p in resource.rdf_direct:
-                    self.__remove(s, p)
+                    self.__remove(s, p, context=resource.context)
                 for p, objs in resource.rdf_direct.items():
                     for o in objs:
-                        self.__add(s, p, o)
+                        self.__add(s, p, o, resource.context)
 
         def _remove(self, *resources, **kwargs):
             inverse = kwargs.get("inverse")
             for resource in resources:
-                self.__remove(s = resource.subject)
+                self.__remove(s = resource.subject, context=resource.context)
                 if inverse:
-                    self.__remove(o = resource.subject)
+                    self.__remove(o = resource.subject, context=resource.context)
 
         def _size(self):
             return self.__con.size()
