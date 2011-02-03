@@ -35,73 +35,58 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-try:
-    from franz.openrdf.model.value import URI as fURIRef
-    from franz.openrdf.model.value import BNode as fBNode
-    from franz.openrdf.model.literal import Literal as fLiteral
-    
-    from surf.rdf import BNode, Literal, URIRef
-    
-    '''
-    helper functions that convert between rdflib concepts and sesame2 api concepts
-    '''
-    
-    # TERMS
-    def toRdfLib(term):
-        if type(term) is fURIRef:
-            return URIRef(term.getURI())
-        elif type(term) is fLiteral:
-            try:
-                if term.getDatatype() is None:
-                    return Literal(term.getLabel(), lang=term.getLanguage())
+from franz.openrdf.model.value import URI as fURIRef
+from franz.openrdf.model.value import BNode as fBNode
+from franz.openrdf.model.literal import Literal as fLiteral
+
+from surf.rdf import BNode, Literal, URIRef
+
+'''
+helper functions that convert between rdflib concepts and sesame2 api concepts
+'''
+
+# TERMS
+def toRdfLib(term):
+    if type(term) is fURIRef:
+        return URIRef(term.getURI())
+    elif type(term) is fLiteral:
+        try:
+            if term.getDatatype() is None:
+                return Literal(term.getLabel(), lang=term.getLanguage())
+            else:
+                dtype = term.getDatatype().getURI()
+                if dtype.startswith('<') and dtype.endswith('>'):
+                    dtype = dtype.strip('<>')
+                    dtype = URIRef(dtype)
                 else:
-                    dtype = term.getDatatype().getURI()
-                    if dtype.startswith('<') and dtype.endswith('>'):
-                        dtype = dtype.strip('<>')
-                        dtype = URIRef(dtype)
-                    else:
-                        dtype = URIRef(dtype)
-                    
-                    return Literal(term.getLabel(), lang=term.getLanguage(),
-                                   datatype=dtype)
-                    
-            except Exception, e:
-                print e
-        elif type(term) is fBNode:
-            return BNode(term.getID())
-        elif type(term) in [list,tuple]:
-            return map(toRdfLib, term)
-        return term
-    
-    def toSesame(term,factory):
-        if type(term) is URIRef:
-            return factory.createURI(unicode(term))
-        elif type(term) is Literal:
-            return factory.createLiteral(unicode(term),datatype=term.datatype,language=term.language)
-        elif type(term) is BNode:
-            return factory.createBNode(unicode(term))
-        elif type(term) in [list, tuple]:
-            return map(lambda item: toSesame(item,factory), term)
-        return term
-    
-    
-    # STATEMENTS
-    def toStatement((s,p,o),factory,context=None):
-        return factory.createStatement(s,p,o,context)
-        
-    def toTuple(statement):
-        return (statement.getSubject(),statement.getPredicate(),statement.getObject(),statement.getContext())
-except ImportError, e:
-    print 'franz libraries not installed ',e
-    def toRdfLib(term):
-        pass
+                    dtype = URIRef(dtype)
 
-    def toSesame(term, factory):
-        pass
+                return Literal(term.getLabel(), lang=term.getLanguage(),
+                                datatype=dtype)
 
-    def toStatement((s,p,o),factory,context = None):
-        pass
+        except Exception, e:
+            print e
+    elif type(term) is fBNode:
+        return BNode(term.getID())
+    elif type(term) in [list,tuple]:
+        return map(toRdfLib, term)
+    return term
 
-    def toTuple(statement):
-        pass 
-    
+def toSesame(term,factory):
+    if type(term) is URIRef:
+        return factory.createURI(unicode(term))
+    elif type(term) is Literal:
+        return factory.createLiteral(unicode(term),datatype=term.datatype,language=term.language)
+    elif type(term) is BNode:
+        return factory.createBNode(unicode(term))
+    elif type(term) in [list, tuple]:
+        return map(lambda item: toSesame(item,factory), term)
+    return term
+
+
+# STATEMENTS
+def toStatement((s,p,o),factory,context=None):
+    return factory.createStatement(s,p,o,context)
+
+def toTuple(statement):
+    return (statement.getSubject(),statement.getPredicate(),statement.getObject(),statement.getContext())
