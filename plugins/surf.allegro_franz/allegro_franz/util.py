@@ -52,7 +52,9 @@ try:
             return URIRef(term.getURI())
         elif type(term) is fLiteral:
             try:
-                if term.getDatatype():
+                if term.getDatatype() is None:
+                    return Literal(term.getLabel(), lang=term.getLanguage())
+                else:
                     dtype = term.getDatatype().getURI()
                     if dtype.startswith('<') and dtype.endswith('>'):
                         dtype = dtype.strip('<>')

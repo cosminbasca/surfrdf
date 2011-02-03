@@ -124,3 +124,15 @@ class TestAllegro(TestCase):
         self.assertEquals(len(persons), 1)
         # Unbound results sort earliest
         self.assertEquals(persons[0].subject, URIRef("http://A0"))
+
+    def test_contains(self):
+        session = self.rdf_session
+        Person = session.get_class(surf.ns.FOAF + "Person")
+
+        john = session.get_resource("http://John", Person)
+        john.foaf_name = "John"
+        john.update()
+
+        persons = Person.get_by(foaf_name="John")
+        self.assert_(any("John" in p.foaf_name for p in persons),
+                     '"John" not found in foaf_name')
