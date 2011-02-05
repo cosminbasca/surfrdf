@@ -25,7 +25,10 @@ class Sesame2TestMixin(object):
         session = surf.Session(store)
 
         # Fresh start!
-        store.clear("http://surf_test_graph/dummy2")
+#        store.clear(URIRef("http://surf_test_graph/dummy2"))
+#        store.clear(URIRef("http://my_context_1"))
+#        store.clear(URIRef("http://other_context_1"))
+        store.clear()
 
         return store, session
 
