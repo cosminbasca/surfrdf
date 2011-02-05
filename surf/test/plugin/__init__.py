@@ -267,8 +267,11 @@ class PluginTestMixin(object):
         """ Test ResourceProxy.first(). """
 
         _, session = self._get_store_session()
-        self._create_persons(session)
         Person = session.get_class(surf.ns.FOAF + "Person")
+        john = session.get_resource("http://John", Person)
+        john.foaf_name = "John"
+        john.save()
+
         person = Person.all().first()
         self.assertEquals(person.subject, URIRef("http://John"))
 
