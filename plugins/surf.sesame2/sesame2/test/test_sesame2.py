@@ -1,61 +1,33 @@
-""" Module for sparql_protocol plugin tests. """
+""" Module for sesame2 plugin tests. """
 
 from unittest import TestCase
 
 import surf
+from surf.test.plugin import PluginTestMixin
 
-class TestSesame2(TestCase):
-    """ Tests for sesame2 plugin. """
-    
-        
-    def _get_store_session(self):
+class Sesame2TestMixin(object):
+
+    def _get_store_session(self, use_default_context = True):
         """ Return initialized SuRF store and session objects. """
-        
-        # FIXME: take endpoint from configuration file,
-        # maybe we can mock SPARQL endpoint.
-        store = surf.Store(reader = "sesame2",
-                           writer = "sesame2",
-                           port = "8080",
-                           root_path = "/openrdf-sesame", 
-                           repository = "test")
 
+        # FIXME: take endpoint from configuration file,
+        kwargs = {"reader": "sesame2",
+                  "writer" : "sesame2",
+                  "server" : "localhost",
+                  "port" : 8080,
+                  "root_path" : "/openrdf-sesame",
+                  "repository" : "test"}
+
+        if False: #use_default_context:
+            kwargs["default_context"] = "http://surf_test_graph/dummy2"
+
+        store = surf.Store(**kwargs)
         session = surf.Session(store)
-        
-        Person = session.get_class(surf.ns.FOAF + "Person")
-        for name in ["John", "Mary", "Jane"]:
-            # Some test data.
-            person = session.get_resource("http://%s" % name, Person)
-            person.foaf_name = name
-            person.save()
+
+        # Fresh start!
+        store.clear("http://surf_test_graph/dummy2")
 
         return store, session
-    
-        
-    def test_get_session(self):
-        """ Test that getting store and session works.  """
-        
-        self._get_store_session()
-        
-    def test_get_persons(self):
-        """ Test querying for persons.  """
-        
-        _, session = self._get_store_session()
-        Person = session.get_class(surf.ns.FOAF + "Person")
-        persons = Person.all()
-        self.assertEqual(len(persons), 3)        
-        
-    def test_remove_inverse(self):
-        
-        _, session = self._get_store_session()
-        Person = session.get_class(surf.ns.FOAF + "Person")
-        
-        jane = session.get_resource("http://Jane", Person)
-        mary = session.get_resource("http://Mary", Person)
-        jane.foaf_knows = mary
-        jane.update()
-        
-        # This should also remove <jane> foaf:knows <mary>.
-        mary.remove(inverse = True)
 
-        jane = session.get_resource("http://Jane", Person)
-        self.assertEquals(len(jane.foaf_knows), 0)             
+class StandardPluginTest(TestCase, Sesame2TestMixin, PluginTestMixin):
+    pass

@@ -1,163 +1,34 @@
-""" Module for rdflib plugin tests. """
+""" Module for allegro_franz plugin tests. """
 
 from unittest import TestCase
-import random
 
+from rdflib import URIRef
 import surf
-from surf.rdf import Literal, URIRef
-from surf.util import value_to_rdf
+from surf.test.plugin import PluginTestMixin
 
-class TestAllegro(TestCase):
-    """ Tests for sparql_protocol plugin. """
+class AllegroFranzTestMixin(object):
 
-    def setUp(self):
-        rdf_store = surf.Store(reader = "allegro_franz",
-                               writer = "allegro_franz",
-                               server = "localhost",
-                               port = 6789,
-                               catalog = "repositories",
-                               repository = "test_surf")
+    def _get_store_session(self, use_default_context = True):
+        """ Return initialized SuRF store and session objects. """
 
-        self.rdf_session = surf.Session(rdf_store)
-        self.Logic = self.rdf_session.get_class(surf.ns.SURF.Logic)
+        # FIXME: take endpoint from configuration file,
+        kwargs = {"reader": "allegro_franz",
+                  "writer" : "allegro_franz",
+                  "server" : "localhost",
+                  "port" : 6789,
+                  "catalog" : "repositories",
+                  "repository" : "test_surf"}
 
-        for i in range(0, 10):
-            instance = self.Logic()
-            instance.save()
+        if use_default_context:
+            kwargs["default_context"] = URIRef("http://surf_test_graph/dummy2")
 
-    def test_is_present(self):
-        """ Test that is_present returns True / False.  """
+        store = surf.Store(**kwargs)
+        session = surf.Session(store)
 
-        Person = self.rdf_session.get_class(surf.ns.FOAF + "Person")
-        john = self.rdf_session.get_resource("http://john", Person)
-        john.remove()
+        # Fresh start!
+        store.clear(URIRef("http://surf_test_graph/dummy2"))
 
-        self.assertEquals(john.is_present(), False)
-        john.save()
-        self.assertEquals(john.is_present(), True)
+        return store, session
 
-    def test_all(self):
-        all = self.Logic.all().limit(10)
-        assert len(all) == 10
-
-    def test_resource(self):
-        res = self.Logic.all().limit(1).first()
-
-        assert res.uri == surf.ns.SURF.Logic
-        assert hasattr(res, 'subject')
-        assert type(res.subject) is URIRef
-        assert res.is_present()
-        assert res.namespace() == surf.ns.SURF
-
-    def test_val2rdf(self):
-        res = self.Logic.all().limit(1).first()
-        method = value_to_rdf
-        XSD = surf.ns.XSD
-
-        assert type(method(str('Literal'))) is Literal and method(str('Literal')) == Literal('Literal')
-        assert type(method(u'Literal')) is Literal and method(u'Literal') == Literal(u'Literal')
-        # list
-        assert method(['Literal', 'en', None]) == Literal('Literal', lang = 'en')
-        assert method(['Literal', None, XSD['string']]) == Literal('Literal', datatype = XSD['string'])
-        # tuple
-        assert method(('Literal', 'en', None)) == Literal('Literal', lang = 'en')
-        assert method(('Literal', None, XSD['string'])) == Literal('Literal', datatype = XSD['string'])
-        # dict
-        assert method({'value':'Literal', 'language':'en'}) == Literal('Literal', lang = 'en')
-        assert method({'value':'Literal', 'datatype' : XSD['string']}) == Literal('Literal', datatype = XSD['string'])
-
-        # other 
-        assert method(10) == Literal(10)
-        assert method(10.0) == Literal(10.0)
-        # unknown
-        o = object()
-        assert method(o) == o
-
-    def test_load(self):
-        res = self.Logic.all().limit(1).first()
-        res.load()
-
-    def test_concept(self):
-        res = self.Logic.all().limit(1).first()
-        con = res.concept(res.subject)[0]
-        self.assertEquals(con, self.Logic.uri)
-        
-    def test_remove_inverse(self):
-        
-        session = self.rdf_session
-        Person = session.get_class(surf.ns.FOAF + "Person")
-        
-        jane = session.get_resource("http://Jane", Person)
-        mary = session.get_resource("http://Mary", Person)
-        jane.foaf_knows = mary
-        jane.update()
-        
-        # This should also remove <jane> foaf:knows <mary>.
-        mary.remove(inverse = True)
-
-        jane = session.get_resource("http://Jane", Person)
-        self.assertEquals(len(jane.foaf_knows), 0)        
-
-    def test_attr_order_by(self):
-        """ Test ordering of attribute value. """
-
-        session = self.rdf_session
-        Person = session.get_class(surf.ns.FOAF + "Person")
-
-        # First remove any previously created
-        for p in Person.all(): p.remove()
-
-        for i in range(0, 10):
-            person = session.get_resource("http://A%d" % i, Person)
-            person.foaf_name = "A%d" % i
-            person.save()
-
-        all_persons = list(Person.all())
-        random.shuffle(all_persons)
-
-        person = person = session.get_resource("http://A0", Person)
-        person.foaf_knows = all_persons
-        person.foaf_name = []
-        person.update()
-
-        persons = list(person.foaf_knows.order(surf.ns.FOAF["name"]).limit(1))
-        self.assertEquals(len(persons), 1)
-        # Unbound results sort earliest
-        self.assertEquals(persons[0].subject, URIRef("http://A0"))
-
-    def test_contains(self):
-        session = self.rdf_session
-        Person = session.get_class(surf.ns.FOAF + "Person")
-
-        john = session.get_resource("http://John", Person)
-        john.foaf_name = "John"
-        john.update()
-
-        persons = Person.get_by(foaf_name="John")
-        self.assert_(any("John" in p.foaf_name for p in persons),
-                     '"John" not found in foaf_name')
-
-    def test_save_context(self):
-        """ Test saving resource with specified context. """
-        # Copied from surf.sparql_protocol/test/test_sparql_protocol.py
-
-        session = self.rdf_session
-        Person = session.get_class(surf.ns.FOAF + "Person")
-        context = URIRef("http://my_context_1")
-
-        jane = session.get_resource("http://jane", Person, context = context)
-        jane.foaf_name = "Jane"
-        jane.save()
-
-        # Same context.
-        jane2 = session.get_resource("http://jane", Person, context = context)
-        jane2.load()
-        self.assertEqual(jane2.foaf_name.one, "Jane")
-        self.assertEqual(jane2.context, context)
-
-        # Different context.
-        other_context = URIRef("http://other_context_1")
-        jane3 = session.get_resource("http://jane", Person,
-                                     context = other_context)
-
-        self.assertEqual(jane3.is_present(), False)
+class StandardPluginTest(TestCase, AllegroFranzTestMixin, PluginTestMixin):
+    pass
