@@ -147,7 +147,8 @@ class WriterPlugin(RDFWriter):
         return '%s %s %s.' % (s.n3(), p.n3(), o.n3())
 
     def _clear(self, context = None):
-        self.get_allegro().remove_all_statements(self.__repository)
+        context = context and context.n3() or None
+        self.get_allegro().remove_statements(self.__repository, context = context)
 
     def load_triples(self, **kwargs):
         '''

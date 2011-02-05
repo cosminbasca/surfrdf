@@ -4,6 +4,7 @@
 import random
 
 import surf
+from surf.store import NO_CONTEXT
 from surf.query import select
 from surf.rdf import Literal, URIRef
 from surf.exc import CardinalityException
@@ -708,3 +709,43 @@ class PluginTestMixin(object):
 
         jane = session.get_resource("http://Jane", Person)
         self.assertEquals(len(jane.foaf_knows), 0)
+
+    # new test cases
+
+    def test_clear_context(self):
+        """ Test clear() with context. """
+
+        store, session = self._get_store_session(use_default_context=False)
+        Person = session.get_class(surf.ns.FOAF + "Person")
+
+        context = URIRef("http://my_context_1")
+        store.clear(context)
+
+        # First clear given context
+        jake = session.get_resource("http://Jake", Person, context = context)
+        jake.foaf_name = "Jake"
+        jake.save()
+
+        jacob = session.get_resource("http://Jacob", Person)
+        jacob.foaf_name = "Jacob"
+        jacob.save()
+
+        store.clear(context)
+
+        persons = list(Person.all().context(context))
+        self.assertEquals(len(persons), 0)
+        persons = list(Person.all().context(NO_CONTEXT))
+        self.assertEquals(len(persons), 1)
+
+        # Now clear default context
+        jake = session.get_resource("http://Jake", Person, context = context)
+        jake.foaf_name = "Jake"
+        jake.save()
+
+        store.clear()
+
+        persons = list(Person.all().context(context))
+        self.assertEquals(len(persons), 1)
+        # Only Jake is left
+        persons = list(Person.all().context(NO_CONTEXT))
+        self.assertEquals(len(persons), 1)

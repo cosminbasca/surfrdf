@@ -357,6 +357,9 @@ class Sesame2(httplib.HTTPConnection):
         params = {}
         if context:
             params['context'] = context
+        else:
+            # We don't want to delete all triples, only context-less ones
+            params['context'] = 'null'
         self._param_stmt(params, s, p, o)
         try:
             self.sesame2_request('DELETE', 'statements', {'id':id}, params = params)
