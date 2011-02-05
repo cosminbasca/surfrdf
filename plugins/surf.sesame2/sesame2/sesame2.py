@@ -71,21 +71,27 @@ def parse_sparql_xml(response):
 
         try:
             doc = parseString(response)
-            head = doc.getElementsByTagName('head')[0]
-            headers = []
-            for h in head.childNodes:
-                if h.nodeType == h.ELEMENT_NODE:
-                    headers.append(h.getAttribute('name'))
-            results = doc.getElementsByTagName('results')[0]
-            res_list = []
-            for result in results.childNodes:
-                if result.nodeType == result.ELEMENT_NODE:
-                    res = {}
-                    for binding in result.childNodes:
-                        if binding.nodeType == binding.ELEMENT_NODE:
-                            res[binding.getAttribute('name')] = get_binding(binding)
-                    res_list.append(res)
-            return res_list
+            #head = doc.getElementsByTagName('head')[0]
+            #headers = []
+            #for h in head.childNodes:
+            #    if h.nodeType == h.ELEMENT_NODE:
+            #        headers.append(h.getAttribute('name'))
+            results_nodes = doc.getElementsByTagName('results')
+            if results_nodes:
+                results = results_nodes[0]
+                res_list = []
+                for result in results.childNodes:
+                    if result.nodeType == result.ELEMENT_NODE:
+                        res = {}
+                        for binding in result.childNodes:
+                            if binding.nodeType == binding.ELEMENT_NODE:
+                                res[binding.getAttribute('name')] = get_binding(binding)
+                        res_list.append(res)
+                return res_list
+            else:
+                boolean = doc.getElementsByTagName('boolean')[0]
+                value = boolean.childNodes[0].nodeValue
+                return {'false': False, 'true': True}[value]
         except:
             print 'NOT XML Response: %s' % response
             return []
