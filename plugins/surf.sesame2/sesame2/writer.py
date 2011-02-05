@@ -88,31 +88,34 @@ class WriterPlugin(RDFWriter):
         for resource in resources:
             allegro = self.get_allegro()
             s = resource.subject
-            allegro.remove_statements(self.__repository, s = s.n3())
+            context = resource.context and resource.context.n3() or None
+            allegro.remove_statements(self.__repository, s = s.n3(), context = context)
             graph = resource.graph()
             allegro.add_statements(self.__repository,
-                                   graph.serialize(format = 'nt'), update = True, content_type = 'nt')
+                                   graph.serialize(format = 'nt'), update = True, content_type = 'nt', context = context)
 
     def _update(self, *resources):
         for resource in resources:
             allegro = self.get_allegro()
             graph = resource.graph()
+            context = resource.context and resource.context.n3() or None
             for s, p, o in graph:
-                allegro.remove_statements(self.__repository, s = s.n3(), p = p.n3())
+                allegro.remove_statements(self.__repository, s = s.n3(), p = p.n3(), context = context)
             allegro.add_statements(self.__repository,
-                                   graph.serialize(format = 'nt'), update = True, content_type = 'nt')
+                                   graph.serialize(format = 'nt'), update = True, content_type = 'nt', context = context)
 
     def _remove(self, *resources, **kwargs):
         inverse = kwargs.get("inverse")
         
         allegro = self.get_allegro()
         for resource in resources:
+            context = resource.context and resource.context.n3() or None
             allegro.remove_statements(self.__repository, 
-                                      s = resource.subject.n3())
+                                      s = resource.subject.n3(), context = context)
             
             if inverse:
                 allegro.remove_statements(self.__repository, 
-                                          o = resource.subject.n3())
+                                          o = resource.subject.n3(), context = context)
 
     def _size(self):
         return self.get_allegro().size(self.__repository)
