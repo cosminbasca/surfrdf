@@ -318,7 +318,7 @@ class Session(object):
                              'store_key' : store,
                              'session' : self})
 
-    def get_class(self, uri, store = None, context = None, *classes):
+    def get_class(self, uri, store = None, *classes):
         """
         See :func:`surf.session.Session.map_type`.
         The `uri` parameter can be any of the following:
