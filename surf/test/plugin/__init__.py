@@ -892,3 +892,27 @@ class PluginTestMixin(object):
                           set(unicode(p.subject) for p in Person.all()))
         self.assertEquals(set(b['s']['type'] for b in result['results']['bindings']),
                           set(['uri']))
+
+    def test_keep_context(self):
+        """ Test that context does not change during load/save. """
+        store, session = self._get_store_session(use_default_context=False)
+        Person = session.get_class(surf.ns.FOAF + "Person")
+
+        context = URIRef("http://my_context_1")
+        store.clear(context)
+
+        jake = session.get_resource("http://Jake", Person, context=context)
+        jake.foaf_name = "Jake"
+        jake.save()
+
+        # Get all persons, don't use context
+        jake = Person.all().context(NO_CONTEXT).one()
+        jake.load()
+        jake.foaf_name = "Jacob"
+        jake.save()
+
+        # Check that we only changed the foaf_name attribute
+        self.assertEquals(len(Person.all().context(context)), 1)
+        self.assertEquals(Person.all().context(context).one().foaf_name.first,
+                          'Jacob')
+        self.assertEquals(len(Person.all().context(NO_CONTEXT)), 1)
