@@ -57,14 +57,6 @@ class ReaderPlugin(RDFQueryReader):
             if hasattr(SPARQLWrapper, "setUseKeepAlive"):
                 self.__sparql_wrapper.setUseKeepAlive()
 
-        # Try to use cjson
-        try:
-            import cjson
-            jsonlayer.use("cjson")
-            self.log.info("using cjson")
-        except:
-            self.log.warning("cjson not available, falling back on slower simplejson")
-
     endpoint = property(lambda self: self.__endpoint)
     results_format = property(lambda self: self.__results_format)
 
