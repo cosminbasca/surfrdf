@@ -41,7 +41,7 @@ __author__ = 'Cosmin Basca'
 #from rdf.namespace import Namespace
 
 from surf.query import Query, Group, NamedGroup, Filter, OptionalGroup, validate_statement
-from surf.rdf import RDF, URIRef
+from surf.rdf import RDF, URIRef, Namespace
 from surf.util import is_uri
 
 a = RDF['type']
@@ -119,7 +119,7 @@ class QueryUpdate(Query):
     def graph(self, uri):
         if self.query_type not in [CLEAR]:
             raise ValueError('The specified <%s> query type does not support the CLEAR GRAPH clause' % (self.query_type))
-        if type(uri) is not URIRef and not is_uri(uri):
+        if type(uri) not in (URIRef, Namespace) and not is_uri(uri):
             raise ValueError('The argument is not a uri')
         self._clear_uri = uri
         return self

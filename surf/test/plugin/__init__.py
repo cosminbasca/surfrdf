@@ -854,6 +854,29 @@ class PluginTestMixin(object):
         persons = list(Person.all().context(NO_CONTEXT))
         self.assertEquals(len(persons), 1)
 
+    def test_namespace_as_context(self):
+        """ Test rdflib.Namespace given as context. """
+
+        store, session = self._get_store_session(use_default_context=False)
+        Person = session.get_class(surf.ns.FOAF + "Person")
+
+        # Don't pass URIRef, pass Namespace (which inherits URIRef)
+        surf.ns.register(mycontext="http://my_context_1#")
+        context = surf.ns.MYCONTEXT
+        store.clear(context)
+
+        jake = session.get_resource("http://Jake", Person, context = context)
+        jake.foaf_name = "Jake"
+        jake.save()
+
+        persons = list(Person.all().context(context))
+        self.assertEquals(len(persons), 1)
+
+        store.clear(context)
+
+        persons = list(Person.all().context(context))
+        self.assertEquals(len(persons), 0)
+
     def test_execute_json_result(self):
         """ Test execute_sparql() returns proper JSON. """
         store, session = self._get_store_session(use_default_context=False)
