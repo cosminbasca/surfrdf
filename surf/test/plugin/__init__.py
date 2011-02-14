@@ -893,6 +893,18 @@ class PluginTestMixin(object):
         self.assertEquals(set(b['s']['type'] for b in result['results']['bindings']),
                           set(['uri']))
 
+    def test_execute_ask_json_result(self):
+        """ Test execute_sparql() with ASK returns proper JSON. """
+        store, session = self._get_store_session(use_default_context=False)
+        self._create_persons(session)
+
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        query = 'ASK { ?s a <%(type)s> }' % {'type': Person.uri}
+        result = store.execute_sparql(query, format='JSON')
+
+        self.assert_('head' in result)
+        self.assertEquals(result['boolean'], True)
+
     def test_keep_context(self):
         """ Test that context does not change during load/save. """
         store, session = self._get_store_session(use_default_context=False)
