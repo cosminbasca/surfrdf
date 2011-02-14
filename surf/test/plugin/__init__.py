@@ -853,3 +853,19 @@ class PluginTestMixin(object):
         # Only Jake is left
         persons = list(Person.all().context(NO_CONTEXT))
         self.assertEquals(len(persons), 1)
+
+    def test_execute_json_result(self):
+        """ Test execute_sparql() returns proper JSON. """
+        store, session = self._get_store_session(use_default_context=False)
+        self._create_persons(session)
+
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        query = ('SELECT ?s ?n WHERE { ?s a <%(type)s> . ?s <%(name)s> ?n }'
+                 % {'type': Person.uri, 'name': surf.ns.FOAF.name})
+        result = store.execute_sparql(query, format='JSON')
+
+        self.assertEquals(result['head']['vars'], ['s', 'n'])
+        self.assertEquals(set(b['s']['value'] for b in result['results']['bindings']),
+                          set(unicode(p.subject) for p in Person.all()))
+        self.assertEquals(set(b['s']['type'] for b in result['results']['bindings']),
+                          set(['uri']))

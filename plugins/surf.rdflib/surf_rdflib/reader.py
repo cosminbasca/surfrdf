@@ -35,6 +35,11 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
+try:
+    from json import loads
+except Exception, e:
+    from simplejson import loads
+
 from surf.plugin.query_reader import RDFQueryReader
 from surf.rdf import ConjunctiveGraph
 
@@ -71,11 +76,15 @@ class ReaderPlugin(RDFQueryReader):
 
     # execute
     def _execute(self, query):
-        return self.execute_sparql(unicode(query))
+        q_string = unicode(query)
+        self.log.debug(q_string)
+        return self.__graph.query(q_string)
 
     def execute_sparql(self, q_string, format = None):
         self.log.debug(q_string)
-        return self.__graph.query(q_string)
+
+        result = self.__graph.query(q_string)
+        return loads(result.serialize('json'))
 
     def close(self):
         self.__graph.close(commit_pending_transaction = self.__commit_pending_transaction_on_close)
