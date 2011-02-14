@@ -43,7 +43,7 @@ from uuid import uuid4
 
 from surf.namespace import get_namespace, get_namespace_url
 from surf.namespace import get_fallback_namespace, SURF
-from surf.rdf import Literal, Namespace, URIRef
+from surf.rdf import BNode, Literal, Namespace, URIRef
 
 pattern_direct = re.compile('^[a-z0-9]{1,}_[a-zA-Z0-9_\-]{1,}$', re.DOTALL)
 pattern_inverse = re.compile('^is_[a-z0-9]{1,}_[a-zA-Z0-9_\-]{1,}_of$', re.DOTALL)
@@ -248,6 +248,27 @@ def value_to_rdf(value):
             return Literal(val, lang = language, datatype = datatype)
         return value
     return value
+
+def json_to_rdflib(obj):
+    """Convert a json result entry to an rdfLib type."""
+    try:
+        type = obj["type"]
+    except KeyError:
+        raise ValueError("No type specified")
+
+    if type == 'uri':
+        return URIRef(obj["value"])
+    elif type == 'literal':
+        if "xml:lang" in obj:
+            return Literal(obj["value"], lang=obj['xml:lang'])
+        else:
+            return Literal(obj["value"])
+    elif type == 'typed-literal':
+        return Literal(obj["value"], datatype=URIRef(obj['datatype']))
+    elif type == 'bnode':
+        return BNode(obj["value"])
+    else:
+        return None
 
 class single(object):
     """ Descriptor for easy access to attributes with single value. """

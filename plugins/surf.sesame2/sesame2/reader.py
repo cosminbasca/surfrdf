@@ -36,6 +36,7 @@
 __author__ = 'Cosmin Basca'
 
 
+from surf.util import json_to_rdflib
 from surf.plugin.query_reader import RDFQueryReader
 from allegro import Allegro
 
@@ -84,12 +85,31 @@ class ReaderPlugin(RDFQueryReader):
     # execute
     def _execute(self, query):
         q_string = unicode(query)
+        result = self.execute_sparql(q_string)
+
+        if type(result) == bool:
+            return result
+
+        converted = []
+        for binding in result["results"]["bindings"]:
+            rdf_item = {}
+            for key, obj in binding.items():
+                try:
+                    rdf_item[key] = json_to_rdflib(obj)
+                except ValueError:
+                    continue
+
+            converted.append(rdf_item)
+
+        return converted
+
+    def execute_sparql(self, query, format='JSON'):
         try:
-            self.log.debug(q_string)
+            self.log.debug(query)
             return self.get_allegro().sparql_query(self.repository, 
-                                                   q_string, 
+                                                   query, 
                                                    infer = self.inference, 
-                                                   format = 'sparql')
+                                                   format = 'sparql+json')
         except Exception, e:
             self.log.exception("Exception on query")
 

@@ -39,6 +39,10 @@ import httplib
 import logging
 from urllib import urlencode
 from xml.dom.minidom import parseString, getDOMImplementation
+try:
+    from json import loads
+except Exception, e:
+    from simplejson import loads
 
 from surf.rdf import BNode, ConjunctiveGraph, Graph, Literal, Namespace, URIRef
 
@@ -215,6 +219,7 @@ class Sesame2(httplib.HTTPConnection):
         'n3'        : 'text/rdf+n3',
         'turtle'    : 'application/x-turtle',
         'sparql'    : 'application/sparql-results+xml',
+        'sparql+json'    : 'application/sparql-results+json',
         'html'      : 'text/html',
         'text'      : 'text/plain'
     }
@@ -225,12 +230,13 @@ class Sesame2(httplib.HTTPConnection):
         'n3'        : 'text/rdf+n3',
         'turtle'    : 'application/x-turtle',
         'sparql'    : 'application/sparql-results+xml',
+        'sparql+json'    : 'application/sparql-results+json',
         'html'      : 'text/html',
         'text'      : 'text/plain'
     }
 
     __sparql__ = {
-        'SELECT'    : ['sparql', 'html'],
+        'SELECT'    : ['sparql+json', 'sparql', 'html'],
         'ASK'       : ['sparql', 'html'],
         'CONSTRUCT' : ['xml', 'n3'],
         'DESCRIBE'  : ['xml', 'n3']
@@ -262,6 +268,8 @@ class Sesame2(httplib.HTTPConnection):
             ser_content = graph.parse(data = content, format = format)
         elif format in ['sparql']:
             ser_content = parse_sparql_xml(content)
+        elif format in ['sparql+json']:
+            ser_content = loads(content)
         return ser_content
 
     def sesame2_request(self, method, sesame2_method, sesame2_params = {}, body = '', params = {}, headers = {}):
@@ -299,7 +307,7 @@ class Sesame2(httplib.HTTPConnection):
     def prolog_query(self, id, query, infer = False, limit = None):
         return self.__query(id, query, infer = infer, queryLn = 'Prolog', limit = limit)
 
-    def sparql_query(self, id, query, infer = False, format = 'sparql'):
+    def sparql_query(self, id, query, infer = False, format = 'sparql+json'):
         type = None
         if query.upper().find('SELECT ') != -1:
             type = 'SELECT'

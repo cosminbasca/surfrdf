@@ -40,9 +40,9 @@ import sys
 from SPARQLWrapper import SPARQLWrapper, jsonlayer, JSON
 from SPARQLWrapper.SPARQLExceptions import EndPointNotFound, QueryBadFormed
 
+from surf.util import json_to_rdflib
 from surf.plugin.query_reader import RDFQueryReader
 from surf.rdf import BNode, ConjunctiveGraph, Literal, URIRef
-from sparql_protocol.util import toRdflib
 
 class SparqlReaderException(Exception): pass
 
@@ -73,7 +73,7 @@ class ReaderPlugin(RDFQueryReader):
             rdf_item = {}
             for key, obj in binding.items():
                 try:
-                    rdf_item[key] = toRdflib(obj)
+                    rdf_item[key] = json_to_rdflib(obj)
                 except ValueError:
                     continue
 
