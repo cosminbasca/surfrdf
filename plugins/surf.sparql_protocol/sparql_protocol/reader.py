@@ -42,6 +42,7 @@ from SPARQLWrapper.SPARQLExceptions import EndPointNotFound, QueryBadFormed
 
 from surf.plugin.query_reader import RDFQueryReader
 from surf.rdf import BNode, ConjunctiveGraph, Literal, URIRef
+from sparql_protocol.util import toRdflib
 
 class SparqlReaderException(Exception): pass
 
@@ -61,7 +62,24 @@ class ReaderPlugin(RDFQueryReader):
     results_format = property(lambda self: self.__results_format)
 
     def _to_table(self, result):
-        return result['results']['bindings']
+        if not isinstance(result, dict):
+            return result
+
+        if not "results" in result:
+            return result
+
+        converted = []
+        for binding in result["results"]["bindings"]:
+            rdf_item = {}
+            for key, obj in binding.items():
+                try:
+                    rdf_item[key] = toRdflib(obj)
+                except ValueError:
+                    continue
+
+            converted.append(rdf_item)
+
+        return converted
 
     def _ask(self, result):
         '''
@@ -74,8 +92,7 @@ class ReaderPlugin(RDFQueryReader):
         try:
             self.log.debug(q_string)
             self.__sparql_wrapper.setQuery(q_string)
-            results = self.__sparql_wrapper.query().convert()
-            return self._toRdflib(results)
+            return self.__sparql_wrapper.query().convert()
         except EndPointNotFound, _:
             raise SparqlReaderException("Endpoint not found"), None, sys.exc_info()[2]
         except QueryBadFormed, _:
@@ -89,42 +106,4 @@ class ReaderPlugin(RDFQueryReader):
 
     def close(self):
         pass
-
-    def _toRdflib(self, json_data):
-        """Convert the result dict to rdfLib types."""
-
-        if not isinstance(json_data, dict):
-            return json_data
-
-        if not "results" in json_data:
-            return json_data
-        
-        converted = []
-        for binding in json_data["results"]["bindings"]:
-            rdf_item = {}
-            for key, obj in binding.items():
-                if not "type" in obj:
-                    continue
-                
-                type = obj["type"]
-
-                rdfType = None
-                if type == 'uri': 
-                    rdfType = URIRef(obj["value"])
-                elif type == 'literal':
-                    if "xml:lang" in obj:
-                        rdfType = Literal(obj["value"], lang = obj['xml:lang'])
-                    else:
-                        rdfType = Literal(obj["value"])
-                elif type == 'typed-literal':
-                    rdfType = Literal(obj["value"], datatype = URIRef(obj['datatype']))
-                elif type == 'bnode': 
-                    rdfType = BNode(obj["value"])
-                
-                rdf_item[key] = rdfType
-            
-            converted.append(rdf_item)
-
-        return {"results" : {"bindings" : converted} } 
-
 

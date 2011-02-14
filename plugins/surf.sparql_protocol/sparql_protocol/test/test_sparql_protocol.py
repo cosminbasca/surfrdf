@@ -45,14 +45,14 @@ class StandardPluginTest(TestCase, SparqlProtocolTestMixin, PluginTestMixin):
 class TestSparqlProtocol(TestCase, SparqlProtocolTestMixin):
     """ Tests for sparql_protocol plugin. """
 
-    def test_to_rdflib(self):
-        """ Test _toRdflib with empty bindings.  """
+    def test_to_table(self):
+        """ Test _to_table with empty bindings.  """
 
         data = {'results' : {'bindings' : [{'c' : {}}]}}
 
         # This should not raise exception.
         store = surf.store.Store(reader = "sparql_protocol")
-        store.reader._toRdflib(data)
+        store.reader._to_table(data)
 
     def test_exceptions(self):
         """ Test that exceptions are raised on invalid queries. """
