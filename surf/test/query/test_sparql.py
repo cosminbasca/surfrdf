@@ -85,6 +85,26 @@ class TestSparqlTranslator(TestCase):
         
         self.assertEqual(expected, result)
 
+    def test_from_named(self):
+        """ Try to produce query that contains FROM & FROM NAMED clauses. """
+
+        expected = canonical(u"""
+            SELECT ?s ?p ?o
+            FROM <http://uri1>
+            FROM NAMED <http://uri1>
+            FROM NAMED <http://uri2>
+            WHERE {
+                ?s ?p ?o
+            }
+        """)
+
+        query = select("?s", "?p", "?o").where(("?s", "?p", "?o"))
+        query.from_("http://uri1")
+        query.from_named("http://uri1", URIRef("http://uri2"))
+        result = canonical(SparqlTranslator(query).translate())
+
+        self.assertEqual(expected, result)
+
     def test_describe(self):
         """ Try to produce DESCRIBE query. """
         

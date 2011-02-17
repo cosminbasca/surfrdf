@@ -128,6 +128,7 @@ class Query(object):
         self._modifier = None
         self._vars = [var for var in vars if self._validate_variable(var)]
         self._from = []
+        self._from_named = []
         self._data = []
         self._limit = None
         self._offset = None
@@ -141,6 +142,8 @@ class Query(object):
     '''the query `variables` to return as the resultset'''
     query_from = property(fget = lambda self: self._from)
     '''list of URIs that will go into query FROM clauses'''
+    query_from_named = property(fget = lambda self: self._from_named)
+    '''list of URIs that will go into query FROM NAMED clauses'''
     query_data = property(fget = lambda self: self._data)
     '''the query `data`, internal structure representing the contents of the *WHERE* clause'''
     query_limit = property(fget = lambda self: self._limit)
@@ -188,6 +191,20 @@ class Query(object):
                 raise ValueError("Invalid graph URI")
 
         self._from += uris
+        return self
+
+    def from_named(self, *uris):
+        """ Add graph URI(s) that will go in separate *FROM NAMED* clause.
+
+        Each argument can be either `string` or :class:`surf.rdf.URIRef`.
+
+        """
+
+        for uri in uris:
+            if uri is None:
+                raise ValueError("Invalid graph URI")
+
+        self._from_named += uris
         return self
 
     def where(self, *statements):
