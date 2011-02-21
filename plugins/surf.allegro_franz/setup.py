@@ -66,7 +66,7 @@ setup(
     keywords = 'python SPARQL RDF resource mapper',
     #requires_python = '>=2.5', # Future in PEP 345
     packages=['allegro_franz'],
-    install_requires=['surf>=0.5.0', 'franz'],
+    install_requires=['SuRF>=1.0.0', 'franz'],
     entry_points={
     'surf.plugins.reader': 'allegro_franz = allegro_franz.reader:ReaderPlugin',
     'surf.plugins.writer': 'allegro_franz = allegro_franz.writer:WriterPlugin',

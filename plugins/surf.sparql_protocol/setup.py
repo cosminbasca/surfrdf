@@ -66,7 +66,7 @@ setup(
     keywords = 'python SPARQL RDF resource mapper',
     #requires_python = '>=2.5', # Future in PEP 345
     packages=['sparql_protocol'],
-    install_requires=['surf>=1.0.0',
+    install_requires=['SuRF>=1.0.0',
                       'sparqlwrapper>=1.4.0',],
     entry_points={
     'surf.plugins.reader': 'sparql_protocol = sparql_protocol.reader:ReaderPlugin',
