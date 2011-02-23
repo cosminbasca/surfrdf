@@ -3,7 +3,7 @@
 import re 
 from unittest import TestCase
 
-from surf.query import select, describe
+from surf.query import select, describe, ask
 from surf.query.translator.sparql import SparqlTranslator 
 from surf.rdf import URIRef
 
@@ -159,3 +159,17 @@ class TestSparqlTranslator(TestCase):
         # test unicode()
         self.assertEqual(expected, canonical(unicode(query)))
 
+    def test_ask(self):
+        """ Try ASK. """
+
+        expected = canonical(u"""
+            ASK FROM <http://uri1>
+            {
+                ?s ?p ?o
+            }
+        """)
+
+        query = ask().from_(URIRef("http://uri1")).where(("?s", "?p", "?o"))
+
+        result = canonical(SparqlTranslator(query).translate())
+        self.assertEqual(expected, result)

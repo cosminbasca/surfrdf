@@ -82,9 +82,13 @@ class SparqlTranslator(QueryTranslator):
                      'order_by'     : order_by, })
 
     def _translate_ask(self, query):
-        rep = u'ASK { %(where)s }'
+        rep = u'ASK %(from_)s %(from_named)s { %(where)s }'
+        from_ = ' '.join([ "FROM <%s>" % uri for uri in query.query_from])
+        from_named = ' '.join([ "FROM NAMED <%s>" % uri for uri in query.query_from_named])
         where = '. '.join([self._statement(stmt) for stmt in self.query.query_data])
-        return rep % ({'where'        : where})
+        return rep % ({'from_'        : from_,
+                     'from_named'   : from_named,
+                     'where'        : where, })
 
     def _term(self, term):
         if type(term) in [URIRef, BNode]:
