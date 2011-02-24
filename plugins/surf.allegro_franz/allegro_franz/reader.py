@@ -42,6 +42,7 @@ from surf.rdf import URIRef
 from franz.openrdf.sail.allegrographserver import AllegroGraphServer
 from franz.openrdf.repository.repository import Repository
 from franz.openrdf.query.query import QueryLanguage
+from franz.openrdf.query.queryresult import TupleQueryResult
 from franz.openrdf.model import value as sv
 from franz.openrdf.model import literal as sl
 
@@ -95,7 +96,7 @@ class ReaderPlugin(RDFQueryReader):
     # execute
     def _execute(self, query):
         if query.query_type == 'select':
-            return self.__execute_sparql(unicode(query))
+            return self.__execute_select(unicode(query))
         elif query.query_type == 'ask':
             return self.__execute_ask(unicode(query))
 
@@ -103,15 +104,28 @@ class ReaderPlugin(RDFQueryReader):
         boolQuery = self.__con.prepareBooleanQuery(QueryLanguage.SPARQL, q_string)
         return boolQuery.evaluate()
 
-    def __execute_sparql(self, q_string):
+    def __execute_select(self, q_string):
         self.log.debug(q_string)
         tupleQuery = self.__con.prepareTupleQuery(QueryLanguage.SPARQL, q_string)
         tupleQuery.setIncludeInferred(self.inference)
         return tupleQuery.evaluate()
 
     def execute_sparql(self, q_string, format = 'JSON'):
-        results = self.__execute_sparql(q_string)
-        return self._results_to_json(results) if format == 'JSON' else results
+        self.log.debug(q_string)
+        tupleQuery = self.__con.prepareQuery(QueryLanguage.SPARQL, q_string)
+        tupleQuery.setIncludeInferred(self.inference)
+        # Do some magic as Franz's API doesn't provide a unified API for
+        # ask & select
+        result = tupleQuery.evaluate_generic_query()
+        if format == 'JSON':
+            if type(result) is dict:
+                response = TupleQueryResult(result['names'], result['values'])
+                return self._results_to_json(response)
+            else:
+                # Build our own JSON response
+                return {'head': {}, 'boolean': result}
+        else:
+            return result
 
     def close(self):
         self.__con.close()
