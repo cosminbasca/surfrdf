@@ -87,8 +87,8 @@ class ReaderPlugin(RDFQueryReader):
         q_string = unicode(query)
         result = self.execute_sparql(q_string)
 
-        if type(result) == bool:
-            return result
+        if 'boolean' in result:
+            return result['boolean']
 
         converted = []
         for binding in result["results"]["bindings"]:
@@ -106,10 +106,16 @@ class ReaderPlugin(RDFQueryReader):
     def execute_sparql(self, query, format='JSON'):
         try:
             self.log.debug(query)
-            return self.get_allegro().sparql_query(self.repository, 
-                                                   query, 
-                                                   infer = self.inference, 
-                                                   format = 'sparql+json')
+            result = self.get_allegro().sparql_query(self.repository,
+                                                    query, 
+                                                    infer = self.inference, 
+                                                    format = 'sparql+json')
+            if type(result) == bool:
+                # Build our own JSON response
+                return {'head': {}, 'boolean': result}
+            else:
+                return result
+
         except Exception, e:
             self.log.exception("Exception on query")
 
