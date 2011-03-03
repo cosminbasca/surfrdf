@@ -190,7 +190,8 @@ class WriterPlugin(RDFWriter):
         except QueryBadFormed, _:
             raise SparqlWriterException("Bad query: %s" % query_str), None, sys.exc_info()[2]
         except Exception, e:
-            raise SparqlWriterException("Exception: %s" % e), None, sys.exc_info()[2]
+            msg = "Exception: %s (query: %s)" % (e, query_str)
+            raise SparqlWriterException(msg), None, sys.exc_info()[2]
 
     def __add_many(self, triples, context = None):
         self.log.debug("ADD several triples")
