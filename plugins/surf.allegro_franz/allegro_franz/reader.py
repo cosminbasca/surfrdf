@@ -101,6 +101,7 @@ class ReaderPlugin(RDFQueryReader):
             return self.__execute_ask(unicode(query))
 
     def __execute_ask(self, q_string):
+        self.log.debug(q_string)
         boolQuery = self.__con.prepareBooleanQuery(QueryLanguage.SPARQL, q_string)
         return boolQuery.evaluate()
 
