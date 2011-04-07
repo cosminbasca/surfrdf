@@ -2,13 +2,15 @@
 """ Standard plugin tests to be mixed in with specific plugin tests. """
 
 import random
+import datetime
 
 import surf
 from surf.store import NO_CONTEXT
-from surf.query import select
+from surf.query import select, a
 from surf.rdf import Literal, URIRef
 from surf.exc import CardinalityException
-from surf.util import value_to_rdf
+from surf.util import value_to_rdf, json_to_rdflib
+from surf import ns
 
 class PluginTestMixin(object):
     """ Tests for SuRF plugins. """
@@ -429,7 +431,6 @@ class PluginTestMixin(object):
         self.assertEquals(jane.foaf_name.first, "Jane")
         self.assertEquals(mary.foaf_name.first, "Mary")
 
-
     def test_remove_inverse(self):
         """ Test removing inverse attributes of resource. """
 
@@ -555,6 +556,7 @@ class PluginTestMixin(object):
         assert res.is_present()
         assert res.namespace() == surf.ns.SURF
 
+    # TODO this is not a plug-in testcase
     def test_val2rdf(self):
         _, session = self._get_store_session(use_default_context=False)
         self._create_logic(session)
@@ -815,6 +817,31 @@ class PluginTestMixin(object):
         self.assertEquals(len(jane.foaf_knows), 0)
 
     # new test cases
+
+    def test_json_datatypes(self):
+        """ Test that proper datatypes are returned. """
+        # Tests for a bug wrt datatype uri with AllegroGraph
+
+        store, session = self._get_store_session(use_default_context=False)
+        Person = session.get_class(surf.ns.FOAF + "Person")
+
+        # Store datatype
+        jake = session.get_resource("http://Jake", Person)
+        jake.foaf_name = "Jake"
+        jake.foaf_birthday = datetime.datetime.now() # OK we are abusing the foaf:birthday here
+        jake.save()
+
+        # Get birthday
+        query = select('?b').where(('?s', a, Person.uri),
+                                   ('?s', ns.FOAF.birthday, '?b'))
+        result = store.execute_sparql(unicode(query))
+        assert len(result['results']['bindings']) == 1
+        entry = result['results']['bindings'][0]
+
+        # Test that rdflib type is property constructed
+        birthday = json_to_rdflib(entry['b'])
+        self.assertEquals(type(birthday.toPython()),
+                                datetime.datetime)
 
     def test_clear_context(self):
         """ Test clear() with context. """

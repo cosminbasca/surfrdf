@@ -150,9 +150,12 @@ class ReaderPlugin(RDFQueryReader):
                     lit_type = 'typed-literal' if dtype else 'literal'
                     json_binding[b] = {'type':lit_type, 'value': value.getLabel()}
                     if dtype:
-                        if type(dtype) in [str, unicode] and dtype.startswith('<') and dtype.endswith('>'):
-                            dtype = dtype.strip('<>')
-                        json_binding[b]['datatype'] = URIRef(dtype)
+                        if type(dtype) is sv.URI:
+                            json_binding[b]['datatype'] = dtype.getURI()
+                        elif type(dtype) in [str, unicode] and dtype.startswith('<') and dtype.endswith('>'):
+                            json_binding[b]['datatype'] = URIRef(dtype.strip('<>'))
+                        else:
+                            json_binding[b]['datatype'] = URIRef(dtype)
                     if lang:
                         json_binding[b]['xml:lang'] = lang
             r_dict['results']['bindings'].append(json_binding)
