@@ -933,26 +933,37 @@ class PluginTestMixin(object):
         self.assert_('head' in result)
         self.assertEquals(result['boolean'], True)
 
-    def test_keep_context(self):
-        """ Test that context does not change during load/save. """
-        store, session = self._get_store_session(use_default_context=False)
-        Person = session.get_class(surf.ns.FOAF + "Person")
+    # TODO we currently do not support this feature
+    #def test_keep_context_defaultgraphunion(self):
+        #""" Test that context does not change during load/save when working
+        #with the default graph as union over all named graphs. """
+        #store, session = self._get_store_session(use_default_context=False)
+        #Person = session.get_class(surf.ns.FOAF + "Person")
 
-        context = URIRef("http://my_context_1")
-        store.clear(context)
+        #context = URIRef("http://my_context_1")
+        #store.clear(context)
 
-        jake = session.get_resource("http://Jake", Person, context=context)
-        jake.foaf_name = "Jake"
-        jake.save()
+        #jake = session.get_resource("http://Jake", Person, context=context)
+        #jake.foaf_name = "Jake"
+        #jake.save()
 
-        # Get all persons, don't use context
-        jake = Person.all().context(NO_CONTEXT).one()
-        jake.load()
-        jake.foaf_name = "Jacob"
-        jake.save()
+        ## Get all persons, don't use context. Some stores like Virtuoso or
+        ## AllegroGraph have designed the default graph (used when NO_CONTEXT
+        ## given) to be the union over all named graphs. In this case we will
+        ## yield entries from all contexts here.
+        #persons = Person.all().context(NO_CONTEXT)
+        #self.assert_(len(persons) < 2)
 
-        # Check that we only changed the foaf_name attribute
-        self.assertEquals(len(Person.all().context(context)), 1)
-        self.assertEquals(Person.all().context(context).one().foaf_name.first,
-                          'Jacob')
-        self.assertEquals(len(Person.all().context(NO_CONTEXT)), 1)
+        #if len(persons) == 1:
+            #jake = persons.one()
+            #jake.load()
+            #jake.foaf_name = "Jacob"
+            #jake.save()
+
+        ## Check that we only changed the foaf_name attribute
+        #self.assertEquals(len(Person.all().context(context)), 1)
+        #self.assertEquals(Person.all().context(context).one().foaf_name.first,
+                          #'Jacob')
+
+        #persons = Person.all().context(NO_CONTEXT)
+        #self.assert_(len(persons) < 2)
