@@ -362,7 +362,28 @@ def optional_group(*statements):
     return g
 
 def group(*statements):
+    """ Return group graph pattern.
+
+    Returned object can be used as argument in :meth:`Query.where` method.
+
+    group()` accepts multiple arguments, similarly
+    to :meth:`Query.where()`.
+
+    """
     g = Group()
+    g.extend([stmt for stmt in statements if validate_statement(stmt)])
+    return g
+
+def union(*statements):
+    """ Return union graph pattern.
+
+    Returned object can be used as argument in :meth:`Query.where` method.
+
+    union()` accepts multiple arguments, similarly
+    to :meth:`Query.where()`.
+
+    """
+    g = Union()
     g.extend([stmt for stmt in statements if validate_statement(stmt)])
     return g
 
