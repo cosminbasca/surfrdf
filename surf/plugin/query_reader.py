@@ -263,8 +263,24 @@ class RDFQueryReader(RDFReader):
             del params["order"]
         self.__apply_limit_offset_order_get_by_filter(inner_params, inner_query)
 
-        query = select("?s", "?p", "?v", "?c").distinct()
-        query.group(('?s', '?p', '?v'), optional_group(('?v', a, '?c')))
+
+        if params.get("only_direct"):
+            query = select("?s", "?p", "?v", "?c").distinct()
+            query.group(('?s', '?p', '?v'), optional_group(('?v', a, '?c')))
+        else:
+            direct_query = select("?s", "?p", "?v", "?c", '("0" AS ?i)')
+            direct_query.distinct()
+            direct_query.group(('?s', '?p', '?v'),
+                               optional_group(('?v', a, '?c')))
+
+            indirect_query = select("?s", "?p", "?v", "?c", '("1" AS ?i)')
+            indirect_query.distinct()
+            indirect_query.group(('?s', '?p', '?v'),
+                                 optional_group(('?v', a, '?c')))
+
+            query = select("?s", "?p", "?v", "?c", "?i")
+            query.union(direct_query, indirect_query)
+
         query.where(inner_query)
         if not (context is None):
             query.from_(context)
@@ -289,20 +305,25 @@ class RDFQueryReader(RDFReader):
             subject = URIRef(match["s"])
             predicate = URIRef(match["p"])
             value = match["v"]
+            # Inverse given if only_direct is False
+            inverse = match.get("i") == "1"
 
             # Add subject to result list if it's not there
             if not subject in subjects:
-                instance_data = {"direct" : {}}
+                instance_data = {"direct" : {}, "inverse": {}}
                 subjects[subject] = instance_data
                 results.append((subject, instance_data))
 
-            # Add predicate to subject's direct predicates if it's not there
-            direct_attributes = subjects[subject]["direct"]
-            if not predicate in direct_attributes:
-                direct_attributes[predicate] = {}
+            if inverse:
+                attributes = subjects[subject]["inverse"]
+            else:
+                attributes = subjects[subject]["direct"]
+            # Add predicate to subject's predicates if it's not there
+            if not predicate in attributes:
+                attributes[predicate] = {}
 
             # Add value to subject->predicate if ...
-            predicate_values = direct_attributes[predicate]
+            predicate_values = attributes[predicate]
             if not value in predicate_values:
                 predicate_values[value] = []
 
