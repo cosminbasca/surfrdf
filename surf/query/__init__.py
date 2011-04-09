@@ -155,13 +155,18 @@ class Query(object):
 
     def _validate_variable(self, var):
         if type(var) in [str, unicode]:
-            if not var.startswith('?'):
+            if var.startswith('?'):
+                return True
+            elif re.match('\s*\(\s*.+\s+AS\s+\?.+\)\s*$', var):
+                # SPARQL 1.1 expressions http://www.w3.org/TR/sparql11-query/#rSelectClause
+                return True
+            else:
                 for aggregate in Query.AGGREGATE_FUCTIONS:
                     if var.lower().startswith(aggregate):
                         return True
-                raise ValueError('''Not a variable : <%s>, check correct syntax ("?" or
-                                 supported aggregate %s)''' % (var, str(Query.AGGREGATE_FUCTIONS)))
-            return True
+            raise ValueError('''Not a variable : <%s>, check correct syntax ("?",
+                                expression, or supported aggregate %s)'''
+                             % (var, str(Query.AGGREGATE_FUCTIONS)))
         else:
             raise ValueError('''Unknown variable type, all variables must either
                              start with a "?" or be among the recognized aggregates :
