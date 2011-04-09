@@ -828,20 +828,21 @@ class PluginTestMixin(object):
         # Store datatype
         jake = session.get_resource("http://Jake", Person)
         jake.foaf_name = "Jake"
-        jake.foaf_birthday = datetime.datetime.now() # OK we are abusing the foaf:birthday here
+        jake.foaf_age = 62
         jake.save()
 
         # Get birthday
-        query = select('?b').where(('?s', a, Person.uri),
-                                   ('?s', ns.FOAF.birthday, '?b'))
+        query = select('?age').where(('?s', a, Person.uri),
+                                   ('?s', ns.FOAF.age, '?age'))
         result = store.execute_sparql(unicode(query))
         assert len(result['results']['bindings']) == 1
         entry = result['results']['bindings'][0]
 
-        # Test that rdflib type is property constructed
-        birthday = json_to_rdflib(entry['b'])
-        self.assertEquals(type(birthday.toPython()),
-                                datetime.datetime)
+        # Test that rdflib type is properly constructed
+        age = json_to_rdflib(entry['age'])
+        print entry['age']
+        print repr(age.toPython())
+        self.assertEquals(age.toPython(), 62)
 
     def test_clear_context(self):
         """ Test clear() with context. """
