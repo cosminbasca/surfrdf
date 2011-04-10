@@ -840,8 +840,6 @@ class PluginTestMixin(object):
 
         # Test that rdflib type is properly constructed
         age = json_to_rdflib(entry['age'])
-        print entry['age']
-        print repr(age.toPython())
         self.assertEquals(age.toPython(), 62)
 
     def test_clear_context(self):
