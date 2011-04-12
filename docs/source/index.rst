@@ -83,8 +83,12 @@ API reference
 Acknowledgements
 ----------------
 
-A great deal of thanks goes to `Peteris Caune <mailto:cuu508@gmail.com>`_ for his 
-contributions and ideas put into `SuRF`.
+A great deal of thanks go to:
+
+- `Peteris Caune <mailto:cuu508@gmail.com>`_
+- `Christoph Burgmer <cburgmer@ira.uka.de>`_
+
+for their contributions and ideas put into `SuRF`.
    
 Indices and tables
 ------------------
