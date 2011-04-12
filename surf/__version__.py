@@ -35,6 +35,6 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-version = (1,1,3)
+version = (1,1,4)
 
 str_version = '%d.%d.%d'%(version[0],version[1],version[2])
