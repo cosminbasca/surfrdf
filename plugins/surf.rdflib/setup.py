@@ -68,6 +68,7 @@ setup(
     packages=['surf_rdflib'],
     install_requires=['SuRF>=1.0.0', 'rdfextras',
                       'pyparsing'], # pyparsing needed by rdfextras but not declared there
+    test_suite = "surf_rdflib.test",
     entry_points={
     'surf.plugins.reader': 'rdflib = surf_rdflib.reader:ReaderPlugin',
     'surf.plugins.writer': 'rdflib = surf_rdflib.writer:WriterPlugin',

@@ -67,6 +67,7 @@ setup(
     #requires_python = '>=2.5', # Future in PEP 345
     packages=['sesame2'],
     install_requires=['SuRF>=1.0.0',],
+    test_suite = "sesame2.test",
     entry_points={
     'surf.plugins.reader': 'sesame2 = sesame2.reader:ReaderPlugin',
     'surf.plugins.writer': 'sesame2 = sesame2.writer:WriterPlugin',
