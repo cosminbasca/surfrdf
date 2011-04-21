@@ -60,6 +60,8 @@ setup(
       requires=['simplejson'], # Used by distutils to create metadata PKG-INFO
       install_requires=['rdflib>=2.4.2',
                         'simplejson>=2.0.9',], #Used by setuptools to install the dependencies
+      tests_require=['surf.rdflib'],
+      test_suite = "surf.test",
       classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
