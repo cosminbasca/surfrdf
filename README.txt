@@ -51,6 +51,19 @@ You can read the documentation online at http://packages.python.org/SuRF/ or
 download from http://code.google.com/p/surfrdf/downloads/list.
 
 
+Unit tests
+==========
+
+Run unit tests from the source directory::
+
+    $ python setup.py test
+
+Test plugins from their respective source directory, e.g.::
+
+    $ cd plugins/surf.sparql_protocol/
+    $ python setup.py test
+
+
 Contact
 =======
 
