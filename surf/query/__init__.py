@@ -67,7 +67,9 @@ class NamedGroup(Group):
         if isinstance(name, URIRef) or (type(name) in [str, unicode] and name.startswith('?')):
             self.name = name
         else:
-            raise ValueError('The names')
+            raise ValueError("Invalid specifier for named group"
+                             ", should be either a variable (e.g. '?s')"
+                             " or a URIRef instance")
 
 class OptionalGroup(Group):
     '''A **SPARQL** triple pattern optional group
