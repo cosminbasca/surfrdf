@@ -227,6 +227,12 @@ class ResourceValue(list):
         '''
         return self.__query_attribute().get_by(**kwargs)
 
+    def filter(self, **kwargs):
+        ''' get the `filter` `query` attribute. Syntactic sugar
+        for :meth:`surf.resource.Resource.query_attribute` method.
+        '''
+        return self.__query_attribute().filter(**kwargs)
+
     def context(self, context):
         ''' get the `context` `query` attribute. Syntactic sugar
         for :meth:`surf.resource.Resource.query_attribute` method.
