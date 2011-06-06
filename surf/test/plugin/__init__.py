@@ -209,6 +209,8 @@ class PluginTestMixin(object):
         persons = list(persons)
         self.assertTrue(len(persons[0].rdf_direct) > 1)
         self.assertTrue(len(persons[0].rdf_inverse) > 0)
+        self.assertEquals(persons[0].foaf_name.first, "Mary")
+        self.assertEquals(persons[0].is_foaf_knows_of.first, jane)
 
         # Now, only direct
         persons = Person.all().get_by(foaf_name = Literal("Mary")).full(only_direct = True)

@@ -275,7 +275,7 @@ class RDFQueryReader(RDFReader):
 
             indirect_query = select("?s", "?p", "?v", "?c", '("1" AS ?i)')
             indirect_query.distinct()
-            indirect_query.group(('?s', '?p', '?v'),
+            indirect_query.group(('?v', '?p', '?s'),
                                  optional_group(('?v', a, '?c')))
 
             query = select("?s", "?p", "?v", "?c", "?i")
