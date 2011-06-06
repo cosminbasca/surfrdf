@@ -284,7 +284,7 @@ class Session(object):
 
         """
 
-        for store in self.__stores:
+        for store in self.__stores.keys():
             self.__stores[store].close()
             del self.__stores[store]
 
