@@ -35,8 +35,6 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-import new
-
 from surf.rdf import BNode, URIRef
 from surf.resource import Resource
 from surf.store import Store, NO_CONTEXT
@@ -313,10 +311,9 @@ class Session(object):
         if type(session_classes) not in [list, tuple, set]:
             session_classes = [session_classes]
         base_classes.extend(session_classes)
-        return new.classobj(str(name), tuple(base_classes),
-                            {'uri' : uri, 
-                             'store_key' : store,
-                             'session' : self})
+        return type(str(name), tuple(base_classes), {'uri': uri,
+                                                     'store_key': store,
+                                                     'session': self})
 
     def get_class(self, uri, store = None, *classes):
         """

@@ -36,7 +36,6 @@
 __author__ = 'Cosmin Basca'
 
 import re
-import new
 
 from surf.namespace import get_namespace_url, get_prefix, OWL, all
 from surf.query import Query
