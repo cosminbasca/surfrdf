@@ -12,7 +12,7 @@ Here's how the `SuRF` `Resource` maps to the RDF triples conceptual level:
 .. testsetup::
 
 	import surf
-	store = surf.Store(reader = "rdflib", writer = "rdflib")
+	store = surf.Store(reader="rdflib", writer="rdflib")
 	session = surf.Session(store)	
 	FoafPerson = session.get_class(surf.ns.FOAF.Person)
 	john = session.get_resource("http://john.com/me", FoafPerson)
@@ -65,7 +65,7 @@ Getting instances of `FoafPerson` class named "John":
 .. doctest::
 
 	>>> FoafPerson = session.get_class(surf.ns.FOAF.Person)
-	>>> for person in FoafPerson.get_by(foaf_name = "John"):
+	>>> for person in FoafPerson.get_by(foaf_name="John"):
 	...     print "Found person:", person.foaf_name.first
 	Found person: John
 		

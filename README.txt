@@ -50,6 +50,11 @@ Documentation
 You can read the documentation online at http://packages.python.org/SuRF/ or
 download from http://code.google.com/p/surfrdf/downloads/list.
 
+To build the documentation yourself, install sphinx and run the build step::
+
+    $ pip install sphinx
+    $ python setup.py build_sphinx
+
 
 Unit tests
 ==========

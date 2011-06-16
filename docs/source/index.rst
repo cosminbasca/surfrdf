@@ -23,9 +23,9 @@ Quick start:
         
         from surf import *
         
-        store = Store(  reader='rdflib',
+        store = Store(reader='rdflib',
                     writer='rdflib',
-                    rdflib_store = 'IOMemory')
+                    rdflib_store='IOMemory')
         
         session = Session(store)
         
@@ -40,7 +40,7 @@ Quick start:
         for person in all_persons:
             print person.foaf_name.first
         
-        #create a person object
+        # Create a person object
         somebody = Person()
         somebody_else = Person()
         

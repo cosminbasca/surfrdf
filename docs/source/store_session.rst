@@ -21,7 +21,7 @@ Instantiation of `store` and `session` objects is illustrated below:
 .. testcode::
 
     import surf
-    store = surf.Store(reader = "rdflib", writer = "rdflib")
+    store = surf.Store(reader="rdflib", writer="rdflib")
     session = surf.Session(store)
     
 the `Store` is configured using its constructor arguments. ``reader`` and ``writer``
@@ -35,8 +35,8 @@ plugin and the address of the **SPARQL HTTP** endpoint is also specified:
 .. testcode::
 
     import surf
-    store = surf.Store(reader = "sparql_protocol", 
-                       endpoint = "http://dbpedia.org/sparql")
+    store = surf.Store(reader="sparql_protocol", 
+                       endpoint="http://dbpedia.org/sparql")
     session = surf.Session(store)
 
 It is often convenient to load Store configuration options from file instead
