@@ -3,7 +3,8 @@
 from unittest import TestCase
 
 import surf
-from surf.util import attr2rdf, rdf2attr, single
+from surf.rdf import Literal
+from surf.util import attr2rdf, rdf2attr, single, value_to_rdf
 
 class TestUtil(TestCase):
     """ Tests for surf.util module. """
@@ -44,3 +45,10 @@ class TestUtil(TestCase):
             # Test deleting "name"
             del instance.name
             self.assertEquals(instance.foaf_name, [])
+
+    def test_decimal_to_rdf(self):
+        """ Test conversion from decimal.Decimal to Literal. """
+        
+        import decimal
+        v = value_to_rdf(decimal.Decimal("12.34"))
+        self.assertEqual(type(v), Literal)

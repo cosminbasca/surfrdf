@@ -36,6 +36,7 @@
 __author__ = 'Cosmin Basca'
 
 from datetime import datetime, date, time
+import decimal
 import re
 from urlparse import urlparse
 from uuid import uuid4
@@ -233,7 +234,7 @@ def pretty_rdf(uri):
 def value_to_rdf(value):
     """ Convert the value to an `rdflib` compatible type if appropriate. """
 
-    if type(value) in [str, unicode, basestring, float, int, long, bool, datetime, date, time]:
+    if type(value) in [str, unicode, basestring, float, int, long, bool, datetime, date, time, decimal.Decimal]:
         return Literal(value)
     elif type(value) in [list, tuple]:
         language = len(value) > 1 and value[1] or None
