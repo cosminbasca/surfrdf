@@ -52,3 +52,15 @@ class TestUtil(TestCase):
         import decimal
         v = value_to_rdf(decimal.Decimal("12.34"))
         self.assertEqual(type(v), Literal)
+
+    def test_rdf2attr_surf(self):
+        """ Test rdf2attr with SURF namespace.
+        
+        This once had a bug which generated attribute names
+        like "__fallback_namespace_label" 
+        instead of "surf_label".
+        
+        """
+        
+        uri = "http://code.google.com/p/surfrdf/label"
+        self.assertEqual(rdf2attr(uri, True), "surf_label")

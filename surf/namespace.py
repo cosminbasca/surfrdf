@@ -112,6 +112,10 @@ def __unicode(namespace):
 __inverted_dict__ = {}
 for k, v in sys.modules[__name__].__dict__.items():
     if isinstance(v, Namespace) or isinstance(v, ClosedNamespace):
+        if k == "__fallback_namespace":
+            # no, this is not a namespace prefix,
+            # this is just a name of variable 
+            continue
         __inverted_dict__[__unicode(v)] = k
         
 __direct_dict__ = {}
