@@ -23,11 +23,14 @@ class PluginTestMixin(object):
 
     def _create_persons(self, session):
         Person = session.get_class(surf.ns.FOAF + "Person")
+        persons = []
         for name in ["John", "Mary", "Jane"]:
             # Some test data.
             person = session.get_resource("http://%s" % name, Person)
             person.foaf_name = name
             person.save()
+            persons.append(person)
+        return persons
 
     def test_save_remove(self):
         """ Test that saving SuRF resource works.  """
@@ -197,26 +200,38 @@ class PluginTestMixin(object):
         """ Test loading details. """
 
         _, session = self._get_store_session()
-        self._create_persons(session)
+        john, mary, jane = self._create_persons(session)
         Person = session.get_class(surf.ns.FOAF + "Person")
 
         # Create inverse foaf_knows attribute for Mary
-        jane = session.get_resource("http://Jane", Person)
         jane.foaf_knows = URIRef("http://Mary")
         jane.save()
 
         persons = Person.all().get_by(foaf_name = Literal("Mary")).full()
-        persons = list(persons)
-        self.assertTrue(len(persons[0].rdf_direct) > 1)
-        self.assertTrue(len(persons[0].rdf_inverse) > 0)
-        self.assertEquals(persons[0].foaf_name.first, "Mary")
-        self.assertEquals(persons[0].is_foaf_knows_of.first, jane)
+        mary_double = persons.one()
+        self.assertTrue(len(mary_double.rdf_direct) > 1)
+        self.assertTrue(len(mary_double.rdf_inverse) > 0)
+        self.assertEquals(mary_double.foaf_name.first, "Mary")
+        self.assertEquals(mary_double.is_foaf_knows_of.first, jane)
 
-        # Now, only direct
+    def test_full_only_direct(self):
+        """ Test loading details with only_direct=True. """
+
+        _, session = self._get_store_session()
+        john, mary, jane = self._create_persons(session)
+        Person = session.get_class(surf.ns.FOAF + "Person")
+
+        # Create inverse foaf_knows attribute for Mary
+        jane.foaf_knows = mary
+        jane.save()
+
         persons = Person.all().get_by(foaf_name = Literal("Mary")).full(only_direct = True)
-        persons = list(persons)
-        self.assertTrue(len(persons[0].rdf_direct) > 1)
-        self.assertTrue(len(persons[0].rdf_inverse) == 0)
+        mary_double = persons.one()
+        # At first, rdf_inverse should be empty
+        self.assertTrue(len(mary_double.rdf_inverse) == 0)
+        
+        # But inverse attributes should still load on request
+        self.assertEquals(mary_double.is_foaf_knows_of.first, jane)
 
     def test_order_limit_offset(self):
         """ Test ordering by subject, limit, offset. """
@@ -404,9 +419,7 @@ class PluginTestMixin(object):
     def test_save_unicode(self):
         """ Test that saving unicode data works.  """
 
-        # Read from different session.
         _, session = self._get_store_session()
-        self._create_persons(session)
         Person = session.get_class(surf.ns.FOAF + "Person")
         john = session.get_resource("http://John", Person)
         john.foaf_name = u"Jānis"
@@ -592,6 +605,25 @@ class PluginTestMixin(object):
         Logic = session.get_class(surf.ns.SURF.Logic)
         res = Logic.all().limit(1).first()
         res.load()
+        
+    def test_load_only_direct(self):
+        """ Test resource.load(only_direct=True) """
+        
+        _, session = self._get_store_session(use_default_context=False)
+        john, mary, jane = self._create_persons(session)
+        
+        mary.foaf_knows = jane
+        mary.is_foaf_knows_of = john
+        mary.save()
+        
+        # Mary now has both direct and inverse attributes.
+        # Let's test loading just the direct ones
+        
+        Person = session.get_class(surf.ns.FOAF + "Person")
+        mary_double = session.get_resource(mary.subject, Person) 
+        mary_double.load(only_direct=True)
+        
+        self.assertEqual(len(mary_double.rdf_inverse), 0)
 
     def test_concept(self):
         _, session = self._get_store_session(use_default_context=False)

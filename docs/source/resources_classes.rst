@@ -96,8 +96,9 @@ A SuRF resource represents a single RDF resource. Its URI is stored in
 	http://john.com/me
 
 RDF triples that describe this resource are available as object attributes.
-SuRF follows "prefix_predicate" convention for attribute names. These
-attributes are instances of :class:`surf.resource.value.ResourceValue` class. 
+SuRF follows "prefix_predicate" convention for attribute names. For
+example, ``foaf:knows`` predicate maps to ``foaf_knows`` attribute in a SuRF resource.
+The attributes are instances of :class:`surf.resource.value.ResourceValue` class. 
 They are list-like, with some extra convenience functions:
 
 .. doctest::
@@ -119,7 +120,7 @@ They are list-like, with some extra convenience functions:
 	
 
 RDF triples that have resource as object, are available as "inverse" 
-attributes, they follow "is_prefix_predicate_of" convention:
+attributes, they follow "is_prefix_predicate_of" naming convention:
 
 .. doctest::
 
@@ -142,6 +143,20 @@ It can also be used for easy iterating over a list of attributes:
 	>>> for attr in ["name", "surname"]: print john[surf.ns.FOAF[attr]].first
 	John
 	Smith
+	
+Normally, resource attributes are loaded from triple store at the time they are 
+accessed. If client code is going to access several attributes, client can 
+explicitly load all attributes at once. In some cases this might bring
+performance improvements:	
+
+.. doctest::
+    
+    >>> john.load()
+    >>> # now accessing attributes won't repeatedly query triple store
+    >>> jane.load(only_direct=True)
+    >>> # direct attributes are loaded, inverse attributes
+    >>> # will be loaded when accessed 
+
 
 Attributes can be used as starting points for more involved querying:
 

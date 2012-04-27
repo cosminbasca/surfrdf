@@ -69,8 +69,12 @@ class ResultProxy(object):
     def full(self, only_direct = False):
         """ Enable eager-loading of resource attributes.
 
-        If ``full`` is set to `True`, returned resources will have attributes
+        With this modifier, resources will have their attributes
         already loaded.
+        
+        If ``only_direct`` is set to `True`, only direct attributes
+        will be loaded. Accessing inverse attributes will work
+        but will generate extra requests to triple store.
 
         Whether setting this will bring performance
         improvements depends on reader plugin implementation.

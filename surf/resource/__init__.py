@@ -191,9 +191,11 @@ class Resource(object):
         self.__rdf_direct[a] = [self.uri]
         self.__rdf_inverse = {}
         self.__namespaces = all()
-        # __full is set to true after doing full load. This is used by
-        # __getattr__ to decide if it's worth to query triplestore.
-        self.__full = False
+        # __full_direct and __full_inverse are set to true after doing full load. 
+        # These are used by __getattr__ to decide if it's worth to query 
+        # triplestore.
+        self.__full_direct = False
+        self.__full_inverse = False
 
         if self.session:
             if not self.store_key:
@@ -494,7 +496,11 @@ class Resource(object):
         # If resource is fully loaded and still we're here
         # at __getattr__, this must be an empty attribute, so
         # no point querying triple store.
-        do_query = not self.__full
+        if direct:
+            do_query = not self.__full_direct
+        else:
+            do_query = not self.__full_inverse
+
         values_source = make_values_source(self, predicate, direct, do_query)
 
         attr_value = ResourceValue(values_source, self, attr_name)
@@ -513,22 +519,31 @@ class Resource(object):
 
         return getattr(self, attr_name)
     
-    def load(self):
-        """
-        Load all attributes from the data store:
+    def load(self, only_direct=False):
+        """Load all attributes from the data store.
+        
+        By default, load all attributes from the data store:
             - direct attributes (where the subject is the subject of the resource)
             - indirect attributes (where the object is the subject of the resource)
+
+        If `only_direct` is `False`, don't load inverse attributes.
+        This can be used as optimization when client knows invese
+        attributes won't be accessed. 
 
         .. note:: This method resets the *dirty* state of the object.
 
         """
 
         results_d = self.session[self.store_key].load(self, True)
-        results_i = self.session[self.store_key].load(self, False)
         self.__set_predicate_values(results_d, True)
-        self.__set_predicate_values(results_i, False)
+        self.__full_direct = True
+        
+        if not only_direct:
+            results_i = self.session[self.store_key].load(self, False)
+            self.__set_predicate_values(results_i, False)
+            self.__full_inverse = True
+
         self.dirty = False
-        self.__full = True
 
     def __set_predicate_values(self, results, direct):
         """ set the prediate - value(s) to the resource using lazy loading,
@@ -619,7 +634,11 @@ class Resource(object):
 
         instance.__set_predicate_values(data.get("direct", {}), True)
         instance.__set_predicate_values(data.get("inverse", {}), False)
-        instance.__full = bool(params.get("full"))
+        
+        full = bool(params.get("full"))
+        only_direct = bool(params.get("only_direct"))
+        instance.__full_direct = full
+        instance.__full_inverse = full and not only_direct 
         # __setattr__ marked it as dirty but it's freshly loaded!
         instance.dirty = False 
 
