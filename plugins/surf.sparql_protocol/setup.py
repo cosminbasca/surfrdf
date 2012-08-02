@@ -43,34 +43,41 @@ to develop run the folowing command:
 python setup.py develop -d .. -m
 """
 from setuptools import setup
+from sys import version_info
+
+def is_python(major=2, minor=5):
+    return tuple(version_info)[0:2] == (major,minor)
 
 setup(
-    name='surf.sparql_protocol',
-    version='1.0.0',
-    description='surf SPARQL protocol plugin',
-    long_description = 'provides access to SPARQL protocol endpoints',
-    license = 'New BSD SOFTWARE', 
-    author="Cosmin Basca",
-    author_email="cosmin.basca at google.com",
-    url = 'http://code.google.com/p/surfrdf/',
-    #download_url = 'http://surfrdf.googlecode.com/files/SuRF-0.4-py2.5.egg',
-    platforms = ['any'], #Should be removed by PEP  314
-    requires=['simplejson'], # Used by distutils to create metadata PKG-INFO
-    classifiers=[
-      'Development Status :: 3 - Alpha',
-      'Intended Audience :: Developers',
-      'License :: OSI Approved :: BSD License',
-      'Operating System :: OS Independent',
-      'Programming Language :: Python :: 2.5',
+    name                = 'surf.sparql_protocol',
+    version             = '1.0.1',
+    description         = 'surf SPARQL protocol plugin',
+    long_description    = 'provides access to SPARQL protocol endpoints',
+    license             = 'New BSD SOFTWARE',
+    author              = 'Cosmin Basca',
+    author_email        = 'cosmin.basca at google.com',
+    url                 = 'http://code.google.com/p/surfrdf/',
+    download_url        = 'http://pypi.python.org/pypi/surf.sparql_protocol/',
+    platforms           = ['any'],
+    requires            = ['simplejson'] if is_python(2,5) else [],
+    classifiers         = [
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: BSD License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 2.5',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
     ],
-    keywords = 'python SPARQL RDF resource mapper',
-    #requires_python = '>=2.5', # Future in PEP 345
-    packages=['sparql_protocol'],
-    install_requires=['SuRF>=1.0.0',
-                      'sparqlwrapper>=1.4.0',],
-    test_suite = "sparql_protocol.test",
+    keywords            = 'python SPARQL RDF resource mapper',
+    packages            = ['sparql_protocol'],
+    install_requires    = [
+        'SuRF>=1.1.4',
+        'sparqlwrapper>=1.5.1',
+    ],
+    test_suite          = 'sparql_protocol.test',
     entry_points={
-    'surf.plugins.reader': 'sparql_protocol = sparql_protocol.reader:ReaderPlugin',
-    'surf.plugins.writer': 'sparql_protocol = sparql_protocol.writer:WriterPlugin',
+        'surf.plugins.reader': 'sparql_protocol = sparql_protocol.reader:ReaderPlugin',
+        'surf.plugins.writer': 'sparql_protocol = sparql_protocol.writer:WriterPlugin',
     }
 )

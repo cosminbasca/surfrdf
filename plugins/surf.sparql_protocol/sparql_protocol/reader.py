@@ -53,7 +53,13 @@ class ReaderPlugin(RDFQueryReader):
         self.__endpoint = kwargs['endpoint'] if 'endpoint' in kwargs else None
         self.__results_format = JSON
 
+
         self.__sparql_wrapper = SPARQLWrapper(self.__endpoint, self.__results_format)
+        user        = kwargs.get('user',None)
+        password    = kwargs.get('password',None)
+        if user and password:
+            self.__sparql_wrapper.setCredentials(user, password)
+
         if kwargs.get("use_keepalive", "").lower().strip() == "true":
             if hasattr(SPARQLWrapper, "setUseKeepAlive"):
                 self.__sparql_wrapper.setUseKeepAlive()

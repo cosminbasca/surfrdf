@@ -59,6 +59,11 @@ class WriterPlugin(RDFWriter):
         self.__results_format = JSON
 
         self.__sparql_wrapper = SPARQLWrapper(self.__endpoint, self.__results_format)
+        user        = kwargs.get('user',None)
+        password    = kwargs.get('password',None)
+        if user and password:
+            self.__sparql_wrapper.setCredentials(user, password)
+
         self.__sparql_wrapper.setMethod("POST")
 
     endpoint = property(lambda self: self.__endpoint)
