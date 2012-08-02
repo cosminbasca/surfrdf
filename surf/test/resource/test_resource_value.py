@@ -86,8 +86,8 @@ class TestResultValueQuery(unittest.TestCase):
     def test_full(self):
         """ Test full(). """
         
-        self.store.expect_args({"full" : True, "only_direct" : True})
-        list(self.value.full(only_direct = True))
+        self.store.expect_args({'full' : True, 'direct_only' : True})
+        list(self.value.full(direct_only = True))
 
 
     def test_order_desc(self):

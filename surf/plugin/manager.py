@@ -40,12 +40,6 @@ import pkg_resources
 import os
 from pkg_resources import *
 
-class PluginNotFoundException(Exception):
-    """ Raised when the required Plugin is not found
-
-    """
-    pass
-
 log = logging.getLogger(__name__)
 __plugins_loaded = False
 

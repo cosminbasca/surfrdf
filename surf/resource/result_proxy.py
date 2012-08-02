@@ -1,6 +1,7 @@
 """ Module for ResultProxy. """
 
 from surf.exceptions import NoResultFound, MultipleResultsFound
+from surf.log import deprecation
 from surf.rdf import Literal
 from surf.util import attr2rdf, value_to_rdf
 
@@ -66,7 +67,7 @@ class ResultProxy(object):
         params["offset"] = value
         return ResultProxy(params)
 
-    def full(self, only_direct = False):
+    def full(self, direct_only = False, **kwargs):
         """ Enable eager-loading of resource attributes.
 
         With this modifier, resources will have their attributes
@@ -83,9 +84,15 @@ class ResultProxy(object):
 
          """
 
-        params = self.__params.copy()
-        params["full"] = True
-        params["only_direct"] = only_direct
+        #TODO: -------------------[remove in v1.2.0]------------------------
+        if 'only_direct' in kwargs:
+            deprecation('the only_direct argument is deprecated and will be removed in version 1.2.0, use direct_only instead!')
+            direct_only = kwargs['only_direct']
+        #TODO: -------------------[remove in v1.2.0]------------------------
+
+        params                  = self.__params.copy()
+        params['full']          = True
+        params['direct_only']   = direct_only
         return ResultProxy(params)
 
     def order(self, value = True):
@@ -206,12 +213,12 @@ class ResultProxy(object):
         if self.__get_by_response is None:
             self.__get_by_args = {}
 
-            for key in ["limit", "offset", "full", "order", "desc", "get_by",
-                        "only_direct", "context", "filter"]:
+            for key in ['limit', 'offset', 'full', 'order', 'desc', 'get_by',
+                        'direct_only', 'context', 'filter']:
                 if key in self.__params:
                     self.__get_by_args[key] = self.__params[key]
 
-            store = self.__params["store"]
+            store = self.__params['store']
             self.__get_by_response = store.get_by(self.__get_by_args)
 
         return self.__get_by_args, self.__get_by_response

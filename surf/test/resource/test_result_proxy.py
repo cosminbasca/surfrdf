@@ -51,8 +51,8 @@ class TestResultProxy(unittest.TestCase):
     def test_full(self):
         """ Test full(). """
         
-        self.store.expect_args({"full" : True, "only_direct" : True})
-        list(self.proxy.full(only_direct = True))
+        self.store.expect_args({'full' : True, 'direct_only' : True})
+        list(self.proxy.full(direct_only = True))
 
 
     def test_order_desc(self):

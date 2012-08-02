@@ -33,31 +33,39 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
+from surf.log import deprecation
+from surf.util import LogMixin
+import logging
+
 __author__ = 'Cosmin Basca'
 
-import logging
-from surf.query import Query
 
-class Plugin(object):
+class Plugin(LogMixin):
     """
     Super class for all SuRF plugins, provides basic instantiation
     and `logging`.
     """
 
     def __init__(self, *args, **kwargs):
-        logging.basicConfig()
-        self.log = logging.getLogger(self.__class__.__name__)
-        self.log.setLevel(logging.NOTSET)
+        super(Plugin, self).__init__()
+        self.log_level = logging.NOTSET
+
         self.__inference = False
 
     def enable_logging(self, enable = True):
         """ Enables or disable `logging` for the current `plugin`. """
+        #TODO: -------------------[remove in v1.2.0]------------------------
+        deprecation('the enable_logging method will be removed in version 1.2.0, use the logging and log_level properties instead!')
+        #TODO: -------------------[remove in v1.2.0]------------------------
 
         level = enable and logging.DEBUG or logging.NOTSET
         self.log.setLevel(level)
 
     def is_enable_logging(self):
         """ `True` if `logging` is enabled. """
+        #TODO: -------------------[remove in v1.2.0]------------------------
+        deprecation('the is_enabled_logging method will be removed in version 1.2.0, use the logging and log_level properties instead!')
+        #TODO: -------------------[remove in v1.2.0]------------------------
 
         return (self.log.level == logging.DEBUG)
 

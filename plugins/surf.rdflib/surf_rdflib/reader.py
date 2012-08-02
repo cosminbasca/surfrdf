@@ -65,7 +65,7 @@ class ReaderPlugin(RDFQueryReader):
         # Elements in result.selectionF are instances of rdflib.Variable,
         # rdflib.Variable is subclass of unicode. We convert them to 
         # unicode here anyway to hide rdflib internals from clients. 
-        vars = [unicode(var) for var in result.selectionF]
+        vars = [unicode(var) for var in result.vars]
 
         # Convert each row to dict: { var->value, ... }
         return [dict(zip(vars, row)) for row in result]

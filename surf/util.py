@@ -33,6 +33,8 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
+import logging
+
 __author__ = 'Cosmin Basca'
 
 from datetime import datetime, date, time
@@ -287,3 +289,19 @@ class single(object):
     def __delete__(self, obj):
         setattr(obj, self.attr, [])
 
+class LogMixin(object):
+    def __init__(self):
+        self.log = logging.getLogger(self.__class__.__name__)
+        self.log.addHandler(logging.StreamHandler())
+
+        self._loglevel = logging.INFO
+
+    def _get_logging(self):
+        return self.log.level != logging.NOTSET
+    logging = property(fget=_get_logging)
+
+    def _set_level(self, level):
+        self.log.setLevel(level)
+    def _get_level(self):
+        return self.log.level != logging.NOTSET
+    log_level = property(fget=_get_level, fset=_set_level)

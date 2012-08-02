@@ -35,9 +35,15 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-from sys import modules
 from re import match, search
 from os.path import exists, abspath, join, split
+
+# -----------------------------------------------------------------------------
+#
+# the version
+#
+# -----------------------------------------------------------------------------
+version         = (1,1,6)
 
 # -----------------------------------------------------------------------------
 #
@@ -57,7 +63,6 @@ def get_svn_revision(path=None):
 
     rev = None
     if path is None:
-#        path = split(abspath(__file__))[0] if __name__ == '__main__' else modules[__name__].__path__[0]
         path = split(abspath(__file__))[0]
     entries_path = join(path, '.svn/entries')
 
@@ -82,11 +87,9 @@ def get_svn_revision(path=None):
 
 # -----------------------------------------------------------------------------
 #
-# define the SuRF version (without svn revision...)
+# define the full SuRF version (with svn revision...)
 #
 # -----------------------------------------------------------------------------
-
-version         = (1,1,5)
 full_version    = version + (get_svn_revision(),)
 
 def get_version(full=False):

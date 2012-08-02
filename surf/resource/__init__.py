@@ -33,6 +33,7 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
+from surf.log import deprecation
 
 __author__ = 'Cosmin Basca'
 
@@ -532,14 +533,14 @@ class Resource(object):
 
         return getattr(self, attr_name)
     
-    def load(self, only_direct=False):
+    def load(self, direct_only=False, **kwargs):
         """Load all attributes from the data store.
         
         By default, load all attributes from the data store:
             - direct attributes (where the subject is the subject of the resource)
             - indirect attributes (where the object is the subject of the resource)
 
-        If `only_direct` is `False`, don't load inverse attributes.
+        If `direct_only` is `False`, don't load inverse attributes (incoming arcs).
         This can be used as optimization when client knows invese
         attributes won't be accessed. 
 
@@ -550,8 +551,13 @@ class Resource(object):
         results_d = self.session[self.store_key].load(self, True)
         self.__set_predicate_values(results_d, True)
         self.__full_direct = True
-        
-        if not only_direct:
+
+        #TODO: -------------------[remove in v1.2.0]------------------------
+        if 'only_direct' in kwargs:
+            deprecation('the only_direct argument is deprecated and will be removed in version 1.2.0, use direct_only instead!')
+            direct_only = kwargs['only_direct']
+        #TODO: -------------------[remove in v1.2.0]------------------------
+        if not direct_only:
             results_i = self.session[self.store_key].load(self, False)
             self.__set_predicate_values(results_i, False)
             self.__full_inverse = True
@@ -649,10 +655,10 @@ class Resource(object):
         instance.__set_predicate_values(data.get("direct", {}), True)
         instance.__set_predicate_values(data.get("inverse", {}), False)
         
-        full = bool(params.get("full"))
-        only_direct = bool(params.get("only_direct"))
-        instance.__full_direct = full
-        instance.__full_inverse = full and not only_direct 
+        full                    = bool(params.get("full"))
+        direct_only             = bool(params.get("direct_only"))
+        instance.__full_direct  = full
+        instance.__full_inverse = full and not direct_only
         # __setattr__ marked it as dirty but it's freshly loaded!
         instance.dirty = False 
 

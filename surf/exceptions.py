@@ -74,3 +74,10 @@ class MultipleResultsFound(CardinalityException):
     """
 
     pass
+
+
+class PluginNotFoundException(Exception):
+    """ Raised when the required Plugin is not found
+
+    """
+    pass

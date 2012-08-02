@@ -38,7 +38,6 @@ __author__ = 'Cosmin Basca'
 from surf.plugin.reader import RDFReader
 from surf.query import Query, Union
 from surf.query import a, ask, select, optional_group, named_group
-
 from surf.rdf import URIRef
 
 def query_SP(s, p, direct, context):
@@ -102,7 +101,7 @@ class RDFQueryReader(RDFReader):
     """ Super class for SuRF Reader plugins that wrap queryable `stores`. """
 
     def __init__(self, *args, **kwargs):
-        RDFReader.__init__(self, *args, **kwargs)
+        super(RDFQueryReader, self).__init__(*args, **kwargs)
         self.use_subqueries = kwargs.get('use_subqueries', False)
         if type(self.use_subqueries) in [str, tuple]:
             self.use_subqueries = (self.use_subqueries.lower() == 'true')
@@ -243,7 +242,7 @@ class RDFQueryReader(RDFReader):
             result = self.convert(result, 'p', 'v', 'c')
             instance_data["direct"] = result
 
-            if not params.get("only_direct"):
+            if not params.get("direct_only"):
                 result = self._execute(query_S(subject, False, context))
                 result = self.convert(result, 'p', 'v', 'c')
                 instance_data["inverse"] = result
@@ -264,7 +263,7 @@ class RDFQueryReader(RDFReader):
         self.__apply_limit_offset_order_get_by_filter(inner_params, inner_query)
 
 
-        if params.get("only_direct"):
+        if params.get('direct_only'):
             query = select("?s", "?p", "?v", "?c").distinct()
             query.group(('?s', '?p', '?v'), optional_group(('?v', a, '?c')))
         else:
@@ -305,7 +304,7 @@ class RDFQueryReader(RDFReader):
             subject = URIRef(match["s"])
             predicate = URIRef(match["p"])
             value = match["v"]
-            # Inverse given if only_direct is False
+            # Inverse given if direct_only is False
             inverse = match.get("i") == "1"
 
             # Add subject to result list if it's not there

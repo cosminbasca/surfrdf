@@ -214,7 +214,7 @@ class PluginTestMixin(object):
         self.assertEquals(mary_double.foaf_name.first, "Mary")
         self.assertEquals(mary_double.is_foaf_knows_of.first, jane)
 
-    def test_full_only_direct(self):
+    def test_full_direct_only(self):
         """ Test loading details with only_direct=True. """
 
         _, session = self._get_store_session()
@@ -225,7 +225,7 @@ class PluginTestMixin(object):
         jane.foaf_knows = mary
         jane.save()
 
-        persons = Person.all().get_by(foaf_name = Literal("Mary")).full(only_direct = True)
+        persons = Person.all().get_by(foaf_name = Literal("Mary")).full(direct_only = True)
         mary_double = persons.one()
         # At first, rdf_inverse should be empty
         self.assertTrue(len(mary_double.rdf_inverse) == 0)
@@ -606,8 +606,8 @@ class PluginTestMixin(object):
         res = Logic.all().limit(1).first()
         res.load()
         
-    def test_load_only_direct(self):
-        """ Test resource.load(only_direct=True) """
+    def test_load_direct_only(self):
+        """ Test resource.load(direct_only=True) """
         
         _, session = self._get_store_session(use_default_context=False)
         john, mary, jane = self._create_persons(session)
@@ -621,7 +621,7 @@ class PluginTestMixin(object):
         
         Person = session.get_class(surf.ns.FOAF + "Person")
         mary_double = session.get_resource(mary.subject, Person) 
-        mary_double.load(only_direct=True)
+        mary_double.load(direct_only=True)
         
         self.assertEqual(len(mary_double.rdf_inverse), 0)
 

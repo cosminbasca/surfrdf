@@ -72,7 +72,7 @@ setup(
     keywords            = 'python SPARQL RDF resource mapper',
     packages            = ['sparql_protocol'],
     install_requires    = [
-        'SuRF>=1.1.4',
+        'surf>=1.1.5',
         'sparqlwrapper>=1.5.1',
     ],
     test_suite          = 'sparql_protocol.test',

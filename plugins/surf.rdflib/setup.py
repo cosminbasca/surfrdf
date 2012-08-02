@@ -73,9 +73,10 @@ setup(
     keywords            = 'python SPARQL RDF resource mapper',
     packages            = ['surf_rdflib'],
     install_requires    = [
-        'SuRF>=1.1.4',
+        'surf>=1.1.5',
         'rdfextras',
-        'pyparsing'],
+        'pyparsing',
+        'rdflib>=3.2.1'],
     test_suite          = 'surf_rdflib.test',
     entry_points        = {
         'surf.plugins.reader': 'rdflib = surf_rdflib.reader:ReaderPlugin',

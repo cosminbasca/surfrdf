@@ -33,15 +33,18 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
-__author__ = 'Cosmin Basca'
-
+from surf.exceptions import PluginNotFoundException
+from surf.log import deprecation, deprecated
 import logging
 from plugin import manager
-from plugin.manager import load_plugins, PluginNotFoundException, add_plugin_path, registered_readers, registered_writers
+from plugin.manager import load_plugins
 from plugin.reader import RDFReader
 from plugin.writer import RDFWriter
 from surf.query import Query
 from surf.rdf import URIRef
+from surf.util import LogMixin
+
+__author__ = 'Cosmin Basca'
 
 __readers__ = manager.__readers__
 __writers__ = manager.__writers__
@@ -51,7 +54,7 @@ __writers__ = manager.__writers__
 # this explicitly says that no context should be used.
 NO_CONTEXT = "no-context"
 
-class Store(object):
+class Store(LogMixin):
     """ The `Store` class is comprised of a reader and a writer, getting
     access to an underlying triple store. Also store specific parameters must
     be handled by the class, the plugins act based on various settings.
@@ -67,7 +70,9 @@ class Store(object):
     default_context = property(lambda self: self.__default_context)
 
     def __init__(self, reader = None, writer = None, *args, **kwargs):
-        self.log = logging.getLogger(self.__class__.__name__)
+        super(Store, self).__init__()
+        self.log_level = logging.NOTSET
+
         self.log.info('initializing the store')
         load_plugins()
 
@@ -113,16 +118,28 @@ class Store(object):
 
         return context
 
+    def _set_level(self, level):
+        self.log.setLevel(level)
+        self.reader.log_level = level
+        self.writer.log_level = level
+
+    @deprecated
     def enable_logging(self, enable):
         """ Toggle `logging` on or off. """
-
+        #TODO: -------------------[remove in v1.2.0]------------------------
+#        deprecation('the enable_logging method will be removed in version 1.2.0, use the logging and log_level properties instead!')
+        #TODO: -------------------[remove in v1.2.0]------------------------
         level = enable and logging.DEBUG or logging.NOTSET
         self.log.setLevel(level)
         self.reader.enable_logging(enable)
         self.writer.enable_logging(enable)
 
+    @deprecated
     def is_enable_logging(self):
         """ True if `logging` is enabled, False otherwise. """
+        #TODO: -------------------[remove in v1.2.0]------------------------
+#        deprecation('the is_enabled_logging method will be removed in version 1.2.0, use the logging and log_level properties instead!')
+        #TODO: -------------------[remove in v1.2.0]------------------------
         return (self.log.level == logging.DEBUG)
 
     def close(self):

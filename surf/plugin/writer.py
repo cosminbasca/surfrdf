@@ -46,8 +46,8 @@ class InvalidResourceException(Exception):
 class RDFWriter(Plugin):
     """ Super class for all surf Writer plugins. """
 
-    def __init__(self,reader, *args, **kwargs):
-        Plugin.__init__(self, *args, **kwargs)
+    def __init__(self, reader, *args, **kwargs):
+        super(RDFWriter, self).__init__(*args, **kwargs)
         if isinstance(reader,RDFReader):
             self.__reader = reader
         else:
