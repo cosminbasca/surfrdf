@@ -49,8 +49,8 @@ surf_logger.addHandler(logging.StreamHandler())
 surf_logger.setLevel(logging.NOTSET)
 
 # enable deprecation warnings to show up
+#TODO: turn off when no more deprecated functions are in use!
 warnings.simplefilter('always')
-#logging.captureWarnings(True)
 
 logging.root.disabled = True
 

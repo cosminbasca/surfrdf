@@ -2,6 +2,7 @@
 """ Module for SPARQL generation tests. """
 
 from unittest import TestCase
+import warnings
 
 from surf import ns
 from surf.plugin.query_reader import RDFQueryReader
@@ -17,6 +18,7 @@ class TestQueryReader(TestCase):
             # Cannot override __convert and throw from there,
             # but we know __convert calls _to_table... 
             def _to_table(self, _):
+                warnings.simplefilter("ignore")
                 raise Exception(u"This is unicode: ā")
             
             

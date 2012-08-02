@@ -2,6 +2,7 @@
 """ Module for surf.store.Store tests. """
 
 from unittest import TestCase
+import warnings
 
 import surf
 from surf import Session, Store
@@ -31,15 +32,17 @@ class TestStore(TestCase):
 
     def test_close_unicode_exception(self):
         """ Test that closing a store handles exceptions. """
-        
+
         class MockReader(RDFReader):
             def close(self):
+                warnings.simplefilter("ignore")
                 raise Exception(u"Some unicode: ā")
 
         class MockWriter(RDFWriter):
             def close(self):
+                warnings.simplefilter("ignore")
                 raise Exception(u"Some unicode: ā")
-        
+
         reader = MockReader()
         store = Store(reader, MockWriter(reader))
         store.close()

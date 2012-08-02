@@ -1,6 +1,15 @@
 News / Changelog
 ================
 
+Version 1.1.6
+-------------
+
+  * new module added: log (centralized logging for surf)
+  * new LogMixin superclass for Store and Plugin,
+  * support for deprecation
+  * deprecated methods enable_logging and is_logging_enabled (use LogMixin facilities)
+  * deprecated the use of only_direct where defined, use direct_only - this feature will be removed by 1.2.0!
+
 Version 1.1.5
 -------------
 
