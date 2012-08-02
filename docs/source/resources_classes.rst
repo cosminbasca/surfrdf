@@ -98,7 +98,7 @@ A SuRF resource represents a single RDF resource. Its URI is stored in
 RDF triples that describe this resource are available as object attributes.
 SuRF follows "prefix_predicate" convention for attribute names. For
 example, ``foaf:knows`` predicate maps to ``foaf_knows`` attribute in a SuRF resource.
-The attributes are instances of :class:`surf.resource.value.ResourceValue` class. 
+The attributes are instances of :class:`surf.resource.value.LazyResourceLoader` class.
 They are list-like, with some extra convenience functions:
 
 .. doctest::

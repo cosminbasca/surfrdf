@@ -37,40 +37,48 @@ __author__ = 'Cosmin Basca'
 """
 SuRF plugin
 
-Support for AllegroGraph
+Support for rdflib
 
 to develop run the folowing command:
 python setup.py develop -d .. -m
 """
+
 from setuptools import setup
+from sys import version_info
+
+def is_python(major=2, minor=5):
+    return tuple(version_info)[0:2] == (major,minor)
 
 setup(
-    name='surf.rdflib',
-    version='1.0.0',
-    description='surf RDFlib wrapper plugin',
-    long_description = 'Allows the retrieval / persistence of surf resources from / to RDFlib supported persistent stores',
-    license = 'New BSD SOFTWARE', 
-    author="Cosmin Basca",
-    author_email="cosmin.basca at google.com",
-    url = 'http://code.google.com/p/surfrdf/',
-    #download_url = 'http://surfrdf.googlecode.com/files/SuRF-0.4-py2.5.egg',
-    platforms = ['any'], #Should be removed by PEP  314
-    requires=['simplejson'], # Used by distutils to create metadata PKG-INFO
+    name                = 'surf.rdflib',
+    version             = '1.0.1',
+    description         = 'surf RDFlib wrapper plugin',
+    long_description    = 'Allows the retrieval / persistence of surf resources from / to RDFlib supported persistent stores',
+    license             = 'New BSD SOFTWARE',
+    author              = 'Cosmin Basca',
+    author_email        = 'cosmin.basca at google.com',
+    url                 = 'http://code.google.com/p/surfrdf/',
+    download_url        = 'http://pypi.python.org/pypi/surf.rdflib/',
+    platforms           = ['any'],
+    requires            = ['simplejson'] if is_python(2,5) else [],
     classifiers=[
-      'Development Status :: 3 - Alpha',
-      'Intended Audience :: Developers',
-      'License :: OSI Approved :: BSD License',
-      'Operating System :: OS Independent',
-      'Programming Language :: Python :: 2.5',
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: BSD License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 2.5'
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
     ],
-    keywords = 'python SPARQL RDF resource mapper',
-    #requires_python = '>=2.5', # Future in PEP 345
-    packages=['surf_rdflib'],
-    install_requires=['SuRF>=1.0.0', 'rdfextras',
-                      'pyparsing'], # pyparsing needed by rdfextras but not declared there
-    test_suite = "surf_rdflib.test",
-    entry_points={
-    'surf.plugins.reader': 'rdflib = surf_rdflib.reader:ReaderPlugin',
-    'surf.plugins.writer': 'rdflib = surf_rdflib.writer:WriterPlugin',
+    keywords            = 'python SPARQL RDF resource mapper',
+    packages            = ['surf_rdflib'],
+    install_requires    = [
+        'SuRF>=1.1.4',
+        'rdfextras',
+        'pyparsing'],
+    test_suite          = 'surf_rdflib.test',
+    entry_points        = {
+        'surf.plugins.reader': 'rdflib = surf_rdflib.reader:ReaderPlugin',
+        'surf.plugins.writer': 'rdflib = surf_rdflib.writer:WriterPlugin',
     }
 )

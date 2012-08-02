@@ -9,7 +9,7 @@ from sparql_protocol.writer import SparqlWriterException
 import surf
 from surf.query import select
 from surf.rdf import Literal, URIRef
-from surf.exc import CardinalityException
+from surf.exceptions import CardinalityException
 from surf.test.plugin import PluginTestMixin
 
 class SparqlProtocolTestMixin(object):

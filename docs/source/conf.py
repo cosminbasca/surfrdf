@@ -11,23 +11,57 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+# Copyright (c) 2009, Digital Enterprise Research Institute (DERI),
+# NUI Galway
+# All rights reserved.
+
+# author: Cosmin Basca
+# email: cosmin.basca@gmail.com
+
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer
+#      in the documentation and/or other materials provided with
+#      the distribution.
+#    * Neither the name of DERI nor the
+#      names of its contributors may be used to endorse or promote
+#      products derived from this software without specific prior
+#      written permission.
+
+# THIS SOFTWARE IS PROVIDED BY DERI ''AS IS'' AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+# PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL DERI BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+# OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+# OF THE POSSIBILITY OF SUCH DAMAGE.
+
 import sys, os
 import imp
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-surf_dir = os.path.join(os.path.split(os.path.split(os.path.split(__file__)[0])[0])[0], 'surf')
-pth = os.path.abspath(os.path.dirname(__file__))
-plug = os.path.join(os.path.split(surf_dir)[0],'plugins')
+dir_surf = os.path.join(os.path.split(os.path.split(os.path.split(__file__)[0])[0])[0], 'surf')
+dir_docs = os.path.abspath(os.path.dirname(__file__))
+dir_plugins = os.path.join(os.path.split(dir_surf)[0],'plugins')
 
-print 'SURF DIR = ',surf_dir
-print 'DOC_PATH = ',pth
-print 'PLUG_PATH= ',plug
+print 'SURF     DIR = ',dir_surf
+print 'DOCS     DIR = ',dir_docs
+print 'PLUGINS  DIR = ',dir_plugins
 
-sys.path.append(os.path.abspath(plug))
-sys.path.append(os.path.abspath(pth))
-sys.path.append(os.path.abspath(surf_dir))
+sys.path.append(os.path.abspath(dir_plugins))
+sys.path.append(os.path.abspath(dir_docs))
+sys.path.append(os.path.abspath(dir_surf))
 
 # -- General configuration -----------------------------------------------------
 
@@ -61,7 +95,7 @@ copyright = u'2009, Cosmin Basca'
 # built documents.
 #
 # The short X.Y version.
-surfver = imp.load_source('surfver',os.path.join(surf_dir, '__version__.py'))
+surfver = imp.load_source('surfver',os.path.join(dir_surf, '__version__.py'))
 
 version = surfver.str_version
 # The full version, including alpha/beta/rc tags.

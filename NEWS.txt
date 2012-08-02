@@ -1,6 +1,14 @@
 News / Changelog
 ================
 
+Version 1.1.5
+-------------
+
+  * Issue 54 - fixed
+  * Issue 45 - SuRF can be installed from source with pip (FIXME: python chesse shop)
+  * Issue 40 - (could not reproduce locally, however rdflib 3.2.1 was used and worked surf + surf.rdflib)
+  * Issue 27 - fixed
+  * Small changes in version API (see __version__.py)
 
 Version 1.1.4
 -------------
