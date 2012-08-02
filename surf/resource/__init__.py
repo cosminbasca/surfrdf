@@ -33,32 +33,48 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
+
 __author__ = 'Cosmin Basca'
 
 import re
 
-from surf.namespace import get_namespace_url, get_prefix, OWL, all
+from surf.namespace import get_namespace_url, get_prefix, OWL, all, RDF_TYPE
 from surf.query import Query
 from surf.rdf import BNode, ClosedNamespace, ConjunctiveGraph, Graph, Literal
 from surf.rdf import Namespace, RDF, RDFS, URIRef
-from surf.resource.value import ResourceValue
+from surf.resource.lazy import LazyResourceLoader
 from surf.resource.result_proxy import ResultProxy
 from surf.rest import Rest
 from surf.serializer import to_json
 from surf.store import NO_CONTEXT, Store
 from surf.util import attr2rdf, namespace_split, rdf2attr
 from surf.util import uri_to_class, uuid_subject, value_to_rdf
+from collections import defaultdict
 
-a = RDF.type
 class ResourceMeta(type):
     def __new__(mcs, classname, bases, class_dict):
-        ResourceClass = super(ResourceMeta, mcs).__new__(mcs, classname, bases, 
-                                                         class_dict)
-        
-        if "uri" not in class_dict:
-            ResourceClass.uri = None
-            
-        return ResourceClass
+        if 'uri' not in class_dict:
+            # default to an OWL:Thing if no uri is specified ...
+            class_dict['uri'] = OWL.Thing
+        return super(ResourceMeta, mcs).__new__(mcs, classname, bases, class_dict)
+
+    def __ne__(self, other):
+        """ The inverse of :meth:`__eq__`. """
+        return not self.__eq__(other)
+
+    def __eq__(self, other):
+        """ Return True if the two `resources` have the same `subject` and
+        are both of type `Resource`, False otherwise.
+
+        """
+
+        if isinstance(other, ResourceMeta):
+            return self.uri == other.uri
+
+        return False
+
+    def __hash__(self):
+        return hash(self.uri)
 
     def __getattr__(self, attr_name):
         """
@@ -101,20 +117,20 @@ class Resource(object):
     "owl_Class".
 
     Resource instance attributes can be set and get. If get, they will
-    be structures of type :class:`surf.resource.value.ResourceValue`. This class is subclass of
+    be structures of type :class:`surf.resource.value.LazyResourceLoader`. This class is subclass of
     `list` (to handle situations when there are several triples with the
     same subject and predicate but different objects) and have some some
-    special features. Since `ResourceValue` is subtype of list, it can be
+    special features. Since `LazyResourceLoader` is subtype of list, it can be
     iterated, sliced etc.
 
-    :meth:`surf.resource.value.ResourceValue.first` will return first element of list or `None`
+    :meth:`surf.resource.value.LazyResourceLoader.first` will return first element of list or `None`
     if list is empty::
 
         >>> resource.foaf_knows = [URIRef("http://p1"), URIRef("http://p2")]
         >>> resource.foaf_knows.first
         rdflib.URIRef('http://p1')
 
-    :meth:`surf.resource.value.ResourceValue.one` will return first element of list or will
+    :meth:`surf.resource.value.LazyResourceLoader.one` will return first element of list or will
     raise if list is empty or has more than one element::
 
 
@@ -125,7 +141,7 @@ class Resource(object):
         Exception: list has more elements than one
 
     When setting resource attribute, it will accept about anything and
-    translate it to `ResourceValue`. Attribute can be set to instance
+    translate it to `LazyResourceLoader`. Attribute can be set to instance
     of `URIRef`::
 
         >>> resource.foaf_knows = URIRef("http://p1")
@@ -177,24 +193,25 @@ class Resource(object):
         elif not type(subject) in [URIRef, BNode]:
             subject = URIRef(subject)
 
-        self.__subject = subject
+        self.__subject  = subject
         
         if context == NO_CONTEXT:
-            self.__context = None
+            self.__context  = None
         elif context:
-            self.__context = URIRef(unicode(context))
+            self.__context  = URIRef(unicode(context))
         elif self.session and self.store_key:
-            self.__context = self.session[self.store_key].default_context
+            self.__context  = self.session[self.store_key].default_context
         
-        self.__expired = False
-        self.__rdf_direct = {}
-        self.__rdf_direct[a] = [self.uri]
-        self.__rdf_inverse = {}
-        self.__namespaces = all()
+        self.__expired      = False
+        self.__rdf_direct   = defaultdict(list)
+        self.__rdf_direct[RDF_TYPE].append(self.uri)
+        self.__rdf_inverse  = defaultdict(list)
+
+        self.__namespaces   = all()
         # __full_direct and __full_inverse are set to true after doing full load. 
         # These are used by __getattr__ to decide if it's worth to query 
         # triplestore.
-        self.__full_direct = False
+        self.__full_direct  = False
         self.__full_inverse = False
 
         if self.session:
@@ -279,29 +296,29 @@ class Resource(object):
     """
     
     @classmethod
-    def _instance(cls, subject, vals, context = None, store = None, block_auto_load = True):
+    def _instance(cls, subject, uris, context = None, store = None, block_auto_load = True):
         """
         Create an instance from the `subject` and it's associated
-        `concept` (`vals`) URIs.
+        `concept` (`uris`) URIs.
 
         Only the first `concept` URI is considered for inheritance.
 
         """
 
-        # vals is list of rdf:type URIs for this instance.
+        # uris is list of rdf:type URIs for this instance.
         # If there are none, don't instantiate Resource, return URIRef. 
-        if not vals:
+        if not uris:
             return subject
             
         # Don't have reference to session, cannot instantiate Resource
         if not cls.session:
             return None
             
-        uri = vals[0]
-        # vals might be an iterator, but we want each 
+        uri = uris[0]
+        # uris might be an iterator, but we want each
         # element from it as separate argument, so
         # converting to list.
-        classes = map(uri_to_class, list(vals[1:]))
+        classes = map(uri_to_class, list(uris[1:]))
 
         return cls.session.map_instance(uri, subject, classes = classes,
                                         block_auto_load = block_auto_load,
@@ -377,15 +394,15 @@ class Resource(object):
 
         """
 
-        def make_values_source(values, rdf_values):
+        def prepare_getvalues_callable(values, rdf_values):
             """ Return callable that returns stored values for this attr. """
             
-            def setattr_values_source():
+            def getvalues_callable():
                 """ Return stored values for this attribute. """
 
                 return values, rdf_values
 
-            return setattr_values_source
+            return getvalues_callable
 
         predicate, direct = attr2rdf(name)
         if predicate:
@@ -396,17 +413,17 @@ class Resource(object):
             rdf_dict[predicate].extend([self.to_rdf(val) for val in value])
             self.dirty = True
 
-            if type(value) is ResourceValue:
+            if type(value) is LazyResourceLoader:
                 pass
             else:
                 if type(value) not in [list, tuple]: 
                     value = [value]
-                    
-                value = map(value_to_rdf, value)
-                values_source = make_values_source(value, rdf_dict[predicate])
-                value = ResourceValue(values_source, self, name)
+                value               = map(value_to_rdf, value)
+                getvalues_callable  = prepare_getvalues_callable(value, rdf_dict[predicate])
+                value               = LazyResourceLoader(getvalues_callable, self, name)
 
         object.__setattr__(self, name, value)
+
 
     def __setitem__(self, attr_name, value):
         """ Dictionary-style attribute access. """
@@ -415,6 +432,7 @@ class Resource(object):
             attr_name = rdf2attr(attr_name, True)
 
         return setattr(self, attr_name, value)
+
 
     #TODO: add the auto_persist feature...
     def __delattr__(self, attr_name):
@@ -436,6 +454,7 @@ class Resource(object):
             self.dirty = True
         object.__delattr__(self, attr_name)
 
+
     def __delitem__(self, attr_name):
         """ Dictionary-style attribute access. """
 
@@ -445,8 +464,8 @@ class Resource(object):
         return delattr(self, attr_name)
 
     # TODO: reuse already existing instances - CACHED
-    # TODO: shoud we raise an error when predicate not foud ? or just return 
-    # an empty list ? hmmm --- error :]
+    # TODO: should we raise an error when predicate not foud ? or just return
+    # TODO: we need to define what Predicate Not Found means !
     def __getattr__(self, attr_name):
         """ Retrieve and cache attribute values.
 
@@ -463,53 +482,47 @@ class Resource(object):
         if not predicate:
             raise AttributeError('Not a predicate: %s' % attr_name)
 
-        # Closure for lazy execution.
-        def make_values_source(resource, predicate, direct, do_query):
+        # Prepare closure for lazy execution.
+        def prepare_getvalues_callable(resource, predicate, direct, retrieve):
             """ Return callable that loads and returns values. """
 
-            def getattr_values_source():
+            def getvalues_callable():
                 """ Load and return values for this attribute. """
-                
-                if do_query:
+                # Select triple dictionary for synchronization
+                rdf_dict = resource.__rdf_direct if direct else resource.__rdf_inverse
+
+                # Initial synchronization
+                if retrieve:
                     store = resource.session[resource.store_key]
-                    # Request to triple store
+                    # send request to triple store
                     values = store.get(resource, predicate, direct)
-                    # Instantiate SuRF objects
+                    if not values:
+                        predicate_values = rdf_dict.get(predicate,[])
+                        values.update([(pred_val, []) for pred_val in predicate_values])
+                    # instantiate SuRF objects
                     surf_values = resource._lazy(values)
                 else:
                     surf_values = []
 
-
-                # Select triple dictionary for synchronization
-                if direct:
-                    rdf_dict = resource.__rdf_direct
-                else:
-                    rdf_dict = resource.__rdf_inverse
-
-                # Initial synchronization
                 rdf_dict[predicate] = [resource.to_rdf(value) for value in surf_values]
-
                 return surf_values, rdf_dict[predicate]
 
-            return getattr_values_source
+            return getvalues_callable
 
-        # If resource is fully loaded and still we're here
-        # at __getattr__, this must be an empty attribute, so
-        # no point querying triple store.
-        if direct:
-            do_query = not self.__full_direct
-        else:
-            do_query = not self.__full_inverse
+        # If resource is fully loaded and we're still here (__getattr__), this must be an empty
+        # attribute, therefore there is no point in querying the triple store !
+        retrieve_values     = (not self.__full_direct) if direct else (not self.__full_inverse)
+        getvalues_callable  = prepare_getvalues_callable(self, predicate, direct, retrieve_values)
 
-        values_source = make_values_source(self, predicate, direct, do_query)
-
-        attr_value = ResourceValue(values_source, self, attr_name)
+        attr_value          = LazyResourceLoader(getvalues_callable, self, attr_name)
 
         # Not using self.__setattr__, that would trigger loading of attributes
-        object.__setattr__(self, attr_name, attr_value)
+#        object.__setattr__(self, attr_name, attr_value)
+        super(Resource, self).__setattr__(attr_name, attr_value)
         self.dirty = False
 
         return attr_value
+
 
     def __getitem__(self, attr_name):
         """ Dictionary-style attribute access. """
@@ -544,6 +557,7 @@ class Resource(object):
             self.__full_inverse = True
 
         self.dirty = False
+
 
     def __set_predicate_values(self, results, direct):
         """ set the prediate - value(s) to the resource using lazy loading,
@@ -595,39 +609,39 @@ class Resource(object):
         
         return instances
 
+
     @classmethod
-    def __instancemaker(cls, params, instance_data):
+    def __instance_factory(cls, params, instance_data):
         """ Construct resource from `instance_data`, return it. """
 
         subject, data = instance_data
         # subject is either URIRef/BNode or Literal and we don't try to turn
         # literals into SuRF Resources
-        if not (isinstance(subject, URIRef) or isinstance(subject, BNode)):
+        if not isinstance(subject, (URIRef, BNode)):
             return subject
 
-        rdf_type = None
+        _rdf_type = None
         # Let's see if rdf:type was specified in query parameters
         for predicate, value, _ in params.get("get_by", []):
             # if rdf:type was filtered against several values,
             # we cannot use it for assigning type. 
             # Check here if value is list-like.
-            if predicate == a and not hasattr(value, "__iter__"):
-                rdf_type = value
+            if predicate == RDF_TYPE and not hasattr(value, "__iter__"):
+                _rdf_type = value
                 break
 
         # In results?
-        if (not rdf_type and "direct" in data and a in data["direct"]
-            and data["direct"][a]):
-            rdf_type = data["direct"][a].keys()[0]
+        if (not _rdf_type and "direct" in data and RDF_TYPE in data["direct"]
+            and data["direct"][RDF_TYPE]):
+            _rdf_type = data["direct"][RDF_TYPE].keys()[0]
 
-        if rdf_type is None:
+        if _rdf_type is None:
             # We don't know rdf:type, so cannot instantiate Resource,
             # return URIRef instead
             return subject
 
         context = params.get("context", None)
-        instance = cls._instance(subject,
-                                 [rdf_type],
+        instance = cls._instance(subject, [_rdf_type],
                                  context = context,
                                  store = cls.store_key,
                                  block_auto_load = False)
@@ -652,8 +666,7 @@ class Resource(object):
             return []
 
         store = cls.session[cls.store_key]
-        proxy = ResultProxy(store = store,
-                            instancemaker = cls.__instancemaker)
+        proxy = ResultProxy(store = store, instance_factory = cls.__instance_factory)
 
         return proxy.get_by(rdf_type = cls.uri)
 
@@ -680,7 +693,7 @@ class Resource(object):
         if not "rdf_type" in filters:
             filters["rdf_type"] = cls.uri
         proxy = ResultProxy(store = store,
-                            instancemaker = cls.__instancemaker)
+                            instance_factory= cls.__instance_factory)
 
         return proxy.get_by(**filters)
 
@@ -693,13 +706,13 @@ class Resource(object):
         uri, direct = attr2rdf(attribute_name)
         
         # We'll be using inverse_attribute_name as keyword argument.
-        # Python 2.6.2 and older doesn't allow unicode keyword arguments, 
-        # so we do str().
+        # Python 2.6.2 and older don't allow unicode keyword arguments,
+        # so we revert back to str().
         inverse_attribute_name = str(rdf2attr(uri, not direct))
 
         store = self.session[self.store_key]
         proxy = ResultProxy(store = store,
-                            instancemaker = self.__instancemaker)
+                            instance_factory= self.__instance_factory)
 
         kwargs = {inverse_attribute_name : self.subject}
         return proxy.get_by(**kwargs)

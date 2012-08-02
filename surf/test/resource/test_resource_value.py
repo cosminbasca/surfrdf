@@ -3,7 +3,7 @@
 import unittest
 
 import surf
-from surf.resource.value import ResourceValue
+from surf.resource.lazy import LazyResourceLoader
 from surf.resource.result_proxy import ResultProxy
 
 class MockStore(object):
@@ -24,7 +24,7 @@ class MockStore(object):
 
         return self.__data
 
-def mock_instancemaker(params, instance_data):
+def mock_instance_factory(params, instance_data):
     return "instance"
     
 class MockResource(object):
@@ -39,18 +39,18 @@ class MockResource(object):
 
     def query_attribute(self, attribute_name):
         return ResultProxy(store=self.store,
-                           instancemaker=mock_instancemaker)
+                           instance_factory=mock_instance_factory)
 
 
 class TestResultValue(unittest.TestCase):
 
     def test_contains(self):
-        """ Test ResourceValue.__contains__. """
+        """ Test LazyResourceLoader.__contains__. """
         
         def values_source():
             return ["value_as_surf_object"], ["value_as_uriref"]
         
-        instance = ResourceValue(values_source, MockResource(), "some_name")
+        instance = LazyResourceLoader(values_source, MockResource(), "some_name")
         # Test basic membership check.
         self.assertTrue("value_as_surf_object" in instance)
 
@@ -63,8 +63,8 @@ class TestResultValue(unittest.TestCase):
         def values_source():
             return ["1st_obj", "2nd_obj"], ["1st_uriref", "2nd_uriref"]
         
-        instance = ResourceValue(values_source, MockResource(), "some_name")
-        self.assertRaises(surf.exc.CardinalityException, instance.get_one)
+        instance = LazyResourceLoader(values_source, MockResource(), "some_name")
+        self.assertRaises(surf.exceptions.CardinalityException, instance.get_one)
         
 
 class TestResultValueQuery(unittest.TestCase):
@@ -74,7 +74,7 @@ class TestResultValueQuery(unittest.TestCase):
             return ["1st_obj", "2nd_obj"], ["1st_uriref", "2nd_uriref"]
         
         self.store = MockStore()
-        self.value = ResourceValue(values_source, MockResource(self.store),
+        self.value = LazyResourceLoader(values_source, MockResource(self.store),
                                    "some_name")
 
     def test_limit_offset(self):

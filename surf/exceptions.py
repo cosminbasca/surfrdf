@@ -33,19 +33,44 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
-__author__ = 'Cosmin Basca'
+""" Module for SuRF exceptions. """
+
+__author__ = ['Peteris Caune', 'Cosmin Basca']
 
 # -----------------------------------------------------------------------------
 #
-# import SuRF modules
+# SuRF exceptions
 #
 # -----------------------------------------------------------------------------
-from surf.query import Query, select, ask, describe, construct, OptionalGroup, \
-    Group, NamedGroup, Filter
-from surf.resource import Resource, RDF_TYPE
-from surf.store import Store, PluginNotFoundException, NO_CONTEXT
-from surf.session import Session
-from surf.exceptions import CardinalityException, MultipleResultsFound, \
-    NoResultFound
-from surf import namespace as ns
-from surf.__version__ import get_version, version, full_version, get_svn_revision
+class CardinalityException(Exception):
+    """ Raised when list length != 1.   
+    
+    Subclasses of this exception are raised by 
+    :meth:`surf.resource.result_proxy.ResultProxy.one()` and 
+    :meth:`surf.resource.value.ResultValue.get_one()`. 
+    
+    """
+
+    pass
+
+class NoResultFound(CardinalityException):
+    """ Raised when list length == 0. 
+
+    This exception is raised by 
+    :meth:`surf.resource.result_proxy.ResultProxy.one()` and 
+    :meth:`surf.resource.value.ResultValue.get_one()`. 
+    
+    """
+
+    pass
+
+class MultipleResultsFound(CardinalityException):
+    """ Raised when list length > 1.  
+ 
+    This exception is raised by 
+    :meth:`surf.resource.result_proxy.ResultProxy.one()` and 
+    :meth:`surf.resource.value.ResultValue.get_one()`. 
+
+    """
+
+    pass

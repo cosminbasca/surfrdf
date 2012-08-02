@@ -1,6 +1,6 @@
 """ Module for ResultProxy. """
 
-from surf.exc import NoResultFound, MultipleResultsFound
+from surf.exceptions import NoResultFound, MultipleResultsFound
 from surf.rdf import Literal
 from surf.util import attr2rdf, value_to_rdf
 
@@ -12,34 +12,34 @@ class ResultProxy(object):
 
     ResultProxy doesn't know how to convert data returned by
     :meth:`surf.store.Store.get_by` into :class:`surf.resource.Resource`, `URIRef`
-    and `Literal` objects. It delegates this task to `instancemaker`
+    and `Literal` objects. It delegates this task to `instance_factory`
     function.
 
     """
 
-    def __init__(self, params = {}, store = None, instancemaker = None):
+    def __init__(self, params = {}, store = None, instance_factory = None):
         self.__params = params
         self.__get_by_response = None
 
         if store:
             self.__params["store"] = store
 
-        if instancemaker:
-            self.__params["instancemaker"] = instancemaker
+        if instance_factory:
+            self.__params["instance_factory"] = instance_factory
 
-    def instancemaker(self, instancemaker_function):
+    def instance_factory(self, instance_factory_func):
         """ Specify the function for converting triples into instances.
 
-        ``instancemaker_function`` function can also be specified
+        ``instance_factory_func`` function can also be specified
         as argument to constructor when instantiating :class:`ResultProxy`.
 
-        ``instancemaker_function`` will be executed whenever
+        ``instance_factory_func`` will be executed whenever
         :class:`ResultProxy` needs to return a resource. It has to accept two
         arguments: ``params`` and ``instance_data``.
 
         ``params`` will be a dictionary containing query parameters gathered
         by :class:`ResultProxy`. Information from ``params`` can be used
-        by ``instancemaker_function``, for example, to decide what
+        by ``instance_factory_func``, for example, to decide what
         context should be set for created instances.
 
         ``instance_data`` will be a dictionary containing keys `direct` and
@@ -49,7 +49,7 @@ class ResultProxy(object):
         """
 
         params = self.__params.copy()
-        params["instancemaker"] = instancemaker_function
+        params["instance_factory"] = instance_factory_func
         return ResultProxy(params)
 
     def limit(self, value):
@@ -219,9 +219,9 @@ class ResultProxy(object):
     def __iterator(self):
         get_by_args, get_by_response = self.__execute_get_by()
 
-        instancemaker = self.__params["instancemaker"]
+        instance_factory = self.__params['instance_factory']
         for instance_data in get_by_response:
-            yield instancemaker(get_by_args, instance_data)
+            yield instance_factory(get_by_args, instance_data)
 
 
     def __iter__(self):

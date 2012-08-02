@@ -44,7 +44,7 @@ from surf.util import attr2rdf, de_camel_case, is_uri, uri_to_classname
 '''
 TODO:
     Come to a resolution regarding the metaclass conflict
-    for now classes that extend the Resource must have no metaclasses of 
+    for now classes that extend Resource must have no metaclasses of
     their own.
     
     Q: is it a good idea the generate a sublclass of all meta?
@@ -56,8 +56,8 @@ TODO:
 
 __all__ = ['Session']
 
-DEFAULT_RESOURCE_EXPIRE_TIME = 60 * 60
-DEFAULT_STORE_KEY = 'default'
+DEFAULT_RESOURCE_EXPIRE_TIME    = 60 * 60
+DEFAULT_STORE_KEY               = 'default'
 
 class Session(object):
     """ The `Session` will manage the rest of the components in **SuRF**,
@@ -276,7 +276,7 @@ class Session(object):
 
         .. note:: It is good practice to close the `session` when it's no
                   longer needed.
-                  Remember: upon closing session all resources will lose
+                  Remember: upon closing the session all resources will lose
                   the ability to reference the session thus the store and
                   the mapping.
 
@@ -288,15 +288,15 @@ class Session(object):
 
         self.mapping = None
 
-    def map_type(self, uri, store = None, *classes):
+    def map_type(self, uri, store = None, classes = None):
         """ Create and return a `class` based on the `uri` given.
 
         Also will add the `classes` to the inheritance list.
 
         """
 
-        if store is None:
-            store = self.default_store_key
+        classes = classes if isinstance(classes, (tuple, set, list)) else []
+        store = store if store else self.default_store_key
 
         uri = self.__uri(uri)
         if not uri:
@@ -311,11 +311,11 @@ class Session(object):
         if type(session_classes) not in [list, tuple, set]:
             session_classes = [session_classes]
         base_classes.extend(session_classes)
-        return type(str(name), tuple(base_classes), {'uri': uri,
-                                                     'store_key': store,
-                                                     'session': self})
+        return type(str(name), tuple(base_classes), {'uri'          : uri,
+                                                     'store_key'    : store,
+                                                     'session'      : self})
 
-    def get_class(self, uri, store = None, *classes):
+    def get_class(self, uri, store = None, classes = None):
         """
         See :func:`surf.session.Session.map_type`.
         The `uri` parameter can be any of the following:
@@ -329,12 +329,14 @@ class Session(object):
 
         """
 
-        return self.map_type(uri, store, *classes)
+        return self.map_type(uri, store = store, classes = classes)
 
-    def map_instance(self, concept, subject, store = None, classes = [],
+    def map_instance(self, concept, subject, store = None, classes = None,
                      block_auto_load = False, context = None):
-        """Create a `instance` of the `class` specified by `uri` and `classes`
+        """Create an `instance` of the `class` specified by `uri` and `classes`
         to be inherited, see `map_type` for more information. """
+
+        classes = classes if isinstance(classes, (tuple, set, list)) else []
 
         if not type(subject) in [URIRef, BNode]:
             subject = URIRef(unicode(subject))
@@ -343,24 +345,26 @@ class Session(object):
             store = self.default_store_key
 
         if not (isinstance(concept, type) and issubclass(concept, Resource)):
-            concept = self.map_type(concept, store, *classes)
+            concept = self.map_type(concept, store = store, classes = classes)
             
-        return concept(subject, block_auto_load = block_auto_load,
-                       context = context)
+        return concept(subject, block_auto_load = block_auto_load, context = context)
 
-    def get_resource(self, subject, uri = None, store = None, graph = None,
-                     block_auto_load = False, context = None, *classes):
+
+    def get_resource(self, subject, concept = None, store = None, graph = None,
+                     block_auto_load = False, context = None, classes = None):
         """ Same as `map_type` but `set` the resource from the `graph`. """
+
+        classes = classes if isinstance(classes, (tuple, set, list)) else []
 
         if not isinstance(subject, URIRef):
             subject = URIRef(unicode(subject))
 
-        if uri is None:
-            uri = Resource.concept(subject)
+        if concept is None:
+            concept = Resource.concept(subject)
 
-        resource = self.map_instance(uri, subject, store, classes,
+        resource = self.map_instance(concept, subject, store = store, classes = classes,
                                      block_auto_load = block_auto_load,
-                                     context = context)
+                                     context = context )
 
         if graph:
             resource.set(graph)
@@ -368,21 +372,32 @@ class Session(object):
         return resource
 
     def load_resource(self, uri, subject, store = None, data = None,
-                      file = None, location = None, format = None, *classes):
-        """ Create a `instance` of the `class` specified by `uri`.
+                      file = None, location = None, format = None, classes = None):
+        """ Create an `instance` of the `class` specified by `uri`, while
+        `subject` is the subject of the new resource instance.
 
-        Also set the internal properties according to the ones by the specified
-        source.
+        The other parameters: `data`, `file`, `location` and `format` are identical
+        in role to the parameters in :func:`surf.resource.Resource.load_from_source`.
+
+        The `classes` parameter represents the list of base classes of this resource,
+        and is passed further to :func:`surf.session.Session.map_type`
+
+        The internal properties are set according to the ones specified by the source.
 
         """
+        classes = classes if isinstance(classes, (tuple, set, list)) else []
 
-        resource = self.map_type(uri, store, *classes)(subject)
-        resource.load_from_source(data = data, file = file,
-                                  location = location, format = format)
-        return resource
+        ResourceClass =  self.map_type(uri, store = store, classes = classes)
+        if ResourceClass:
+            resource = ResourceClass(subject)
+            resource.load_from_source(data = data, file = file,
+                                      location = location, format = format)
+            return resource
+        return None
 
     def commit(self):
-        """ Commit all the changes, update all the `dirty` `resources`. """
+        """ Commits all changes. In essence the method updates all the `dirty`
+        registered `resources`. """
 
         # Copy set into list because it will shrink as we go through it
         for resource in list(Resource.get_dirty_instances()):

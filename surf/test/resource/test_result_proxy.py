@@ -25,7 +25,7 @@ class MockStore(object):
 class MockResource(object):
     subject = "mock_subject"
 
-def mock_instancemaker(params, instance_data):
+def mock_instance_factory(params, instance_data):
     return "instance"
     
 
@@ -33,7 +33,7 @@ class TestResultProxy(unittest.TestCase):
 
     def setUp(self):
         self.store = MockStore()
-        params = { "store" : self.store, "instancemaker" : mock_instancemaker}
+        params = { "store" : self.store, "instance_factory" : mock_instance_factory}
         self.proxy = ResultProxy(params)
 
     def test_all_empty_list(self):

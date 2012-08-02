@@ -8,7 +8,7 @@ import surf
 from surf.store import NO_CONTEXT
 from surf.query import select, a
 from surf.rdf import Literal, URIRef
-from surf.exc import CardinalityException
+from surf.exceptions import CardinalityException
 from surf.util import value_to_rdf, json_to_rdflib
 from surf import ns
 
@@ -324,8 +324,8 @@ class PluginTestMixin(object):
         self.assertEquals(len(list(john.foaf_knows.limit(1))), 1)
         assert isinstance(john.foaf_knows.limit(1).first(), surf.Resource)
 
-    def test_instancemaker(self):
-        """ Test instancemaker. """
+    def test_instance_factory(self):
+        """ Test instance_factory. """
 
         _, session = self._get_store_session()
         self._create_persons(session)
@@ -391,7 +391,7 @@ class PluginTestMixin(object):
     def test_class_attrs_order(self):
         """ Test operations on Class.some_attr.
 
-        Class attributes should be ResourceValue instances and behave the
+        Class attributes should be LazyResourceLoader instances and behave the
         same as with Resources.
 
         """
