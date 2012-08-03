@@ -18,8 +18,8 @@ class ResultProxy(object):
 
     """
 
-    def __init__(self, params = {}, store = None, instance_factory = None):
-        self.__params = params
+    def __init__(self, params = None, store = None, instance_factory = None):
+        self.__params = params if params else dict()
         self.__get_by_response = None
 
         if store:
