@@ -34,20 +34,15 @@
 
 # -*- coding: utf-8 -*-
 import logging
-from surf.plugin import manager
-from surf.plugin.manager import load_plugins
+from surf.plugin.manager import load_plugins, get_reader, get_writer
 from surf.plugin.reader import RDFReader
 from surf.plugin.writer import RDFWriter
 from surf.log import deprecated
-from surf.exceptions import PluginNotFoundException
 from surf.query import Query
 from surf.rdf import URIRef
 from surf.util import LogMixin
 
 __author__ = 'Cosmin Basca'
-
-__readers__ = manager.__readers__
-__writers__ = manager.__writers__
 
 # A constant to use as context argument when we want to avoid default context.
 # Example: sess.get_resource(uri, Concept, context = surf.NO_CONTEXT),
@@ -81,25 +76,13 @@ class Store(LogMixin):
             self.__default_context = URIRef(kwargs["default_context"])
 
         if reader:
-            if reader in __readers__:
-                self.reader = __readers__[reader](*args, **kwargs)
-            elif isinstance(reader, RDFReader):
-                # We've received already configured reader, use it.
-                self.reader = reader
-            else:
-                raise PluginNotFoundException('The <%s> READER plugin was not found' % (reader))
+            self.reader = reader if isinstance(reader, RDFReader) else get_reader(reader, *args, **kwargs)
         else:
             self.reader = RDFReader(*args, **kwargs)
         self.reader.log_level = self.log_level
 
         if writer:
-            if writer in __writers__:
-                self.writer = __writers__[writer](self.reader, *args, **kwargs)
-            elif isinstance(writer, RDFWriter):
-                # We've received already configured writer, use it.
-                self.writer = writer
-            else:
-                raise PluginNotFoundException('The <%s> WRITER plugin was not found' % (reader))
+            self.writer = writer if isinstance(writer, RDFWriter) else get_writer(writer, self.reader, *args, **kwargs)
         else:
             self.writer = RDFWriter(self.reader, *args, **kwargs)
         self.writer.log_level = self.log_level

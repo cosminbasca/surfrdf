@@ -15,7 +15,7 @@ class TestResourceStandalone(TestCase):
         """ Prepare store and session. """
         
         # Hack to make RDFQueryReader available as it was provided by plugin.
-        surf.store.__readers__["query_reader"] = query_reader.RDFQueryReader
+        surf.plugin.manager.__readers__["query_reader"] = query_reader.RDFQueryReader
 
         self.store = surf.Store(reader = "query_reader", use_subqueries = True)
         self.session = surf.Session(self.store) 

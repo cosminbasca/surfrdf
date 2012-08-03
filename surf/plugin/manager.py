@@ -36,6 +36,8 @@
 import pkg_resources
 import os
 from pkg_resources import *
+from surf.exceptions import PluginNotFoundException
+from surf.plugin.reader import RDFReader
 
 __author__ = 'Cosmin Basca'
 
@@ -91,3 +93,15 @@ registered_readers = lambda : __readers__.keys()
 
 # registered :cls:`surf.plugin.writer.RDFWriter` plugins
 registered_writers = lambda : __writers__.keys()
+
+def get_reader(reader_id, *args, **kwargs):
+    global __readers__
+    if reader_id in __readers__:
+        return __readers__[reader_id](*args, **kwargs)
+    raise PluginNotFoundException('reader plugin [%s] was not found'%reader_id)
+
+def get_writer(writer_id, reader, *args, **kwargs):
+    assert isinstance(reader, RDFReader), 'reader is not an instance of RDFReader!'
+    global __writers__
+    if writer_id in __writers__:
+        return __writers__[writer_id](reader, *args, **kwargs)
