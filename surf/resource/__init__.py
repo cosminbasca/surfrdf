@@ -327,7 +327,7 @@ class Resource(object):
         """
         Do `lazy` instantiation of rdf predicates
         value is a dictionary {val:[concept,concept,...]},
-        returns a instance of `Resource`.
+        returns an instance of `Resource`.
 
         """
 
