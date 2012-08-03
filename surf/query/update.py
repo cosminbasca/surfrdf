@@ -35,11 +35,6 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
-# the rsf way
-#from rdf.graph import Graph, ConjunctiveGraph
-#from rdf.term import URIRef, Literal, BNode, RDF, RDFS
-#from rdf.namespace import Namespace
-
 from surf.query import Query, Group, NamedGroup, Filter, OptionalGroup, validate_statement
 from surf.rdf import RDF, URIRef, Namespace
 from surf.util import is_uri
@@ -47,17 +42,17 @@ from surf.util import is_uri
 a = RDF['type']
 
 # Update
-MODIFY = 'MODIFY'
-INSERT = 'INSERT'
+MODIFY      = 'MODIFY'
+INSERT      = 'INSERT'
 INSERT_DATA = 'INSERT_DATA'
-DELETE = 'DELETE'
+DELETE      = 'DELETE'
 DELETE_DATA = 'DELETE_DATA'
-LOAD = 'LOAD'
-CLEAR = 'CLEAR'
+LOAD        = 'LOAD'
+CLEAR       = 'CLEAR'
 
 # Manage
-CREATE = 'CREATE'
-DROP = 'DROP'
+CREATE      = 'CREATE'
+DROP        = 'DROP'
 
 class QueryUpdate(Query):
     """ Update query. """

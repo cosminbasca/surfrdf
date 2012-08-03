@@ -34,10 +34,9 @@
 
 # -*- coding: utf-8 -*-
 from surf.log import deprecation
+from surf.exceptions import NoResultFound, MultipleResultsFound
 
 __author__ = ['Peteris Caune', 'Cosmin Basca']
-
-from surf.exceptions import NoResultFound, MultipleResultsFound
 
 class LazyResourceLoader(list):
     ''' the :class:`surf.resource.value.LazyResourceLoader` class is used by the

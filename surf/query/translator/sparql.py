@@ -33,15 +33,15 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
-__author__ = 'Cosmin Basca'
-
-#TODO: move the translators in the future in a pluggable architecture
-
 from surf.query.translator import QueryTranslator
 from surf.query import Query, SELECT, ASK, DESCRIBE, CONSTRUCT, Group
 from surf.query import NamedGroup, OptionalGroup, Union, Filter
 from surf.rdf import BNode, Literal, URIRef
 from surf.util import is_uri
+
+__author__ = 'Cosmin Basca'
+
+#TODO: move the translators in the future in a pluggable architecture
 
 class SparqlTranslator(QueryTranslator):
     '''translates a query to SPARQL'''

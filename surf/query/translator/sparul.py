@@ -33,19 +33,12 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
-__author__ = 'Cosmin Basca'
-
-#TODO: move the translators in the future in a pluggable architecture
-
-# the rdf way
-#from rdf.graph import Graph, ConjunctiveGraph
-#from rdf.term import URIRef, Literal, BNode, RDF, RDFS
-#from rdf.namespace import Namespace
-# the rdflib 2.4.x way
-
 from surf.query.translator.sparql import SparqlTranslator
 from surf.query.update import LOAD, CLEAR, INSERT, INSERT_DATA, DELETE, DELETE_DATA
 
+__author__ = 'Cosmin Basca'
+
+#TODO: move the translators in the future in a pluggable architecture
 
 class SparulTranslator(SparqlTranslator):
     '''translates a query to SPARQL Update,

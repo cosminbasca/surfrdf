@@ -33,11 +33,10 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
-__author__ = 'Cosmin Basca'
-
 from surf.plugin import Plugin
 from surf.plugin.reader import RDFReader
-from surf.rdf import BNode, ConjunctiveGraph, Literal, RDF, URIRef
+
+__author__ = 'Cosmin Basca'
 
 class InvalidResourceException(Exception):
     def __init__(self,*args,**kwargs):

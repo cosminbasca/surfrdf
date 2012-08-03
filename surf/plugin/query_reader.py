@@ -33,12 +33,12 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
-__author__ = 'Cosmin Basca'
-
 from surf.plugin.reader import RDFReader
 from surf.query import Query, Union
 from surf.query import a, ask, select, optional_group, named_group
 from surf.rdf import URIRef
+
+__author__ = 'Cosmin Basca'
 
 def query_SP(s, p, direct, context):
     """ Construct :class:`surf.query.Query` with `?v` and `?c` as unknowns. """

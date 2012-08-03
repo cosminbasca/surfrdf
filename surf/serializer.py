@@ -33,9 +33,9 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
+
 __author__ = 'Cosmin Basca'
 
-# simplejson dependency is redundant on python2.7, due to the json module
 try:
     from json import dumps
 except Exception, e:

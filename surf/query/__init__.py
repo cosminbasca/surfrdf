@@ -33,25 +33,23 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
-__author__ = 'Cosmin Basca'
-
-import logging
-import re
-
 from surf.rdf import BNode, Graph, ConjunctiveGraph, Literal, Namespace
 from surf.rdf import RDF, URIRef
+import re
 
-a = RDF['type']
+__author__ = 'Cosmin Basca'
 
-SELECT = 'select'
-ASK = 'ask'
-CONSTRUCT = 'construct'
-DESCRIBE = 'describe'
+a           = RDF['type']
 
-DISTINCT = 'distinct'
-REDUCED = 'reduced'
+SELECT      = 'select'
+ASK         = 'ask'
+CONSTRUCT   = 'construct'
+DESCRIBE    = 'describe'
 
-UNION = 'union'
+DISTINCT    = 'distinct'
+REDUCED     = 'reduced'
+
+UNION       = 'union'
 
 #the classes
 class Group(list):

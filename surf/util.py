@@ -294,8 +294,6 @@ class LogMixin(object):
         self.log = logging.getLogger(self.__class__.__name__)
         self.log.addHandler(logging.StreamHandler())
 
-        self._loglevel = logging.INFO
-
     def _get_logging(self):
         return self.log.level != logging.NOTSET
     logging = property(fget=_get_logging)
@@ -303,5 +301,8 @@ class LogMixin(object):
     def _set_level(self, level):
         self.log.setLevel(level)
     def _get_level(self):
-        return self.log.level != logging.NOTSET
+        return self.log.level
     log_level = property(fget=_get_level, fset=_set_level)
+
+    def disable_logging(self):
+        self.log.setLevel(logging.NOTSET)

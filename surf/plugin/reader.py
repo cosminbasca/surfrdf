@@ -33,9 +33,9 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
-__author__ = 'Cosmin Basca'
-
 from surf.plugin import Plugin
+
+__author__ = 'Cosmin Basca'
 
 class RDFReader(Plugin):
     """ Super class for all surf Reader plugins. """

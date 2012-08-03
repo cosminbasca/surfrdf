@@ -46,13 +46,11 @@ __levels__ = {
 
 surf_logger     = logging.getLogger('surf')
 surf_logger.addHandler(logging.StreamHandler())
-surf_logger.setLevel(logging.NOTSET)
+surf_logger.setLevel(logging.INFO)
 
 # enable deprecation warnings to show up
 #TODO: turn off when no more deprecated functions are in use!
 warnings.simplefilter('always')
-
-logging.root.disabled = True
 
 def set_loglevel(level='info'):
     global surf_logger

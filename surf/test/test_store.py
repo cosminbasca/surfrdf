@@ -1,9 +1,9 @@
- # coding=UTF-8
+# coding=UTF-8
 """ Module for surf.store.Store tests. """
 
+import logging
 from unittest import TestCase
 import warnings
-
 import surf
 from surf import Session, Store
 from surf.plugin.reader import RDFReader
@@ -15,7 +15,7 @@ class TestStore(TestCase):
     def test_multiples(self):
         """ Test synchronization between empty attribute and rdf_direct. """
 
-        store = Store()
+        store = Store(log_level=logging.NOTSET)
         session = Session(store)
         
         Person = session.get_class(surf.ns.FOAF.Person)
@@ -35,17 +35,17 @@ class TestStore(TestCase):
 
         class MockReader(RDFReader):
             def close(self):
-                warnings.simplefilter("ignore")
                 raise Exception(u"Some unicode: ā")
 
         class MockWriter(RDFWriter):
             def close(self):
-                warnings.simplefilter("ignore")
                 raise Exception(u"Some unicode: ā")
 
         reader = MockReader()
-        store = Store(reader, MockWriter(reader))
+        store = Store(reader, MockWriter(reader), log_level=logging.NOTSET)
+        logging.disable(logging.ERROR)
         store.close()
+        logging.disable(logging.NOTSET)
 
     def test_successful_close(self):
         """ Test that store handles successful reader and writer closes. """
@@ -59,5 +59,5 @@ class TestStore(TestCase):
                 pass
         
         reader = MockReader()
-        store = Store(reader, MockWriter(reader))
+        store = Store(reader, MockWriter(reader), log_level=logging.NOTSET)
         store.close()

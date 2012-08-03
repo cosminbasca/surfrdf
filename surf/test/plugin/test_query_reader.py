@@ -1,5 +1,6 @@
 # coding=UTF-8
 """ Module for SPARQL generation tests. """
+import logging
 
 from unittest import TestCase
 import warnings
@@ -21,5 +22,6 @@ class TestQueryReader(TestCase):
                 warnings.simplefilter("ignore")
                 raise Exception(u"This is unicode: ā")
             
-            
+        logging.disable(logging.ERROR)
         MyQueryReader().convert(None)
+        logging.disable(logging.NOTSET)

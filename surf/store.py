@@ -33,13 +33,13 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
-from surf.exceptions import PluginNotFoundException
-from surf.log import deprecation, deprecated
 import logging
-from plugin import manager
-from plugin.manager import load_plugins
-from plugin.reader import RDFReader
-from plugin.writer import RDFWriter
+from surf.plugin import manager
+from surf.plugin.manager import load_plugins
+from surf.plugin.reader import RDFReader
+from surf.plugin.writer import RDFWriter
+from surf.log import deprecated
+from surf.exceptions import PluginNotFoundException
 from surf.query import Query
 from surf.rdf import URIRef
 from surf.util import LogMixin
@@ -71,10 +71,10 @@ class Store(LogMixin):
 
     def __init__(self, reader = None, writer = None, *args, **kwargs):
         super(Store, self).__init__()
-        self.log_level = logging.NOTSET
+        self.log_level = kwargs.get('log_level', logging.NOTSET)
 
         self.log.info('initializing the store')
-        load_plugins()
+        load_plugins(logger=self.log)
 
         self.__default_context = None
         if "default_context" in kwargs:
@@ -90,6 +90,7 @@ class Store(LogMixin):
                 raise PluginNotFoundException('The <%s> READER plugin was not found' % (reader))
         else:
             self.reader = RDFReader(*args, **kwargs)
+        self.reader.log_level = self.log_level
 
         if writer:
             if writer in __writers__:
@@ -101,6 +102,7 @@ class Store(LogMixin):
                 raise PluginNotFoundException('The <%s> WRITER plugin was not found' % (reader))
         else:
             self.writer = RDFWriter(self.reader, *args, **kwargs)
+        self.writer.log_level = self.log_level
 
         if hasattr(self.reader, 'use_subqueries'):
             self.use_subqueries = property(fget = lambda self: self.reader.use_subqueries)
@@ -154,12 +156,13 @@ class Store(LogMixin):
         try:
             self.reader.close()
             self.log.debug('reader closed successfully')
-        except Exception, e:
+        except Exception:
             self.log.exception("Error on closing the reader")
+
         try:
             self.writer.close()
             self.log.debug('writer closed successfully')
-        except Exception, e:
+        except Exception:
             self.log.exception("Error on closing the writer")
 
     #---------------------------------------------------------------------------

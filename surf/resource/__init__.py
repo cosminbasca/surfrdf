@@ -34,13 +34,7 @@
 
 # -*- coding: utf-8 -*-
 from surf.log import deprecation
-
-__author__ = 'Cosmin Basca'
-
-import re
-
 from surf.namespace import get_namespace_url, get_prefix, OWL, all, RDF_TYPE
-from surf.query import Query
 from surf.rdf import BNode, ClosedNamespace, ConjunctiveGraph, Graph, Literal
 from surf.rdf import Namespace, RDF, RDFS, URIRef
 from surf.resource.lazy import LazyResourceLoader
@@ -51,6 +45,8 @@ from surf.store import NO_CONTEXT, Store
 from surf.util import attr2rdf, namespace_split, rdf2attr
 from surf.util import uri_to_class, uuid_subject, value_to_rdf
 from collections import defaultdict
+
+__author__ = 'Cosmin Basca'
 
 class ResourceMeta(type):
     def __new__(mcs, classname, bases, class_dict):

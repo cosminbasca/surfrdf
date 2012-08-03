@@ -33,14 +33,12 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
-__author__ = 'Cosmin Basca'
-
-import logging
 import pkg_resources
 import os
 from pkg_resources import *
 
-log = logging.getLogger(__name__)
+__author__ = 'Cosmin Basca'
+
 __plugins_loaded = False
 
 __ENTRYPOINT_READER__ = 'surf.plugins.reader'
@@ -49,13 +47,14 @@ __ENTRYPOINT_WRITER__ = 'surf.plugins.writer'
 __readers__ = {}
 __writers__ = {}
 
-def __init_plugins(plugins, entry_point):
+def __init_plugins(plugins, entry_point, logger=None):
     for entrypoint in pkg_resources.iter_entry_points(entry_point):
         plugin_class = entrypoint.load()
         plugins[entrypoint.name] = plugin_class
-        log.info('loaded plugin [%s]'%entrypoint.name)
+        if logger and hasattr(logger, 'info'):
+            logger.info('loaded plugin [%s]'%entrypoint.name)
 
-def load_plugins(reload=False):
+def load_plugins(reload=False, logger=None):
     ''' Call this method to load the plugins into the manager. The method is called
     by default when a :class:`surf.store.Store` is instantiated. To cause a reload, call the method with `reload`
     set to *True*
@@ -63,8 +62,8 @@ def load_plugins(reload=False):
     '''
     global __plugins_loaded
     if not __plugins_loaded or reload:
-        __init_plugins(__readers__, __ENTRYPOINT_READER__)
-        __init_plugins(__writers__, __ENTRYPOINT_WRITER__)
+        __init_plugins(__readers__, __ENTRYPOINT_READER__, logger)
+        __init_plugins(__writers__, __ENTRYPOINT_WRITER__, logger)
         __plugins_loaded = True
 
 
