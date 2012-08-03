@@ -50,38 +50,8 @@ __author__ = 'Cosmin Basca'
 pattern_direct = re.compile('^[a-z0-9]{1,}_[a-zA-Z0-9_\-]{1,}$', re.DOTALL)
 pattern_inverse = re.compile('^is_[a-z0-9]{1,}_[a-zA-Z0-9_\-]{1,}_of$', re.DOTALL)
 
-PY2XML = {
-    'basestring': 'http://www.w3.org/2001/XMLSchema#string',
-    'base64'    : 'http://www.w3.org/2001/XMLSchema#base64Binary',
-    'unicode'   : 'http://www.w3.org/2001/XMLSchema#normalizedString',
-    'bool'      : 'http://www.w3.org/2001/XMLSchema#boolean',
-    'float'     : 'http://www.w3.org/2001/XMLSchema#float',
-    'long'      : 'http://www.w3.org/2001/XMLSchema#long',
-    'int'       : 'http://www.w3.org/2001/XMLSchema#int'
-}
-
 def string_conforms_to_base64(s):
     return (len(s) % 4 == 0) and re.match('^[A-Za-z0-9+/]+[=]{0,2}$', s)
-
-def get_xml_datatype(value):
-    '''returns the preferred XSD datatype specifiers given the python
-    type of `value`, this method is used by :func:`surf.util.value_to_rdf`.'''
-    if isinstance(value, basestring):
-        if string_conforms_to_base64(value):
-            return PY2XML['base64']
-        return PY2XML['basestring']
-    elif isinstance(value, unicode):
-        return PY2XML['unicode']
-    elif isinstance(value, bool):
-        return PY2XML['bool']
-    elif isinstance(value, float):
-        return PY2XML['float']
-    elif isinstance(value, long):
-        return PY2XML['long']
-    elif isinstance(value, int):
-        return PY2XML['int']
-    return None
-
 
 def namespace_split(uri):
     """ Same as `uri_split`, but instead of the base of the uri, returns the
@@ -270,8 +240,9 @@ def value_to_rdf(value):
     """ Convert the value to an `rdflib` compatible type if appropriate. """
 
     if type(value) in [basestring, str, unicode, float, int, long, bool, datetime, date, time, decimal.Decimal]:
-        datatype = get_xml_datatype(value)
-        return Literal(value, lang = None, datatype = datatype)
+        if type(value) is basestring and string_conforms_to_base64(value):
+            return Literal(value, datatype=URIRef('http://www.w3.org/2001/XMLSchema#base64Binary'))
+        return Literal(value)
     elif type(value) in [list, tuple]:
         language = len(value) > 1 and value[1] or None
         datatype = len(value) > 2 and value[2] or None
