@@ -58,7 +58,7 @@ class WriterPlugin(RDFWriter):
         self.__combine_queries = kwargs.get("combine_queries")
         self.__results_format = JSON
 
-        self.__sparql_wrapper = SPARQLWrapper(self.__endpoint, self.__results_format)
+        self.__sparql_wrapper = SPARQLWrapper(self.__endpoint, returnFormat=self.__results_format)
         user        = kwargs.get('user',None)
         password    = kwargs.get('password',None)
         if user and password:

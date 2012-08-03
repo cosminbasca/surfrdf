@@ -50,7 +50,7 @@ def is_python(major=2, minor=5):
 
 setup(
     name                = 'surf.sparql_protocol',
-    version             = '1.0.1',
+    version             = '1.0.2',
     description         = 'surf SPARQL protocol plugin',
     long_description    = 'provides access to SPARQL protocol endpoints',
     license             = 'New BSD SOFTWARE',
