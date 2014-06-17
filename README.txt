@@ -9,17 +9,19 @@ Install
 
 Install SuRF::
 
-    $ easy_install -U surf
+```sh
+$ easy_install -U surf
+```
 
 You'll need one of the following plugins (also installable by easy_install):
 
-  * ``surf.sparql_protocol``,
+  * _surf.sparql_protocol_,
     for stores with a SPARQL Protocol endpoint (e.g. Virtuoso)
-  * ``surf.allegro_franz``,
+  * _surf.allegro_franz_,
     for the AllegroGraph RDFStore
-  * ``surf.sesame2``,
+  * _surf.sesame2_,
     for stores with a Sesame2 HTTP API
-  * ``surf.rdflib``,
+  * _surf.rdflib_,
     for the experimental store implementation of rdflib (via rdfextras)
 
 
@@ -29,6 +31,7 @@ Example
 The example below shows how to query a resource using the rdflib in-memory
 backend:
 
+```python
 >>> from surf import *
 >>> store = Store(reader='rdflib',
 ...               writer='rdflib',
@@ -42,7 +45,7 @@ True
 ...     print person.foaf_name.first
 ...
 Timothy Berners-Lee
-
+```
 
 Documentation
 =============
@@ -52,27 +55,24 @@ download from http://code.google.com/p/surfrdf/downloads/list.
 
 To build the documentation yourself, install sphinx and run the build step::
 
+```sh
     $ pip install sphinx
     $ python setup.py build_sphinx
-
+```
 
 Unit tests
 ==========
 
 Run unit tests from the source directory::
 
+```sh
     $ python setup.py test
+```
 
 Test plugins from their respective source directory, e.g.::
 
+```sh
     $ cd plugins/surf.sparql_protocol/
     $ python setup.py test
-
-
-Contact
-=======
-
-Please report bugs to http://code.google.com/p/surfrdf/issues/list.
-There is a mailing list at surfrdf@googlegroups.com
-(http://groups.google.com/group/surfrdf).
+```
 
