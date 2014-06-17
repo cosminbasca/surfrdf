@@ -10,8 +10,13 @@ Install
 Install SuRF:
 
 ```sh
+$ # with easy_install ... 
 $ easy_install -U surf
+
+$ # or with pip ... 
+$ pip install --upgrade surf
 ```
+
 
 You'll need one of the following plugins (also installable by easy_install):
 
