@@ -1,13 +1,13 @@
-SuRF is a Python library for working with RDF data in an Object-Oriented way.
+*SuRF* is a Python library for working with RDF data in an Object-Oriented manner.
 In SuRF, RDF nodes (subjects and objects) are represented as Python objects and
-RDF arcs (predicates) as their attributes. SuRF is an Object RDF Mapper (ORM),
-similar in concept to Object Relational Mappers like SQLAlchemy.
+RDF edges (predicates) as their attributes. *SuRF* is an Object RDF Mapper (ORM),
+similar in concept to Object Relational Mappers like *SQLAlchemy*.
 
 
 Install
 =======
 
-Install SuRF::
+Install SuRF:
 
 ```sh
 $ easy_install -U surf
@@ -50,8 +50,7 @@ Timothy Berners-Lee
 Documentation
 =============
 
-You can read the documentation online at http://packages.python.org/SuRF/ or
-download from http://code.google.com/p/surfrdf/downloads/list.
+You can read the documentation online at http://packages.python.org/SuRF/ 
 
 To build the documentation yourself, install sphinx and run the build step::
 
@@ -63,13 +62,13 @@ To build the documentation yourself, install sphinx and run the build step::
 Unit tests
 ==========
 
-Run unit tests from the source directory::
+Run unit tests from the source directory:
 
 ```sh
     $ python setup.py test
 ```
 
-Test plugins from their respective source directory, e.g.::
+Test plugins from their respective source directory, e.g.:
 
 ```sh
     $ cd plugins/surf.sparql_protocol/
