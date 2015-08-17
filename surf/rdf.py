@@ -61,7 +61,7 @@ if rdflib.__version__.startswith("2.5") or rdflib.__version__.startswith("3."):
     from rdflib.term import URIRef
 
 # 4.0 style imports
-if rdflib.__version__.startswith("4.1") or rdflib.__version__.startswith("3."):
+if rdflib.__version__.startswith("4.") or rdflib.__version__.startswith("3."):
     from rdflib.term import BNode
     from rdflib.graph import Graph, ConjunctiveGraph
     from rdflib.term import Literal
