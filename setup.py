@@ -51,7 +51,7 @@ setup(
       name              = 'SuRF',
       version           = get_version(full=False),
       description       = 'Object RDF Mapper',
-      long_description  = open('README.txt').read() + open('NEWS.txt').read(),
+      long_description  = open('README.md').read() + open('NEWS.txt').read(),
       license           = 'New BSD SOFTWARE',
       author            = 'Cosmin Basca',
       author_email      = 'cosmin.basca at google.com',
