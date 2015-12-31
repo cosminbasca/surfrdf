@@ -37,7 +37,7 @@ __author__ = 'Cosmin Basca'
 
 from ez_setup import use_setuptools
 use_setuptools()
-from setuptools import setup
+from setuptools import setup, find_packages
 from sys import version_info
 
 def is_python(major=2, minor=5):
@@ -58,7 +58,8 @@ setup(
       url               = 'http://code.google.com/p/surfrdf/',
       download_url      = 'http://pypi.python.org/pypi/SuRF/',
       platforms         = ['any'],
-      packages          = ['surf'],
+      #packages          = ['surf'],
+      packages          = find_packages(exclude=['surf.test']),
       requires          = ['simplejson'] if is_python(2,5) else [],
       install_requires  = [
                               'rdflib>=3.2.1',

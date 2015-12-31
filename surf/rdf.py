@@ -60,5 +60,15 @@ if rdflib.__version__.startswith("2.5") or rdflib.__version__.startswith("3."):
     from rdflib.namespace import RDF, RDFS
     from rdflib.term import URIRef
 
+# 4.0 style imports
+if rdflib.__version__.startswith("4.") or rdflib.__version__.startswith("3."):
+    from rdflib.term import BNode
+    from rdflib.graph import Graph, ConjunctiveGraph
+    from rdflib.term import Literal
+    from rdflib.namespace import ClosedNamespace, Namespace
+    from rdflib.namespace import RDF, RDFS
+    from rdflib.term import URIRef
+
+
 __exports__ = [BNode, ClosedNamespace, ConjunctiveGraph, Graph, Literal,
                Namespace, RDF, RDFS, URIRef]

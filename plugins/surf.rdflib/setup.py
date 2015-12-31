@@ -74,7 +74,7 @@ setup(
     packages            = ['surf_rdflib'],
     install_requires    = [
         'surf>=1.1.5',
-        'rdfextras',
+        #'rdfextras==0.4',
         'pyparsing',
         'rdflib>=3.2.1'],
     test_suite          = 'surf_rdflib.test',
