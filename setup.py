@@ -36,48 +36,52 @@
 __author__ = 'Cosmin Basca'
 
 from ez_setup import use_setuptools
+
 use_setuptools()
 from setuptools import setup, find_packages
 from sys import version_info
 
-def is_python(major=2, minor=5):
-    return tuple(version_info)[0:2] == (major,minor)
 
+def is_python(major=2, minor=5):
+    return tuple(version_info)[0:2] == (major, minor)
+
+
+str_version = None
 execfile('surf/__version__.py')
 
-py25_install_requires = ['simplejson>=2.6.1'] if is_python(2,5) else []
+py25_install_requires = ['simplejson>=2.6.1'] if is_python(2, 5) else []
 
 setup(
-      name              = 'SuRF',
-      version           = get_version(full=False),
-      description       = 'Object RDF Mapper',
-      long_description  = open('README.md').read() + open('NEWS.txt').read(),
-      license           = 'New BSD SOFTWARE',
-      author            = 'Cosmin Basca',
-      author_email      = 'cosmin.basca at google.com',
-      url               = 'http://code.google.com/p/surfrdf/',
-      download_url      = 'http://pypi.python.org/pypi/SuRF/',
-      platforms         = ['any'],
-      #packages          = ['surf'],
-      packages          = find_packages(exclude=['surf.test']),
-      requires          = ['simplejson'] if is_python(2,5) else [],
-      install_requires  = [
-                              'rdflib>=3.2.1',
-#                              'nose>=1.1.2',    # nosetests for testing
-#                              'rednose>=0.2.5'  # a bit of coloring for nosetests
-                          ] + py25_install_requires,
-      tests_require     = ['surf.rdflib'],
-      test_suite        = 'surf.test',
-      classifiers       = [
-          'Development Status :: 4 - Beta',
-          'Intended Audience :: Developers',
-          'License :: OSI Approved :: BSD License',
-          'Operating System :: OS Independent',
-          'Programming Language :: Python :: 2.5',
-          'Programming Language :: Python :: 2.6',
-          'Programming Language :: Python :: 2.7',
-          'Topic :: Software Development :: Libraries :: Python Modules',
-      ],
-      keywords          = 'Python SPARQL RDF resource mapper ORM query Semantic Web RDFS rdflib Object-Oriented',
-      scripts           = ['ez_setup.py']
+    name='SuRF',
+    version=str_version,
+    description='Object RDF Mapper',
+    long_description=open('README.md').read() + open('NEWS.txt').read(),
+    license='New BSD SOFTWARE',
+    author='Cosmin Basca',
+    author_email='cosmin.basca at google.com',
+    url='http://code.google.com/p/surfrdf/',
+    download_url='http://pypi.python.org/pypi/SuRF/',
+    platforms=['any'],
+    # packages          = ['surf'],
+    packages=find_packages(exclude=['surf.test']),
+    requires=['simplejson'] if is_python(2, 5) else [],
+    install_requires=[
+                         'rdflib>=3.2.1',
+                         #                              'nose>=1.1.2',    # nosetests for testing
+                         #                              'rednose>=0.2.5'  # a bit of coloring for nosetests
+                     ] + py25_install_requires,
+    tests_require=['surf.rdflib'],
+    test_suite='surf.test',
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: BSD License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 2.5',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+    ],
+    keywords='Python SPARQL RDF resource mapper ORM query Semantic Web RDFS rdflib Object-Oriented',
+    scripts=['ez_setup.py']
 )

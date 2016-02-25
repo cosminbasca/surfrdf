@@ -48,6 +48,6 @@ from surf.session import Session
 from surf.exceptions import CardinalityException, MultipleResultsFound, \
     NoResultFound
 from surf import namespace as ns
-from surf.__version__ import get_version, version, full_version, get_svn_revision
+from surf.__version__ import str_version, version
 from surf.log import deprecation, disable_root_logger, enable_root_logger, set_loglevel, surf_logger
 from surf.plugin.manager import get_writer, get_reader
