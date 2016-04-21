@@ -84,7 +84,7 @@ class ReaderPlugin(RDFQueryReader):
         self.log.debug(q_string)
 
         result = self.__graph.query(q_string)
-        return loads(result.serialize('json'))
+        return loads(result.serialize(format='json'))
 
     def close(self):
         self.__graph.close(commit_pending_transaction = self.__commit_pending_transaction_on_close)
