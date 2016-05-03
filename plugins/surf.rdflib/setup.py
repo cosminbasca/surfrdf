@@ -73,7 +73,7 @@ setup(
     keywords            = 'python SPARQL RDF resource mapper',
     packages            = ['surf_rdflib'],
     install_requires    = [
-        'surf>=1.1.5',
+        'surf>=0.1.8',
         #'rdfextras==0.4',
         'pyparsing',
         'rdflib>=3.2.1'],
