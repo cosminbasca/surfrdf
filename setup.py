@@ -33,55 +33,66 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
+import sys
+try:
+    from setuptools import setup, find_packages
+except ImportError:
+    from ez_setup import use_setuptools
+
+    use_setuptools()
+    from setuptools import setup, find_packages
+
+
 __author__ = 'Cosmin Basca'
 
-from ez_setup import use_setuptools
-
-use_setuptools()
-from setuptools import setup, find_packages
-from sys import version_info
-
-
-def is_python(major=2, minor=5):
-    return tuple(version_info)[0:2] == (major, minor)
-
+NAME = 'SuRF'
+PY2 = sys.version_info[0] == 2
 
 str_version = None
-execfile('surf/__version__.py')
+if PY2:
+    execfile('{0}/__version__.py'.format(NAME))
+else:
+    exec(open('{0}/__version__.py'.format(NAME)).read())
 
-py25_install_requires = ['simplejson>=2.6.1'] if is_python(2, 5) else []
+# Load up the description from README
+with open('README.rst') as f:
+    DESCRIPTION = f.read()
+
+with open('CHANGELOG.rst') as f:
+    LONG_DESCRIPTION = '{0}\n{1}'.format(DESCRIPTION, f.read())
+
+deps = [
+    'rdflib>=4.2.1',
+]
+
+test_deps = [
+    'pytest>=2.9.1',
+    'pytest-ordering>=0.4'
+]
 
 setup(
     name='SuRF',
     version=str_version,
     description='Object RDF Mapper',
-    long_description=open('README.rst').read() + open('CHANGELOG.rst').read(),
+    long_description=LONG_DESCRIPTION,
     license='New BSD SOFTWARE',
     author='Cosmin Basca',
     author_email='cosmin.basca at google.com',
     url='http://code.google.com/p/surfrdf/',
     download_url='http://pypi.python.org/pypi/SuRF/',
     platforms=['any'],
-    # packages          = ['surf'],
     packages=find_packages(exclude=['surf.test']),
-    requires=['simplejson'] if is_python(2, 5) else [],
-    install_requires=[
-                         'rdflib>=4.2.1',
-                         #                              'nose>=1.1.2',    # nosetests for testing
-                         #                              'rednose>=0.2.5'  # a bit of coloring for nosetests
-                     ] + py25_install_requires,
-    tests_require=['surf.rdflib'],
+    install_requires=deps,
+    tests_require=test_deps,
     test_suite='surf.test',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2.5',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     keywords='Python SPARQL RDF resource mapper ORM query Semantic Web RDFS rdflib Object-Oriented',
-    scripts=['ez_setup.py']
 )
