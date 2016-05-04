@@ -83,8 +83,11 @@ setup(
     platforms=['any'],
     packages=find_packages(exclude=['surf.test']),
     install_requires=deps,
-    tests_require=test_deps,
+    tests_require=deps + test_deps,
     test_suite='surf.test',
+    package_data={
+        '{0}/test'.format(NAME): ['*.py', ],
+    },
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
