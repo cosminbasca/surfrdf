@@ -6,6 +6,7 @@ python:
 # command to install dependencies
 install:
   - pip install -r requirements.txt
+  - pip install pytest-ordering
   - python setup.py install
 # command to run tests
 script: py.test surf
