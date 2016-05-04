@@ -1,4 +1,5 @@
 import pytest
+from rdflib.term import Literal
 import surf
 from surf.resource.result_proxy import ResultProxy
 
@@ -88,7 +89,7 @@ def test_get_by(store_proxy):
     """
     store, proxy = store_proxy
     try:
-        expected = [(surf.ns.FOAF["name"], "Jane", True)]
+        expected = [(surf.ns.FOAF["name"], Literal(u"Jane"), True)]
         store.expect_args({"get_by": expected})
         list(proxy.get_by(foaf_name="Jane"))
     except Exception, e:
@@ -113,7 +114,7 @@ def test_filter(store_proxy):
     """
     store, proxy = store_proxy
     try:
-        store.expect_args({"filter": [(surf.ns.FOAF["name"], "f", True)]})
+        store.expect_args({"filter": [(surf.ns.FOAF["name"], Literal(u"f"), True)]})
         list(proxy.filter(foaf_name="f"))
     except Exception, e:
         pytest.fail(e.message, pytrace=True)

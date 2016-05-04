@@ -33,75 +33,127 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
-import pkg_resources
 import os
-from pkg_resources import *
+import pkg_resources
 from surf.exceptions import PluginNotFoundException
 from surf.plugin.reader import RDFReader
+from surf.plugin.writer import RDFWriter
+from .rdflib.reader import ReaderPlugin as RdflibReader
+from .rdflib.writer import WriterPlugin as RdflibWriter
+from .sparql_protocol.reader import ReaderPlugin as SparqlReader
+from .sparql_protocol.writer import WriterPlugin as SparqlWriter
 
 __author__ = 'Cosmin Basca'
 
-__plugins_loaded = False
+_plugins_loaded = False
 
-__ENTRYPOINT_READER__ = 'surf.plugins.reader'
-__ENTRYPOINT_WRITER__ = 'surf.plugins.writer'
+ENTRY_POINT_READER = 'surf.plugins.reader'
+ENTRY_POINT_WRITER = 'surf.plugins.writer'
 
-__readers__ = {}
-__writers__ = {}
+_readers = {}
+_writers = {}
 
-def __init_plugins(plugins, entry_point, logger=None):
-    for entrypoint in pkg_resources.iter_entry_points(entry_point):
-        plugin_class = entrypoint.load()
-        plugins[entrypoint.name] = plugin_class
+
+def _init_plugins(plugins, entry_point_name, logger=None):
+    for entry_point in pkg_resources.iter_entry_points(entry_point_name):
+        plugin_class = entry_point.load()
+        plugins[entry_point.name] = plugin_class
         if logger and hasattr(logger, 'info'):
-            logger.info('loaded plugin [%s]'%entrypoint.name)
+            logger.info('loaded plugin [%s]'%entry_point.name)
+
 
 def load_plugins(reload=False, logger=None):
-    ''' Call this method to load the plugins into the manager. The method is called
+    """
+    Call this method to load the plugins into the manager. The method is called
     by default when a :class:`surf.store.Store` is instantiated. To cause a reload, call the method with `reload`
     set to *True*
 
-    '''
-    global __plugins_loaded
-    if not __plugins_loaded or reload:
-        __init_plugins(__readers__, __ENTRYPOINT_READER__, logger)
-        __init_plugins(__writers__, __ENTRYPOINT_WRITER__, logger)
-        __plugins_loaded = True
+    :param bool reload: reload plugins if True
+    :param logger: the logger
+    """
+    global _plugins_loaded
+    if not _plugins_loaded or reload:
+        _init_plugins(_readers, ENTRY_POINT_READER, logger)
+        _init_plugins(_writers, ENTRY_POINT_WRITER, logger)
+        _plugins_loaded = True
 
 
-def __register_surf():
+def register(name, reader, writer):
+    """
+    register reader and writer plugins
+    :param str name: the plugin name
+    :param reader: the reader plugin
+    :param writer: the writer plugin
+    """
+    assert issubclass(reader, RDFReader) or reader is None
+    assert issubclass(writer, RDFWriter) or writer is None
+    if reader:
+        _readers[name] = reader
+    if writer:
+        _writers[name] = writer
+
+
+def _register_surf():
     import surf
     surf_parent = os.path.split(os.path.split(surf.__file__)[0])[0]
-    for dist in find_distributions(surf_parent):
+    for dist in pkg_resources.find_distributions(surf_parent):
         if dist.key == 'surf':
             pkg_resources.working_set.add(dist)
             break
 
-def add_plugin_path(plugin_path):
-    ''' Loads plugins from `path`. Method can be called multiple times, with different locations. (Plugins are loaded only once).
 
-    '''
-    __register_surf()
-    for dist in find_distributions(plugin_path):
+def add_plugin_path(plugin_path):
+    """
+    Loads plugins from `path`. Method can be called multiple times, with different locations. (Plugins are loaded only
+    once).
+
+    :param str plugin_path: register plugin search path
+    """
+    _register_surf()
+    for dist in pkg_resources.find_distributions(plugin_path):
         # only load SURF plugins!
-        if __ENTRYPOINT_READER__ in dist.get_entry_map() or __ENTRYPOINT_WRITER__ in dist.get_entry_map():
+        if ENTRY_POINT_READER in dist.get_entry_map() or ENTRY_POINT_WRITER in dist.get_entry_map():
             pkg_resources.working_set.add(dist)
 
 
-# registered :cls:`surf.plugin.reader.RDFReader` plugins
-registered_readers = lambda : __readers__.keys()
+def registered_readers():
+    """
+    gets the registered reader plugins. Plugins are instances of :cls:`surf.plugin.reader.RDFReader`.
 
-# registered :cls:`surf.plugin.writer.RDFWriter` plugins
-registered_writers = lambda : __writers__.keys()
+    :return: the registered reader plugins
+    :rtype: list or set
+    """
+    return _readers.keys()
+
+
+def registered_writers():
+    """
+    gets the registered writer plugins. Plugins are instances of :cls:`surf.plugin.reader.RDFWriter`.
+
+    :return: the registered writer plugins
+    :rtype: list or set
+    """
+    return _writers.keys()
+
 
 def get_reader(reader_id, *args, **kwargs):
-    global __readers__
-    if reader_id in __readers__:
-        return __readers__[reader_id](*args, **kwargs)
-    raise PluginNotFoundException('reader plugin [%s] was not found'%reader_id)
+    global _readers
+    if reader_id in _readers:
+        return _readers[reader_id](*args, **kwargs)
+    raise PluginNotFoundException('reader plugin [{0}] was not found'.format(reader_id))
+
 
 def get_writer(writer_id, reader, *args, **kwargs):
     assert isinstance(reader, RDFReader), 'reader is not an instance of RDFReader!'
-    global __writers__
-    if writer_id in __writers__:
-        return __writers__[writer_id](reader, *args, **kwargs)
+    global _writers
+    if writer_id in _writers:
+        return _writers[writer_id](reader, *args, **kwargs)
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+#
+# register builtin plugins
+#
+# ----------------------------------------------------------------------------------------------------------------------
+register("rdflib", RdflibReader, RdflibWriter)
+register("sparql_protocol", SparqlReader, SparqlWriter)

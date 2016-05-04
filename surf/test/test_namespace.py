@@ -49,4 +49,4 @@ def test_get_prefix_predefined():
     assert prefix == "RDFS"
 
     prefix, _ = util_get_namespace(ns.GEO)
-    assert prefix == "GEO"
+    assert prefix == "GEO" or prefix == "WGS84_POS"

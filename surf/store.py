@@ -69,6 +69,7 @@ class Store(LogMixin):
         self.log_level = kwargs.get('log_level', logging.NOTSET)
 
         self.log.info('initializing the store')
+        # TODO: move this to plugin manager module
         load_plugins(logger=self.log)
 
         self.__default_context = None

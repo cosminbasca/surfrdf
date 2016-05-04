@@ -37,7 +37,7 @@ __author__ = 'Cosmin Basca'
 
 import sys
 
-from SPARQLWrapper import SPARQLWrapper, jsonlayer, JSON
+from SPARQLWrapper import SPARQLWrapper, JSON
 from SPARQLWrapper.SPARQLExceptions import EndPointNotFound, QueryBadFormed
 
 from surf.util import json_to_rdflib

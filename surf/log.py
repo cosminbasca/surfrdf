@@ -35,6 +35,7 @@ import logging
 
 __author__ = 'Cosmin Basca'
 
+# TODO: create a global surf logger
 
 __levels__ = {
     'debug'     :logging.DEBUG,

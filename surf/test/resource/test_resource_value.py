@@ -1,5 +1,6 @@
 import pytest
 import surf
+from rdflib.term import Literal
 from surf.resource.lazy import LazyResourceLoader
 from surf.resource.result_proxy import ResultProxy
 
@@ -126,7 +127,7 @@ def test_get_by(store_value):
     """
     store, value = store_value
     try:
-        expected = [(surf.ns.FOAF["name"], "Jane", True)]
+        expected = [(surf.ns.FOAF["name"], Literal(u"Jane"), True)]
         store.expect_args({"get_by": expected})
         list(value.get_by(foaf_name="Jane"))
     except Exception, e:
@@ -151,7 +152,7 @@ def test_filter(store_value):
     """
     store, value = store_value
     try:
-        store.expect_args({"filter": [(surf.ns.FOAF["name"], "f", True)]})
+        store.expect_args({"filter": [(surf.ns.FOAF["name"], Literal(u"f"), True)]})
         list(value.filter(foaf_name="f"))
     except Exception, e:
         pytest.fail(e.message, pytrace=True)

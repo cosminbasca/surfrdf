@@ -40,8 +40,8 @@ from copy import deepcopy
 import sys
 from surf.rdf import ClosedNamespace, Namespace, RDF, RDFS
 
-__anonymous         = 'NS'
-__anonymous_count   = 0
+_anonymous         = 'NS'
+_anonymous_count   = 0
 
 ANNOTATION      = Namespace('http://www.w3.org/2000/10/annotation-ns#')
 ANNOTEA         = Namespace('http://www.w3.org/2002/01/bookmark#')
@@ -109,23 +109,23 @@ RDFS_CLASS      = RDFS.Class
 OWL_CLASS       = OWL.Class
 
 
-__fallback_namespace = SURF 
+_fallback_namespace = SURF
 
 # Fix for http://code.google.com/p/rdflib/issues/detail?id=154
-def __unicode(namespace):
+def _unicode(namespace):
     uri = unicode(namespace)
     if not isinstance(uri, basestring) and hasattr(namespace, 'uri'):
         uri = unicode(namespace.uri)
     return uri
 
 # an internal inverted dict - for fast access
-__INVERTED__ = {}
+_INVERTED = {}
 for k, v in sys.modules[__name__].__dict__.items():
     if isinstance(v, (Namespace, ClosedNamespace)):
-        if k == "__fallback_namespace":
+        if k == "_fallback_namespace":
             # no, this is not a namespace prefix, this is just a variable name
             continue
-        __INVERTED__[__unicode(v)] = k
+        _INVERTED[_unicode(v)] = k
         
 __DIRECT__ = {}
 for k, v in sys.modules[__name__].__dict__.items():
@@ -134,7 +134,7 @@ for k, v in sys.modules[__name__].__dict__.items():
         
 def __add_inverted(prefix):
     ns_dict = sys.modules[__name__].__dict__
-    __INVERTED__[__unicode(ns_dict[prefix])] = prefix
+    _INVERTED[_unicode(ns_dict[prefix])] = prefix
     
 def __add_direct(prefix):
     ns_dict = sys.modules[__name__].__dict__
@@ -218,12 +218,11 @@ def register_fallback(namespace):
     if not isinstance(namespace, Namespace):
         namespace = Namespace(namespace)
 
-    global __fallback_namespace
-    __fallback_namespace = namespace
+    global _fallback_namespace
+    _fallback_namespace = namespace
 
 def get_fallback_namespace():
-    global __fallback_namespace
-    return __fallback_namespace
+    return _fallback_namespace
 
 def get_namespace(base):
     """ Return the `namespace` short hand notation and the URI based on the
@@ -239,18 +238,18 @@ def get_namespace(base):
 
     """
 
-    global __anonymous_count
+    global _anonymous_count
     ns_dict = sys.modules[__name__].__dict__
     
     if not type(base) in [str, unicode]:
         base = str(base)
 
     try:
-        prefix = __INVERTED__[base]
+        prefix = _INVERTED[base]
         uri = ns_dict[prefix]
     except KeyError:
-        prefix = '%s%d' % (__anonymous, __anonymous_count + 1)
-        __anonymous_count += 1
+        prefix = '%s%d' % (_anonymous, _anonymous_count + 1)
+        _anonymous_count += 1
         uri = Namespace(base)
         register(**{prefix: uri})
     return prefix, uri
@@ -287,7 +286,7 @@ def get_prefix(uri):
     """
 
     try:
-        return __INVERTED__[uri.__str__()]
+        return _INVERTED[uri.__str__()]
     except:
         return None
 

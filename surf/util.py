@@ -64,7 +64,7 @@ def namespace_split(uri):
 
     """
 
-    sp = uri.rfind('#') != -1 and '#' or '/'
+    sp = '#' if uri.rfind('#') != -1 else '/'
     base, predicate = uri.rsplit(sp, 1)
     return get_namespace('%s%s' % (base, sp))[1], predicate
 
@@ -79,7 +79,7 @@ def uri_split(uri):
 
     """
 
-    sp = uri.rfind('#') != -1 and '#' or '/'
+    sp = '#' if uri.rfind('#') != -1 else'/'
     base, predicate = uri.rsplit(sp, 1)
     return get_namespace('%s%s' % (base, sp))[0], predicate
 
@@ -244,8 +244,8 @@ def value_to_rdf(value):
             return Literal(value, datatype=URIRef('http://www.w3.org/2001/XMLSchema#base64Binary'))
         return Literal(value)
     elif type(value) in [list, tuple]:
-        language = len(value) > 1 and value[1] or None
-        datatype = len(value) > 2 and value[2] or None
+        language = value[1] if len(value) > 1 else None
+        datatype = value[2] if len(value) > 2 else None
         return Literal(value[0], lang = language, datatype = datatype)
     elif type(value) is dict:
         val = value.get("value")

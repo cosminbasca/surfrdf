@@ -3,6 +3,7 @@ import surf
 from surf import Resource
 from surf.rdf import URIRef
 from surf.util import uri_split
+from rdflib.term import Literal
 
 
 @pytest.fixture
@@ -203,12 +204,12 @@ def test_dict_access():
     person.foaf_name = "John"
 
     # Reading
-    assert person["foaf_name"].first == "John"
-    assert person[surf.ns.FOAF.name].first == "John"
+    assert person["foaf_name"].first == Literal(u"John")
+    assert person[surf.ns.FOAF.name].first == Literal(u"John")
 
     # Writing
     person["foaf_name"] = "Dave"
-    assert person.foaf_name.first == "Dave"
+    assert person.foaf_name.first == Literal(u"Dave")
 
     # Deleting
     del person["foaf_name"]
