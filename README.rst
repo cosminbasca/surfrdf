@@ -9,18 +9,15 @@ Install SuRF:
 
 .. code:: sh
 
-    $ # with easy_install ... 
-    $ easy_install -U surf
-
-    $ # or with pip ... 
     $ pip install --upgrade surf
+
+
+Starting with version **1.1.9** the `surf.rdflib` and `surf.sparql_protocol` plugins are bundled with SuRF.
 
 You'll need one of the following plugins (also installable by `pip`):
 
--  *surf.sparql_protocol*, for stores with a SPARQL Protocol endpoint (e.g. Virtuoso)
 -  *surf.allegro_franz*, for the AllegroGraph RDFStore
 -  *surf.sesame2*, for stores with a Sesame2 HTTP API
--  *surf.rdflib*, for the experimental store implementation of rdflib
 
 Example
 =======
@@ -55,18 +52,12 @@ To build the documentation yourself, install sphinx and run the build step:
         $ pip install sphinx
         $ python setup.py build_sphinx
 
-Unit tests
-==========
+Testing
+=======
 
-Run unit tests from the source directory:
-
-.. code:: sh
-
-        $ python setup.py test
-
-Test plugins from their respective source directory, e.g.:
+SURF uses `tox` and `py.test` for testing:
 
 .. code:: sh
 
-        $ cd plugins/surf.sparql_protocol/
-        $ python setup.py test
+        $ tox
+
