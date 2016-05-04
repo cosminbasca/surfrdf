@@ -2,7 +2,6 @@
 import pytest
 
 import logging
-from unittest import TestCase
 import surf
 from surf import Session, Store
 from surf.plugin.reader import RDFReader
