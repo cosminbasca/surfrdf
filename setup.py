@@ -66,7 +66,7 @@ setup(
     packages=find_packages(exclude=['surf.test']),
     requires=['simplejson'] if is_python(2, 5) else [],
     install_requires=[
-                         'rdflib>=3.2.1',
+                         'rdflib>=4.2.1',
                          #                              'nose>=1.1.2',    # nosetests for testing
                          #                              'rednose>=0.2.5'  # a bit of coloring for nosetests
                      ] + py25_install_requires,
