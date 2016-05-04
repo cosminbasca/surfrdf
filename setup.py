@@ -45,7 +45,7 @@ except ImportError:
 
 __author__ = 'Cosmin Basca'
 
-NAME = 'SuRF'
+NAME = 'surf'
 PY2 = sys.version_info[0] == 2
 
 str_version = None
