@@ -4,7 +4,7 @@ import surf
 import surf.store
 from surf import ns
 from surf.plugin import query_reader
-
+from surf.resource import ResultProxy
 
 @pytest.fixture
 def default_session():
@@ -29,4 +29,4 @@ def test_get_by():
     Person = session.get_class(ns.FOAF['Person'])
 
     persons = Person.get_by(foaf_name=u"John")
-    assert isinstance(persons, list)
+    assert isinstance(persons, (list, ResultProxy))
