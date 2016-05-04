@@ -13,6 +13,12 @@ objects) are represented as Python objects and RDF edges (predicates) as their a
 Mapper (ORM), similar in concept to Object Relational Mappers like *SQLAlchemy*.
 
 
+Documentation
+=============
+
+http://surf-rdf.readthedocs.io/en/latest/
+
+
 Install
 =======
 
