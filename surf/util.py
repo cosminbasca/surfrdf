@@ -33,7 +33,6 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
-from base64 import decodestring
 import logging
 from datetime import datetime, date, time
 import decimal
@@ -47,57 +46,100 @@ from surf.rdf import BNode, Literal, Namespace, URIRef
 
 __author__ = 'Cosmin Basca'
 
-pattern_direct = re.compile('^[a-z0-9]{1,}_[a-zA-Z0-9_\-]{1,}$', re.DOTALL)
-pattern_inverse = re.compile('^is_[a-z0-9]{1,}_[a-zA-Z0-9_\-]{1,}_of$', re.DOTALL)
+# ----------------------------------------------------------------------------------------------------------------------
+#
+# module constants
+#
+# ----------------------------------------------------------------------------------------------------------------------
 
-def string_conforms_to_base64(s):
-    return (len(s) % 4 == 0) and re.match('^[A-Za-z0-9+/]+[=]{0,2}$', s)
+#: the attribute regex pattern representing a direct edge or property: {{ATTRIBUTE_NAME}}
+pattern_direct = re.compile('^[a-z0-9]+_[a-zA-Z0-9_\-]+$', re.DOTALL)
+#: the attribute regex pattern representing an inverse edge or property: is_{{ATTRIBUTE_NAME}}_of
+pattern_inverse = re.compile('^is_[a-z0-9]+_[a-zA-Z0-9_\-]+_of$', re.DOTALL)
+
+DE_CAMEL_CASE_DEFAULT = 2 ** 0
+DE_CAMEL_CASE_FORCE_LOWER_CASE = 2 ** 1
+pattern = re.compile('([A-Z][A-Z][a-z])|([a-z][A-Z])')
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+#
+# module functions
+#
+# ----------------------------------------------------------------------------------------------------------------------
+def string_conforms_to_base64(string):
+    """
+    check whether the given string conforms to the *base64* encoding.
+
+    :param str string: the string
+    :return: True if strings conforms to base64 encoding
+    :rtype: bool
+    """
+    return (len(string) % 4 == 0) and re.match('^[A-Za-z0-9+/]+[=]{0,2}$', string)
+
 
 def namespace_split(uri):
-    """ Same as `uri_split`, but instead of the base of the uri, returns the
+    """
+    Same as :func:`uri_split`, but instead of the base of the uri, returns the
     registered `namespace` for this uri
 
     .. code-block:: python
 
-        >>> print util.namespace_split('http://mynamespace/ns#some_property')
+        >>> print namespace_split('http://mynamespace/ns#some_property')
         (rdflib.URIRef('http://mynamespace/ns#'), 'some_property')
 
+    :param str uri: the uri
+    :return: a (namespace, predicate) tuple. Types: (:class:`rdflib.term.URIRef`, str)
+    :rtype: tuple
     """
 
     sp = '#' if uri.rfind('#') != -1 else '/'
     base, predicate = uri.rsplit(sp, 1)
     return get_namespace('%s%s' % (base, sp))[1], predicate
 
+
 def uri_split(uri):
-    """ Split the `uri` into base path and remainder,
+    """
+    Split the `uri` into base path and remainder,
     the base is everything that comes before the last *#*' or */* including it
 
     .. code-block:: python
 
-        >>> print util.uri_split('http://mynamespace/ns#some_property')
+        >>> print uri_split('http://mynamespace/ns#some_property')
         ('NS1', 'some_property')
 
+    :param uri: the uri
+    :type uri: :class:`rdflib.term.URIRef` or basestring
+    :return: a (base, remainder) tuple. Types: (str, str)
+    :rtype: tuple
     """
 
     sp = '#' if uri.rfind('#') != -1 else'/'
     base, predicate = uri.rsplit(sp, 1)
     return get_namespace('%s%s' % (base, sp))[0], predicate
 
+
 def uri_to_classname(uri):
-    '''handy function to convert a `uri` to a Python valid `class name`
+    """
+    Handy function to convert a `uri` to a Python valid `class name`
 
     .. code-block:: python
 
         >>> # prints Ns1some_class, where Ns1 is the namespace (not registered, assigned automatically)
-        >>> print util.uri_to_classname('http://mynamespace/ns#some_class')
+        >>> print uri_to_classname('http://mynamespace/ns#some_class')
         Ns1some_class
 
-    '''
+    :param str uri: the uri
+    :return: a valid python class name for the given uri
+    :rtype: str
+    """
     ns_key, predicate = uri_split(uri)
     return '%s%s' % (ns_key.title().replace('-', '_'), predicate)
 
-def attr2rdf(attrname):
-    """ Convert an `attribute name` in the form:
+
+def attr2rdf(attr_name):
+    """
+    Convert an `attribute name` in the form:
 
     .. code-block:: python
 
@@ -116,28 +158,29 @@ def attr2rdf(attrname):
         <http://xmlns.com/foaf/spec/#term_title>
 
 
-    The function returns two values, the `uri` representation and True if it's 
-    a direct predicate or False if its an inverse predicate.
-    
+    :param str attr_name: the attribute name to convert to *RDF*
+    :return: a (uri representation, True if it's a direct predicate or False if its an inverse predicate) tuple.
+    :rtype: tuple
     """
     
-    def tordf(attrname):
-        prefix, predicate = attrname.split('_', 1)
+    def to_rdf(attr_name):
+        prefix, predicate = attr_name.split('_', 1)
         ns = get_namespace_url(prefix)
         try:
             return ns[predicate]
         except:
             return None
 
-    if pattern_inverse.match(attrname):
-        return  tordf(attrname.replace('is_', '').replace('_of', '')), False
-    elif pattern_direct.match(attrname):
-        return  tordf(attrname), True
+    if pattern_inverse.match(attr_name):
+        return to_rdf(attr_name.replace('is_', '').replace('_of', '')), False
+    elif pattern_direct.match(attr_name):
+        return to_rdf(attr_name), True
     return None, None
 
+
 def rdf2attr(uri, direct):
-    """ Inverse of `attr2rdf`, return the attribute name,
-    given the URI and whether it is `direct` or not.
+    """
+    Inverse of `attr2rdf`, return the attribute name, given the `uri` and whether it is `direct` or not.
 
     .. code-block:: python
 
@@ -146,50 +189,69 @@ def rdf2attr(uri, direct):
         >>> print rdf2attr('http://xmlns.com/foaf/spec/#term_title',False)
         if_foaf_title_of
 
+    :param uri: the given `uri`
+    :type uri: :class:`rdflib.term.URIRef` or str
+    :param bool direct: whether this is a direct or inverse edge or property
+    :return: the python attribute name
+    :rtype: str
     """
-
     ns, predicate = uri_split(uri)
     attribute = '%s_%s' % (ns.lower(), predicate)
     return direct and attribute or 'is_%s_of' % attribute
 
 
-def is_attr_direct(attrname):
-    """ True if it's a direct `attribute`
+def is_attr_direct(attr_name):
+    """
+    Checks whether this is a direct or inverse edge / property. The naming convention defined by the
+    :attr:`pattern_direct` and :attr:`pattern_inverse` regex patterns.
 
     .. code-block:: python
 
-        >>> util.is_attr_direct('foaf_name')
+        >>> is_attr_direct('foaf_name')
         True
-        >>> util.is_attr_direct('is_foaf_name_of')
+        >>> is_attr_direct('is_foaf_name_of')
         False
 
+    :param str attr_name: the attribute name to convert to *RDF*
+    :return: True if `attr_name` is a direct edge / property
+    :rtype: bool
     """
+    return not pattern_inverse.match(attr_name)
 
-    return not pattern_inverse.match(attrname)
 
 def uri_to_class(uri):
-    '''returns a `class object` from the supplied `uri`, used `uri_to_class` to
-    get a valid class name
+    """
+    returns a `class object` from the supplied `uri`. A valid class name is retrieved using the
+    :func:`uri_to_classname` method.
 
     .. code-block:: python
 
-        >>> print util.uri_to_class('http://mynamespace/ns#some_class')
+        >>> print uri_to_class('http://mynamespace/ns#some_class')
         surf.util.Ns1some_class
 
-    '''
-    return type(str(uri_to_classname(uri)), (), {'uri':uri})
+    :param str uri: the given `uri`
+    :return: the python class for the given `uri`
+    :rtype: type
+    """
+    return type(str(uri_to_classname(uri)), (), {'uri': uri})
 
-def uuid_subject(namespace = None):
-    '''the function generates a unique subject in the provided `namespace` based on
-    the :meth:`uuid.uuid4()` method,
+
+def uuid_subject(namespace=None):
+    """
+    This function generates a unique subject in the provided `namespace` based on the :func:`uuid.uuid4()` method,
     If `namespace` is not specified than the default `SURF` namespace is used
 
     .. code-block:: python
 
-        >>>  print util.uuid_subject(ns.SIOC)
+        >>> from surf import namespace as ns
+        >>> print uuid_subject(ns.SIOC)
         http://rdfs.org/sioc/ns#1b6ca1d5-41ed-4768-b86a-42185169faff
 
-    '''
+    :param namespace: the given namespace
+    :type namespace: None or :class:`rdflib.namespace.Namespace` or str or unicode
+    :return: the *RDF* subject identifier in the specified namespace
+    :rtype: :class:`rdflib.term.URIRef`
+    """
 
     if not namespace:
         namespace = get_fallback_namespace()
@@ -199,23 +261,36 @@ def uuid_subject(namespace = None):
 
     return namespace[str(uuid4())]
 
-DE_CAMEL_CASE_DEFAULT = 2 ** 0
-DE_CAMEL_CASE_FORCE_LOWER_CASE = 2 ** 1
-pattern = re.compile('([A-Z][A-Z][a-z])|([a-z][A-Z])')
 
-def de_camel_case(camel_case, delim = ' ', method = DE_CAMEL_CASE_FORCE_LOWER_CASE):
-    '''Adds spaces to a camel case string.  Failure to space out string returns the original string.'''
+def de_camel_case(camel_case, delim=' ', method=DE_CAMEL_CASE_FORCE_LOWER_CASE):
+    """
+    Adds spaces to a camel case string.  Failure to space out string returns the original string.
+
+    :param str camel_case: the camel cased string
+    :param str delim: the delimiter
+    :param int method: the method
+    :return: the normalized string
+    :rtype: str
+    """
     if camel_case is None:
         return None
-    normalize = lambda s:s
-    if (method == DE_CAMEL_CASE_FORCE_LOWER_CASE):
-        normalize = lambda s:s.lower()
+
+    def normalize(string):
+        if method == DE_CAMEL_CASE_FORCE_LOWER_CASE:
+            return string.lower()
+        return string
 
     return normalize(pattern.sub(lambda m: m.group()[:1] + delim + m.group()[1:], camel_case))
 
 
 def is_uri(uri):
-    '''True if the specified string is a URI reference False otherwise'''
+    """
+    Checks whether the given `uri` is a *URI* reference
+
+    :param str uri: the given `uri`
+    :return: True if a *URI* reference
+    :rtype: bool
+    """
     scheme, netloc, path, params, query, fragment = urlparse(uri)
     if scheme and netloc and path:
         return True
@@ -223,8 +298,14 @@ def is_uri(uri):
 
 
 def pretty_rdf(uri):
-    '''Returns a string of the given URI under the form `namespace:symbol`, if `namespace` is registered,
-    else returns an empty string'''
+    """
+    Returns a string of the given URI under the form `namespace:symbol`, if `namespace` is registered,
+    else returns an empty string
+
+    :param str uri: the given `uri`
+    :return: the python prettified `uri` representation
+    :rtype: str
+    """
     if hasattr(uri, 'subject'):
         uri = uri.subject
     if type(uri) is URIRef:
@@ -236,56 +317,80 @@ def pretty_rdf(uri):
         return pretty
     return ''
 
-def value_to_rdf(value):
-    """ Convert the value to an `rdflib` compatible type if appropriate. """
 
-    if type(value) in [basestring, str, unicode, float, int, long, bool, datetime, date, time, decimal.Decimal]:
+def value_to_rdf(value):
+    """
+    Convert the value to an :mod:`rdflib` compatible type if appropriate.
+
+    :param object value: the value
+    :return: the converted value (if possible)
+    :rtype: :class:`rdflib.term.Literal` or object
+    """
+    if isinstance(value, (basestring, str, unicode, float, int, long, bool, datetime, date, time, decimal.Decimal)):
         if type(value) is basestring and string_conforms_to_base64(value):
             return Literal(value, datatype=URIRef('http://www.w3.org/2001/XMLSchema#base64Binary'))
         return Literal(value)
-    elif type(value) in [list, tuple]:
+
+    elif isinstance(value, (list, tuple)):
         language = value[1] if len(value) > 1 else None
         datatype = value[2] if len(value) > 2 else None
-        return Literal(value[0], lang = language, datatype = datatype)
-    elif type(value) is dict:
+        return Literal(value[0], lang=language, datatype=datatype)
+
+    elif isinstance(value, dict):
         val = value.get("value")
         language = value.get("language")
         datatype = value.get("datatype")
         if val:
-            return Literal(val, lang = language, datatype = datatype)
+            return Literal(val, lang=language, datatype=datatype)
         return value
+
     return value
 
-def json_to_rdflib(obj):
-    """Convert a json result entry to an rdfLib type."""
+
+def json_to_rdflib(json_object):
+    """
+    Convert a json result entry to an :mod:`rdfLib` type.
+
+    :param dict json_object: the *JSON* object
+    :return: the converted value (if possible)
+    :rtype: :class:`rdflib.term.Literal` or :class:`rdflib.term.BNode` or :class:`rdflib.term.URIRef` or None
+    """
     try:
-        type = obj["type"]
+        type = json_object["type"]
     except KeyError:
         raise ValueError("No type specified")
 
     if type == 'uri':
-        return URIRef(obj["value"])
+        return URIRef(json_object["value"])
+
     elif type == 'literal':
-        if "xml:lang" in obj:
-            return Literal(obj["value"], lang=obj['xml:lang'])
+        if "xml:lang" in json_object:
+            return Literal(json_object["value"], lang=json_object['xml:lang'])
         else:
-            return Literal(obj["value"])
+            return Literal(json_object["value"])
+
     elif type == 'typed-literal':
-        return Literal(obj["value"], datatype=URIRef(obj['datatype']))
+        return Literal(json_object["value"], datatype=URIRef(json_object['datatype']))
+
     elif type == 'bnode':
-        return BNode(obj["value"])
+        return BNode(json_object["value"])
+
     else:
         return None
 
-class single(object):
-    """ Descriptor for easy access to attributes with single value. """
+
+class Single(object):
+    """
+    Descriptor for easy access to attributes with single value.
+    """
 
     def __init__(self, attr):
         if isinstance(attr, URIRef):
             attr = rdf2attr(attr, True)
+
         self.attr = attr
 
-    def __get__(self, obj, type = None):
+    def __get__(self, obj, type=None):
         return getattr(obj, self.attr).first
 
     def __set__(self, obj, value):
@@ -294,20 +399,39 @@ class single(object):
     def __delete__(self, obj):
         setattr(obj, self.attr, [])
 
+
+def single(attr):
+    """
+    alias for :class:`Single`
+
+    :param attr: the given attribute
+    :type attr: :class:`rdflib.term.URIRef` or str
+    :return: a :class:`Single` instance
+    :rtype: :class:`Single`
+    """
+    return Single(attr)
+
+
 class LogMixin(object):
+    """
+    A logger mixin
+    """
+
     def __init__(self):
         self.log = logging.getLogger(self.__class__.__name__)
         self.log.addHandler(logging.StreamHandler())
 
-    def _get_logging(self):
+    @property
+    def logging(self):
         return self.log.level != logging.NOTSET
-    logging = property(fget=_get_logging)
 
-    def _set_level(self, level):
-        self.log.setLevel(level)
-    def _get_level(self):
+    @property
+    def log_level(self):
         return self.log.level
-    log_level = property(fget=_get_level, fset=_set_level)
+
+    @log_level.setter
+    def log_level(self, level):
+        self.log.setLevel(level)
 
     def disable_logging(self):
         self.log.setLevel(logging.NOTSET)
