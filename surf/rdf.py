@@ -43,4 +43,4 @@ from rdflib.term import URIRef
 
 __author__ = 'Cosmin Basca'
 
-__exports__ = [BNode, ClosedNamespace, ConjunctiveGraph, Graph, Literal, Namespace, RDF, RDFS, URIRef]
+__all__ = [BNode, ClosedNamespace, ConjunctiveGraph, Graph, Literal, Namespace, RDF, RDFS, URIRef]
