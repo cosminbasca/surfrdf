@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Version 1.2.0
+-------------
+
+- dropping deprecated API's
+- PEP8 compliance
+- rdflib and sparql_protocol are bundled with SuRF
+
 Version 1.1.9
 -------------
 
