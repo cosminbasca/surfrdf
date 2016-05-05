@@ -197,7 +197,6 @@ class Store(object):
         for resource in resources:
             resource.dirty = False
 
-
     def size(self):
         """ See :func:`surf.plugin.writer.RDFWriter.size` method. """
 
@@ -232,3 +231,6 @@ class Store(object):
 
         context = self.__add_default_context(context)
         return self.writer.load_triples(context=context, **kwargs)
+
+    def __len__(self):
+        return self.size()

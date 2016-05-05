@@ -13,6 +13,7 @@ session = surf.Session(store)
 
 print "Load RDF data"
 store.load_triples(source="http://www.w3.org/People/Berners-Lee/card.rdf")
+print len(store)
 
 Person = session.get_class(surf.ns.FOAF["Person"])
 

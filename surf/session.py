@@ -56,8 +56,8 @@ TODO:
 
 __all__ = ['Session']
 
-DEFAULT_RESOURCE_EXPIRE_TIME    = 60 * 60
-DEFAULT_STORE_KEY               = 'default'
+DEFAULT_RESOURCE_EXPIRE_TIME = 60 * 60
+DEFAULT_STORE_KEY = 'default'
 
 class Session(object):
     """ The `Session` will manage the rest of the components in **SuRF**,
@@ -87,8 +87,8 @@ class Session(object):
         self._auto_load = auto_load
         self._stores = {}
 
-        if default_store:
-            if type(default_store) is not Store:
+        if default_store is not None:
+            if not isinstance(default_store, Store):
                 raise Exception('the arguments is not a valid Store instance')
             self.default_store = default_store
 
@@ -106,7 +106,7 @@ class Session(object):
         """ Set the `store` for the specified key, if value not a `Store`
         instance ignored. """
 
-        if type(value) is Store :
+        if type(value) is Store:
             self._stores[key] = value
 
     def __delitem__(self, key):
@@ -160,7 +160,7 @@ class Session(object):
 
     @property
     def log_level(self):
-        return {sid: store.log_level for sid, store in self._stores.iteritems()}
+        return dict((sid, store.log_level) for sid, store in self._stores.iteritems())
 
     @log_level.setter
     def log_level(self, level):
@@ -181,55 +181,37 @@ class Session(object):
                                  fset = set_cache_expire)
     '''
 
-    def get_default_store_key(self):
-        """ Getter function for the `default_store_key` property.
-
-        Do not use this, use the `default_store_key` property instead.
-
+    @property
+    def default_store_key(self):
         """
+        The `default store key` of the session.
 
+        If it is set explicitly on `session` creation it is returned, else the first `store key` is returned.
+        If no `stores` are in the session None is returned.
+        """
         if DEFAULT_STORE_KEY in self._stores:
             return DEFAULT_STORE_KEY
         elif len(self._stores) > 0:
             return self._stores.keys()[0]
         return None
 
-    default_store_key = property(fget = get_default_store_key)
-    """ The `default store key` of the session.
-
-    If it is set explicitly on `session` creation it is returned,
-    else the first `store key` is returned. If no `stores` are in the session
-    None is returned. """
-
-
-    def set_default_store(self, store):
-        """ Setter function for the `default_store` property.
-
-        Do not use this, use the `default_store` property instead.
-
+    @property
+    def default_store(self):
         """
+        The `default store` of the session.
 
-        self.__setitem__(DEFAULT_STORE_KEY, store)
-
-    def get_default_store(self):
-        """ Getter function for the `default_store` property.
-
-        Do not use this, use the `default_store` property instead.
-
+        See `default_store_key` to see how the `default store` is selected.
         """
-
         ds_key = self.default_store_key
         if ds_key:
             return self._stores[ds_key]
         return None
 
-    default_store = property(fget = get_default_store,
-                              fset = set_default_store)
-    """ The `default store` of the session.
+    @default_store.setter
+    def default_store(self, store):
+        self.__setitem__(DEFAULT_STORE_KEY, store)
 
-    See `default_store_key` to see how the `default store` is selected. """
-
-    def __uri(self, uri):
+    def _uri(self, uri):
         """ For **internal** use only, convert the `uri` to a `URIRef`. """
 
         if not uri:
@@ -260,7 +242,7 @@ class Session(object):
 
         self.mapping = None
 
-    def map_type(self, uri, store = None, classes = None):
+    def map_type(self, uri, store=None, classes=None):
         """ Create and return a `class` based on the `uri` given.
 
         Also will add the `classes` to the inheritance list.
@@ -270,7 +252,7 @@ class Session(object):
         classes = classes if isinstance(classes, (tuple, set, list)) else []
         store = store if store else self.default_store_key
 
-        uri = self.__uri(uri)
+        uri = self._uri(uri)
         if not uri:
             return None
         name = uri_to_classname(uri)
@@ -283,11 +265,11 @@ class Session(object):
         if type(session_classes) not in [list, tuple, set]:
             session_classes = [session_classes]
         base_classes.extend(session_classes)
-        return type(str(name), tuple(base_classes), {'uri'          : uri,
-                                                     'store_key'    : store,
-                                                     'session'      : self})
+        return type(str(name), tuple(base_classes), {'uri': uri,
+                                                     'store_key': store,
+                                                     'session': self})
 
-    def get_class(self, uri, store = None, classes = None):
+    def get_class(self, uri, store=None, classes=None):
         """
         See :func:`surf.session.Session.map_type`.
         The `uri` parameter can be any of the following:
@@ -301,10 +283,10 @@ class Session(object):
 
         """
 
-        return self.map_type(uri, store = store, classes = classes)
+        return self.map_type(uri, store=store, classes=classes)
 
-    def map_instance(self, concept, subject, store = None, classes = None,
-                     block_auto_load = False, context = None):
+    def map_instance(self, concept, subject, store=None, classes=None,
+                     block_auto_load=False, context=None):
         """Create an `instance` of the `class` specified by `uri` and `classes`
         to be inherited, see `map_type` for more information. """
 
@@ -317,13 +299,12 @@ class Session(object):
             store = self.default_store_key
 
         if not (isinstance(concept, type) and issubclass(concept, Resource)):
-            concept = self.map_type(concept, store = store, classes = classes)
-            
-        return concept(subject, block_auto_load = block_auto_load, context = context)
+            concept = self.map_type(concept, store=store, classes=classes)
 
+        return concept(subject, block_auto_load=block_auto_load, context=context)
 
-    def get_resource(self, subject, concept = None, store = None, graph = None,
-                     block_auto_load = False, context = None, classes = None):
+    def get_resource(self, subject, concept=None, store=None, graph=None,
+                     block_auto_load=False, context=None, classes=None):
         """ Same as `map_type` but `set` the resource from the `graph`. """
 
         classes = classes if isinstance(classes, (tuple, set, list)) else []
@@ -334,17 +315,17 @@ class Session(object):
         if concept is None:
             concept = Resource.concept(subject)
 
-        resource = self.map_instance(concept, subject, store = store, classes = classes,
-                                     block_auto_load = block_auto_load,
-                                     context = context )
+        resource = self.map_instance(concept, subject, store=store, classes=classes,
+                                     block_auto_load=block_auto_load,
+                                     context=context)
 
         if graph:
             resource.set(graph)
 
         return resource
 
-    def load_resource(self, uri, subject, store = None, data = None,
-                      file = None, location = None, format = None, classes = None):
+    def load_resource(self, uri, subject, store=None, data=None,
+                      file=None, location=None, format=None, classes=None):
         """ Create an `instance` of the `class` specified by `uri`, while
         `subject` is the subject of the new resource instance.
 
@@ -359,11 +340,11 @@ class Session(object):
         """
         classes = classes if isinstance(classes, (tuple, set, list)) else []
 
-        ResourceClass =  self.map_type(uri, store = store, classes = classes)
+        ResourceClass = self.map_type(uri, store=store, classes=classes)
         if ResourceClass:
             resource = ResourceClass(subject)
-            resource.load_from_source(data = data, file = file,
-                                      location = location, format = format)
+            resource.load_from_source(data=data, file=file,
+                                      location=location, format=format)
             return resource
         return None
 

@@ -22,10 +22,10 @@ class ResultProxy(object):
         self._params = params if params else dict()
         self._get_by_response = None
 
-        if store:
+        if store is not None:
             self._params["store"] = store
 
-        if instance_factory:
+        if instance_factory is not None:
             self._params["instance_factory"] = instance_factory
 
     def instance_factory(self, instance_factory_func):
