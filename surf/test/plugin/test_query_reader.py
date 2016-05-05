@@ -11,6 +11,12 @@ def test_convert_unicode_exception():
     """
 
     class MyQueryReader(RDFQueryReader):
+        def _ask(self, result):
+            pass
+
+        def _execute(self, query):
+            pass
+
         # We want convert() to catch an exception.
         # Cannot override __convert and throw from there,
         # but we know __convert calls _to_table...

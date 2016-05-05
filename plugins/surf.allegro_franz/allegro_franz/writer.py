@@ -45,6 +45,7 @@ from franz.openrdf.sail.allegrographserver import AllegroGraphServer
 from franz.openrdf.repository.repository import Repository
 from franz.openrdf.rio.rdfformat import RDFFormat
 
+
 class WriterPlugin(RDFWriter):
     def __init__(self, reader, *args, **kwargs):
         RDFWriter.__init__(self, reader, *args, **kwargs)

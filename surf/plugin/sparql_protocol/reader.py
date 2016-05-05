@@ -42,9 +42,11 @@ from SPARQLWrapper.SPARQLExceptions import EndPointNotFound, QueryBadFormed
 
 from surf.util import json_to_rdflib
 from surf.plugin.query_reader import RDFQueryReader
-from surf.rdf import BNode, ConjunctiveGraph, Literal, URIRef
 
-class SparqlReaderException(Exception): pass
+
+class SparqlReaderException(Exception):
+    pass
+
 
 class ReaderPlugin(RDFQueryReader):
     def __init__(self, *args, **kwargs):

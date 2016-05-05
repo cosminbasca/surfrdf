@@ -44,7 +44,10 @@ from surf.query import Filter, Group, NamedGroup, Union
 from surf.query.update import insert, delete, clear, load
 from surf.rdf import BNode, Literal, URIRef
 
-class SparqlWriterException(Exception): pass
+
+class SparqlWriterException(Exception):
+    pass
+
 
 class WriterPlugin(RDFWriter):
     def __init__(self, reader, *args, **kwargs):

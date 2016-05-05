@@ -33,15 +33,16 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
-__author__ = 'Cosmin Basca'
 
 try:
     from json import loads
-except Exception, e:
+except ImportError, e:
     from simplejson import loads
-
 from surf.plugin.query_reader import RDFQueryReader
 from surf.rdf import ConjunctiveGraph
+
+__author__ = 'Cosmin Basca'
+
 
 class ReaderPlugin(RDFQueryReader):
     def __init__(self, *args, **kwargs):

@@ -33,60 +33,41 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
-from surf.log import deprecation
-from surf.util import LogMixin
+from abc import ABCMeta
 import logging
+
+from surf.util import LogMixin
 
 __author__ = 'Cosmin Basca'
 
 
 class Plugin(LogMixin):
     """
-    Super class for all SuRF plugins, provides basic instantiation
-    and `logging`.
+    Super class for all SuRF plugins, provides basic instantiation and `logging`.
     """
+
+    __metaclass__ = ABCMeta
 
     def __init__(self, *args, **kwargs):
         super(Plugin, self).__init__()
         self.log_level = logging.NOTSET
-
-        self.__inference = False
-
-    def enable_logging(self, enable = True):
-        """ Enables or disable `logging` for the current `plugin`. """
-        #TODO: -------------------[remove in v1.2.0]------------------------
-        deprecation('the enable_logging method will be removed in version 1.2.0, use the logging and log_level properties instead!')
-        #TODO: -------------------[remove in v1.2.0]------------------------
-
-        level = enable and logging.DEBUG or logging.NOTSET
-        self.log.setLevel(level)
-
-    def is_enable_logging(self):
-        """ `True` if `logging` is enabled. """
-        #TODO: -------------------[remove in v1.2.0]------------------------
-        deprecation('the is_enabled_logging method will be removed in version 1.2.0, use the logging and log_level properties instead!')
-        #TODO: -------------------[remove in v1.2.0]------------------------
-
-        return (self.log.level == logging.DEBUG)
+        self._inference = False
 
     def close(self):
-        """ Close the `plugin` and free any resources it may hold. """
-
-        pass
-
-    def __set_inference(self, val):
-        """ Setter method for the `inference` property.
-
-        Do not use this method, use the `inference` property instead.
-
+        """
+        Close the `plugin` and free any resources it may hold
         """
 
+    @property
+    def inference(self):
+        """
+        Toggle `logical inference` on / off. The property has any effect only if such functionality is supported by
+        the underlying  :class:`surf.store.Store` store
+        """
+        return self._inference
+
+    @inference.setter
+    def inference(self, val):
         if not isinstance(val, bool):
             val = False
-        
-        self.__inference = val
-
-    inference = property(fget = lambda self:self.__inference,
-                         fset = __set_inference)
-    """ Toggle `logical inference` on / off. The property has any effect
-    only if such functionality is supported by the underlying data `store`. """
+        self._inference = val

@@ -41,6 +41,7 @@ from surf.plugin.writer import RDFWriter
 from surf.rdf import ConjunctiveGraph
 from reader import ReaderPlugin
 
+
 class WriterPlugin(RDFWriter):
     def __init__(self, reader, *args, **kwargs):
         RDFWriter.__init__(self, reader, *args, **kwargs)

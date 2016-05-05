@@ -40,6 +40,7 @@ from surf.util import json_to_rdflib
 from surf.plugin.query_reader import RDFQueryReader
 from allegro import Allegro
 
+
 class ReaderPlugin(RDFQueryReader):
     def __init__(self, *args, **kwargs):
         RDFQueryReader.__init__(self, *args, **kwargs)

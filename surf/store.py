@@ -35,8 +35,8 @@
 # -*- coding: utf-8 -*-
 import logging
 from surf.plugin.manager import load_plugins, get_reader, get_writer
-from surf.plugin.reader import RDFReader
-from surf.plugin.writer import RDFWriter
+from surf.plugin.reader import RDFReader, NoneReader
+from surf.plugin.writer import RDFWriter, NoneWriter
 from surf.log import deprecated
 from surf.query import Query
 from surf.rdf import URIRef
@@ -79,13 +79,13 @@ class Store(LogMixin):
         if reader:
             self.reader = reader if isinstance(reader, RDFReader) else get_reader(reader, *args, **kwargs)
         else:
-            self.reader = RDFReader(*args, **kwargs)
+            self.reader = NoneReader(*args, **kwargs)
         self.reader.log_level = self.log_level
 
         if writer:
             self.writer = writer if isinstance(writer, RDFWriter) else get_writer(writer, self.reader, *args, **kwargs)
         else:
-            self.writer = RDFWriter(self.reader, *args, **kwargs)
+            self.writer = NoneWriter(self.reader, *args, **kwargs)
         self.writer.log_level = self.log_level
 
         if hasattr(self.reader, 'use_subqueries'):

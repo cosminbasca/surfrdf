@@ -37,10 +37,46 @@ def test_close_unicode_exception():
     """
 
     class MockReader(RDFReader):
+        def _load(self, subject, direct, context):
+            pass
+
+        def _instances_by_attribute(self, concept, attributes, direct, context):
+            pass
+
+        def _is_present(self, subject, context):
+            pass
+
+        def _get(self, subject, attribute, direct, context):
+            pass
+
+        def _concept(self, subject):
+            pass
+
         def close(self):
             raise Exception(u"Some unicode: ā")
 
     class MockWriter(RDFWriter):
+        def _set_triple(self, s=None, p=None, o=None, context=None):
+            pass
+
+        def _update(self, *resources):
+            pass
+
+        def _save(self, *resources):
+            pass
+
+        def _remove(self, *resources, **kwargs):
+            pass
+
+        def _clear(self, context=None):
+            pass
+
+        def _add_triple(self, s=None, p=None, o=None, context=None):
+            pass
+
+        def _size(self):
+            pass
+
         def close(self):
             raise Exception(u"Some unicode: ā")
 
@@ -60,10 +96,46 @@ def test_successful_close():
     """
 
     class MockReader(RDFReader):
+        def _load(self, subject, direct, context):
+            pass
+
+        def _instances_by_attribute(self, concept, attributes, direct, context):
+            pass
+
+        def _is_present(self, subject, context):
+            pass
+
+        def _get(self, subject, attribute, direct, context):
+            pass
+
+        def _concept(self, subject):
+            pass
+
         def close(self):
             pass
 
     class MockWriter(RDFWriter):
+        def _set_triple(self, s=None, p=None, o=None, context=None):
+            pass
+
+        def _update(self, *resources):
+            pass
+
+        def _save(self, *resources):
+            pass
+
+        def _remove(self, *resources, **kwargs):
+            pass
+
+        def _clear(self, context=None):
+            pass
+
+        def _add_triple(self, s=None, p=None, o=None, context=None):
+            pass
+
+        def _size(self):
+            pass
+
         def close(self):
             pass
 

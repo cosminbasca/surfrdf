@@ -33,6 +33,8 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
+from abc import ABCMeta, abstractmethod
+
 from surf.plugin.reader import RDFReader
 from surf.query import Query, Union
 from surf.query import a, ask, select, optional_group, named_group
@@ -40,10 +42,19 @@ from surf.rdf import URIRef
 
 __author__ = 'Cosmin Basca'
 
-def query_SP(s, p, direct, context):
-    """ Construct :class:`surf.query.Query` with `?v` and `?c` as unknowns. """
 
-    s, v = direct and (s, '?v') or ('?v', s)
+def query_sp(s, p, direct, context):
+    """
+    Construct :class:`surf.query.Query` with `?v` and `?c` as unknowns.
+
+    :param s: the `subject`
+    :param p: the `predicate`
+    :param bool direct: whether the predicate is direct or inverse
+    :param context: the context
+    :return: the query
+    :rtype: :class:`surf.query.Query`
+    """
+    s, v = (s, '?v') if direct else ('?v', s)
     query = select('?v', '?c').distinct()
     query.where((s, p, v)).optional_group(('?v', a, '?c'))
     if context:
@@ -51,11 +62,18 @@ def query_SP(s, p, direct, context):
 
     return query
 
-def query_S(s, direct, context):
-    """ Construct :class:`surf.query.Query` with `?p`, `?v` and `?c` as
-    unknowns. """
 
-    s, v = direct and (s, '?v') or ('?v', s)
+def query_s(s, direct, context):
+    """
+    Construct :class:`surf.query.Query` with `?p`, `?v` and `?c` as unknowns.
+
+    :param s: the `subject`
+    :param bool direct: whether the predicate is direct or inverse
+    :param context: the context
+    :return: the query
+    :rtype: :class:`surf.query.Query`
+    """
+    s, v = (s, '?v') if direct else ('?v', s)
     query = select('?p', '?v', '?c').distinct()
     query.where((s, '?p', v)).optional_group(('?v', a, '?c'))
     if context:
@@ -63,28 +81,44 @@ def query_S(s, direct, context):
 
     return query
 
-def query_Ask(subject, context):
-    """ Construct :class:`surf.query.Query` of type **ASK**. """
 
+def query_ask(s, context):
+    """
+    Construct :class:`surf.query.Query` of type **ASK**.
+
+    :param s: the `subject`
+    :param context: the context
+    :return: the query
+    :rtype: :class:`surf.query.Query`
+    """
     query = ask()
     if context:
-        pattern = named_group(context, (subject, '?p', '?o'))
+        pattern = named_group(context, (s, '?p', '?o'))
         query.where(pattern)
     else:
-        query.where((subject, '?p', '?o'))
+        query.where((s, '?p', '?o'))
 
     return query
 
-#Resource class level
-def query_P_S(c, p, direct, context):
-    """ Construct :class:`surf.query.Query` with `?s` and `?c` as unknowns. """
+
+def query_p_s(c, p, direct, context):
+    """
+    Construct :class:`surf.query.Query` with `?s` and `?c` as unknowns.
+
+    :param c: the `class`
+    :param p: the `predicate`
+    :param bool direct: whether the predicate is direct or inverse
+    :param context: the context
+    :return: the query
+    :rtype: :class:`surf.query.Query`
+    """
 
     query = select('?s', '?c').distinct()
     if context:
         query.from_(context)
 
     for i in range(len(p)):
-        s, v = direct and  ('?s', '?v%d' % i) or ('?v%d' % i, '?s')
+        s, v = ('?s', '?v{0:d}'.format(i)) if direct else ('?v{0:d}'.format(i), '?s')
         if type(p[i]) is URIRef:
             query.where((s, p[i], v))
 
@@ -92,110 +126,120 @@ def query_P_S(c, p, direct, context):
 
     return query
 
-def query_Concept(subject):
-    """ Construct :class:`surf.query.Query` with `?c` as the unknown. """
 
-    return select('?c').distinct().where((subject, a, '?c'))
+def query_concept(s):
+    """
+    Construct :class:`surf.query.Query` with `?c` as the unknown.
+
+    :param s: the `subject`
+    :return: the query
+    :rtype: :class:`surf.query.Query`
+    """
+
+    return select('?c').distinct().where((s, a, '?c'))
+
+
+def _apply_solution_modifiers(params, query):
+    """
+    Apply limit, offset, order parameters to query.
+    """
+    if "limit" in params:
+        query.limit(params["limit"])
+
+    if "offset" in params:
+        query.offset(params["offset"])
+
+    if "get_by" in params:
+        def order_terms(s, p, o):
+            return (s, p, o) if direct else (o, p, s)
+
+        for attribute, values, direct in params["get_by"]:
+            if hasattr(values, "__iter__"):
+                where_clause = Union()
+                for value in values:
+                    where_clause.append(order_terms("?s", attribute, value))
+            else:
+                where_clause = order_terms("?s", attribute, values)
+
+            query.where(where_clause)
+
+    if "filter" in params:
+        filter_idx = 0
+        for attribute, value, direct in params["filter"]:
+            filter_idx += 1
+            filter_variable = "?f%d" % filter_idx
+            query.where(("?s", attribute, filter_variable))
+            query.filter(value % filter_variable)
+
+    if "order" in params:
+        if params["order"]:
+            # Order by subject URI
+            if "desc" in params and params["desc"]:
+                query.order_by("DESC(?s)")
+            else:
+                query.order_by("?s")
+        else:
+            # Match another variable, order by it
+            query.optional_group(("?s", params["order"], "?o"))
+            if "desc" in params and params["desc"]:
+                query.order_by("DESC(?o)")
+            else:
+                query.order_by("?o")
+
+    return query
+
 
 class RDFQueryReader(RDFReader):
-    """ Super class for SuRF Reader plugins that wrap queryable `stores`. """
+    """
+    Super class for SuRF Reader plugins that wrap queryable `stores`.
+    """
+
+    __metaclass__ = ABCMeta
 
     def __init__(self, *args, **kwargs):
         super(RDFQueryReader, self).__init__(*args, **kwargs)
         self.use_subqueries = kwargs.get('use_subqueries', False)
-        if type(self.use_subqueries) in [str, tuple]:
+        if isinstance(self.use_subqueries, str):
             self.use_subqueries = (self.use_subqueries.lower() == 'true')
-        elif type(self.use_subqueries) is not bool:
+        elif not isinstance(self.use_subqueries, bool):
             raise ValueError('The use_subqueries parameter must be a bool or a string set to "true" or "false"')
 
-    #protected interface
     def _get(self, subject, attribute, direct, context):
-        query = query_SP(subject, attribute, direct, context)
+        query = query_sp(subject, attribute, direct, context)
         result = self._execute(query)
         return self.convert(result, 'v', 'c')
 
     def _load(self, subject, direct, context):
-        query = query_S(subject, direct, context)
+        query = query_s(subject, direct, context)
         result = self._execute(query)
         return self.convert(result, 'p', 'v', 'c')
 
     def _is_present(self, subject, context):
-        query = query_Ask(subject, context)
+        query = query_ask(subject, context)
         result = self._execute(query)
         return self._ask(result)
 
     def _concept(self, subject):
-        query = query_Concept(subject)
+        query = query_concept(subject)
         result = self._execute(query)
         return self.convert(result, 'c')
 
     def _instances_by_attribute(self, concept, attributes, direct, context):
-        query = query_P_S(concept, attributes, direct, context)
+        query = query_p_s(concept, attributes, direct, context)
         result = self._execute(query)
         return self.convert(result, 's', 'c')
-
-    def __apply_limit_offset_order_get_by_filter(self, params, query):
-        """ Apply limit, offset, order parameters to query. """
-
-        if "limit" in params:
-            query.limit(params["limit"])
-
-        if "offset" in params:
-            query.offset(params["offset"])
-
-        if "get_by" in params:
-            for attribute, values, direct  in params["get_by"]:
-                if direct:
-                    order_terms = lambda a, b ,c: (a, b, c)
-                else:
-                    order_terms = lambda a, b ,c: (c, b, a)
-                    
-                if hasattr(values, "__iter__"):
-                    where_clause = Union()
-                    for value in values:
-                        where_clause.append(order_terms("?s", attribute, value))
-                else:
-                    where_clause = order_terms("?s", attribute, values) 
-                
-                query.where(where_clause)
-
-        if "filter" in params:
-            filter_idx = 0
-            for attribute, value, direct  in params["filter"]:
-                filter_idx += 1
-                filter_variable = "?f%d" % filter_idx
-                query.where(("?s", attribute, filter_variable))
-                query.filter(value % filter_variable)
-
-        if "order" in params:
-            if params["order"] == True:
-                # Order by subject URI
-                if "desc" in params and params["desc"]:
-                    query.order_by("DESC(?s)")
-                else:
-                    query.order_by("?s")
-            else:
-                # Match another variable, order by it
-                query.optional_group(("?s", params["order"], "?o"))
-                if "desc" in params and params["desc"]:
-                    query.order_by("DESC(?o)")
-                else:
-                    query.order_by("?o")
-
-
-        return query
 
     def _get_by(self, params):
         # Decide which loading strategy to use
         if "full" in params:
             if self.use_subqueries:
-                return self.__get_by_subquery(params)
+                return self._get_by_subquery(params)
             else:
-                return self.__get_by_n_queries(params)
+                return self._get_by_n_queries(params)
 
         # No details, just subjects and classes
         query = select("?s", "?c")
-        self.__apply_limit_offset_order_get_by_filter(params, query)
+        _apply_solution_modifiers(params, query)
         query.optional_group(("?s", a, "?c"))
 
         context = params.get("context", None)
@@ -211,8 +255,8 @@ class RDFQueryReader(RDFReader):
         results = []
         for match in table:
             subject = match["s"]
-            if not subject in subjects:
-                instance_data = {"direct" : {a : {}}}
+            if subject not in subjects:
+                instance_data = {"direct": {a: {}}}
                 subjects[subject] = instance_data
                 results.append((subject, instance_data))
 
@@ -222,14 +266,14 @@ class RDFQueryReader(RDFReader):
 
         return results
 
-    def __get_by_n_queries(self, params):
+    def _get_by_n_queries(self, params):
         context = params.get("context", None)
 
         query = select("?s")
         if not (context is None):
             query.from_(context)
 
-        self.__apply_limit_offset_order_get_by_filter(params, query)
+        _apply_solution_modifiers(params, query)
 
         # Load details, for now the simplest approach with N queries.
         # Use _to_table instead of convert to preserve order.
@@ -238,12 +282,12 @@ class RDFQueryReader(RDFReader):
             subject = match["s"]
             instance_data = {}
 
-            result = self._execute(query_S(subject, True, context))
+            result = self._execute(query_s(subject, True, context))
             result = self.convert(result, 'p', 'v', 'c')
             instance_data["direct"] = result
 
             if not params.get("direct_only"):
-                result = self._execute(query_S(subject, False, context))
+                result = self._execute(query_s(subject, False, context))
                 result = self.convert(result, 'p', 'v', 'c')
                 instance_data["inverse"] = result
 
@@ -251,7 +295,7 @@ class RDFQueryReader(RDFReader):
 
         return results
 
-    def __get_by_subquery(self, params):
+    def _get_by_subquery(self, params):
         context = params.get("context", None)
 
         inner_query = select("?s")
@@ -260,8 +304,7 @@ class RDFQueryReader(RDFReader):
             # "order" needs to stay in subquery,
             # but doesn't do anything useful in main query
             del params["order"]
-        self.__apply_limit_offset_order_get_by_filter(inner_params, inner_query)
-
+        _apply_solution_modifiers(inner_params, inner_query)
 
         if params.get('direct_only'):
             query = select("?s", "?p", "?v", "?c").distinct()
@@ -286,7 +329,7 @@ class RDFQueryReader(RDFReader):
 
         # Need ordering in outer query
         if "order" in params:
-            if params["order"] == True:
+            if params["order"]:
                 # Order by subject URI
                 query.order_by("?s")
             else:
@@ -308,8 +351,8 @@ class RDFQueryReader(RDFReader):
             inverse = match.get("i") == "1"
 
             # Add subject to result list if it's not there
-            if not subject in subjects:
-                instance_data = {"direct" : {}, "inverse": {}}
+            if subject not in subjects:
+                instance_data = {"direct": {}, "inverse": {}}
                 subjects[subject] = instance_data
                 results.append((subject, instance_data))
 
@@ -318,12 +361,12 @@ class RDFQueryReader(RDFReader):
             else:
                 attributes = subjects[subject]["direct"]
             # Add predicate to subject's predicates if it's not there
-            if not predicate in attributes:
+            if predicate not in attributes:
                 attributes[predicate] = {}
 
             # Add value to subject->predicate if ...
             predicate_values = attributes[predicate]
-            if not value in predicate_values:
+            if value not in predicate_values:
                 predicate_values[value] = []
 
             # Add RDF type of the value to subject->predicate->value list
@@ -332,13 +375,13 @@ class RDFQueryReader(RDFReader):
 
         return results
 
-    # to implement
+    @abstractmethod
     def _ask(self, result):
         """ Return boolean value of an **ASK** query. """
 
         return False
 
-    # execute
+    @abstractmethod
     def _execute(self, query):
         """ To be implemented by classes the inherit from `RDFQueryReader`.
 
@@ -348,10 +391,11 @@ class RDFQueryReader(RDFReader):
 
         return None
 
+    @abstractmethod
     def _to_table(self, result):
         return []
 
-    def __convert(self, query_result, *keys):
+    def _convert(self, query_result, *keys):
         results_table = self._to_table(query_result)
 
         if len(keys) == 1:
@@ -373,31 +417,33 @@ class RDFQueryReader(RDFReader):
                 elif i == last:
                     if v not in data:
                         data[v] = []
-                    
+
                     value = row.get(keys[i + 1])
                     if value:
                         data[v].append(value)
-        
+
         return results
 
-    # public interface
     def execute(self, query):
-        """ Execute a `query` of type :class:`surf.query.Query`. """
+        """
+        Execute a `query` of type :class:`surf.query.Query`.
+        """
 
         if isinstance(query, Query):
             return self._execute(query)
 
         return None
 
-    def convert(self, query_result, * keys):
-        """ Convert the results from the query to a multilevel dictionary.
+    # noinspection PyBroadException
+    def convert(self, query_result, *keys):
+        """
+        Convert the results from the query to a multilevel dictionary.
 
         This method is used by the :class:`surf.resource.Resource` class.
-
         """
 
         try:
-            return self.__convert(query_result, *keys)
-        except Exception, e:
+            return self._convert(query_result, *keys)
+        except Exception:
             self.log.exception("Error on convert")
         return []

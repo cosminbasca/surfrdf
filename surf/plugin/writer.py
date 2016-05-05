@@ -33,17 +33,25 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
+from abc import ABCMeta, abstractmethod
+
 from surf.plugin import Plugin
 from surf.plugin.reader import RDFReader
 
 __author__ = 'Cosmin Basca'
 
+
 class InvalidResourceException(Exception):
     def __init__(self,*args,**kwargs):
         super(InvalidResourceException,self).__init__(self,*args,**kwargs)
 
+
 class RDFWriter(Plugin):
-    """ Super class for all surf Writer plugins. """
+    """
+    Super class for all surf Writer plugins.
+    """
+
+    __metaclass__ = ABCMeta
 
     def __init__(self, reader, *args, **kwargs):
         super(RDFWriter, self).__init__(*args, **kwargs)
@@ -55,46 +63,50 @@ class RDFWriter(Plugin):
 
     reader = property(fget = lambda self: self.__reader)
 
-    #protected interface
-    def _clear(self,context = None):
+    @abstractmethod
+    def _clear(self,context=None):
         pass
 
+    @abstractmethod
     def _save(self, *resources):
         pass
 
+    @abstractmethod
     def _update(self, *resources):
         pass
 
+    @abstractmethod
     def _remove(self, *resources, **kwargs):
         pass
 
+    @abstractmethod
     def _size(self):
         return -1
 
-    def _add_triple(self, s = None, p = None, o = None, context = None):
+    @abstractmethod
+    def _add_triple(self, s=None, p=None, o=None, context=None):
         pass
 
-    def _set_triple(self, s = None, p = None, o = None, context = None):
+    @abstractmethod
+    def _set_triple(self, s=None, p=None, o=None, context=None):
         pass
 
-    def _remove_triple(self, s = None, p = None, o = None, context = None):
+    def _remove_triple(self, s=None, p=None, o=None, context=None):
         pass
 
+    def clear(self, context=None):
+        """
+        Remove all triples from the `store`.
 
-    #public interface
-    def clear(self, context = None):
-        """ Remove all triples from the `store`.
-
-        If ``context`` is specified, only the specified context will
-        be cleared.
-
+        If ``context`` is specified, only the specified context will be cleared.
         """
 
-        self._clear(context = context)
+        self._clear(context=context)
 
     def save(self, *resources):
-        """ Replace the ``*resources`` in store with their current state. """
-
+        """
+        Replace the ``*resources`` in store with their current state.
+        """
         for resource in resources:
             if not hasattr(resource, "subject"):
                 raise InvalidResourceException("Arguments must be of type surf.resource.Resource")
@@ -102,8 +114,9 @@ class RDFWriter(Plugin):
         self._save(*resources)
 
     def update(self, *resources):
-        """ Update the ``*resources`` to the `store` - persist. """
-
+        """
+        Update the ``*resources`` to the `store` - persist.
+        """
         for resource in resources:
             if not hasattr(resource, "subject"):
                 raise InvalidResourceException("Arguments must be of type surf.resource.Resource")
@@ -111,9 +124,10 @@ class RDFWriter(Plugin):
         self._update(resource)
 
     def remove(self, *resources, **kwargs):
-        """ Completely remove the ``*resources`` from the `store`. """
-
-        #TODO: decide whether triples that are indirect (belong to other 
+        """
+        Completely remove the ``*resources`` from the `store`.
+        """
+        # TODO: decide whether triples that are indirect belong to other
         # resource should be removed as well)
         for resource in resources:
             if not hasattr(resource, "subject"):
@@ -122,59 +136,78 @@ class RDFWriter(Plugin):
         self._remove(*resources, **kwargs)
 
     def size(self):
-        """ Return the number of `triples` in the current `store`. """
-
+        """
+        Return the number of `triples` in the current `store`.
+        """
         return self._size()
 
     # triple level access methods
-    def add_triple(self, s = None, p = None, o = None, context = None):
-        """ Add a triple to the `store`, in the specified ``context``.
+    def add_triple(self, s=None, p=None, o=None, context=None):
+        """
+        Add a triple to the `store`, in the specified ``context``.
 
         `None` can be used as a wildcard.
-
         """
-
         self._add_triple(s, p, o, context)
 
-    def set_triple(self, s = None, p = None, o = None, context = None):
-        """ Replace a triple in the `store` and specified ``context``.
+    def set_triple(self, s=None, p=None, o=None, context=None):
+        """
+        Replace a triple in the `store` and specified ``context``.
 
         `None` can be used as a wildcard.
-
         """
-
         self._set_triple(s,p,o,context)
 
-    def remove_triple(self,s=None,p=None,o=None, context=None):
-        """ Remove a triple from the `store`, from the specified ``context``.
+    def remove_triple(self, s=None, p=None, o=None, context=None):
+        """
+        Remove a triple from the `store`, from the specified ``context``.
 
         `None` can be used as a wildcard.
-
         """
-
         self._remove_triple(s,p,o,context)
 
     # management
     def close(self):
-        """ Close the `plugin`. """
-
+        """
+        Close the `plugin`.
+        """
         pass
 
     def index_triples(self,**kwargs):
-        """ Perform `index` of the `triples` if such functionality is present.
+        """
+        Perform `index` of the `triples` if such functionality is present.
 
         Return `True` if operation successful.
-
         """
-
         return False
 
     def load_triples(self,**kwargs):
-        """ Load `triples` from supported `sources` if such functionality is
-        present.
+        """
+        Load `triples` from supported `sources` if such functionality is present.
 
         Return `True` if operation successful.
-
         """
-
         return False
+
+
+class NoneWriter(RDFWriter):
+    def _set_triple(self, s=None, p=None, o=None, context=None):
+        pass
+
+    def _update(self, *resources):
+        pass
+
+    def _save(self, *resources):
+        pass
+
+    def _remove(self, *resources, **kwargs):
+        pass
+
+    def _clear(self, context=None):
+        pass
+
+    def _add_triple(self, s=None, p=None, o=None, context=None):
+        pass
+
+    def _size(self):
+        pass

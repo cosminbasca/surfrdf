@@ -39,7 +39,6 @@ from surf.rdf import BNode, ClosedNamespace, ConjunctiveGraph, Graph, Literal
 from surf.rdf import Namespace, RDF, RDFS, URIRef
 from surf.resource.lazy import LazyResourceLoader
 from surf.resource.result_proxy import ResultProxy
-from surf.rest import Rest
 from surf.serializer import to_json
 from surf.store import NO_CONTEXT, Store
 from surf.util import attr2rdf, namespace_split, rdf2attr
@@ -891,7 +890,7 @@ class Resource(object):
                   but it is generic enough to eb used in other frameworks.
 
         """
-
+        from surf.rest import Rest
         if cls.session:
             return Rest(resources_namespace, cls)
         raise Exception("not a known resource (no concept uri), cannot expose REST api")

@@ -46,6 +46,7 @@ from franz.openrdf.query.queryresult import TupleQueryResult
 from franz.openrdf.model import value as sv
 from franz.openrdf.model import literal as sl
 
+
 class ReaderPlugin(RDFQueryReader):
     def __init__(self, *args, **kwargs):
         RDFQueryReader.__init__(self, *args, **kwargs)

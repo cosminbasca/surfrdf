@@ -42,6 +42,7 @@ from allegro import Allegro
 from surf.rdf import BNode, Literal, URIRef
 from reader import ReaderPlugin
 
+
 class WriterPlugin(RDFWriter):
     def __init__(self, reader, *args, **kwargs):
         RDFWriter.__init__(self, reader, *args, **kwargs)
