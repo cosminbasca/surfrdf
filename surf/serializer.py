@@ -38,18 +38,26 @@ __author__ = 'Cosmin Basca'
 
 try:
     from json import dumps
-except Exception, e:
+except ImportError, e:
     from simplejson import dumps
-
 from surf.rdf import BNode, Literal, URIRef
 
+
 def to_json(graph):
-    '''
-    serializes a `rdflib` `Graph` or `ConjunctiveGraph` to **JSON** according to
-    the specification of rdf-json for further details please see the following:
-    http://n2.talis.com/wiki/RDF_JSON_Specification
-    '''
-    value_types = {URIRef:'uri',Literal:'literal',BNode:'bnode'}
+    """
+    serializes a :class:`rdflib.graph.Graph` to *JSON* according to the *rdf-json* specification for further
+    details please consult: https://dvcs.w3.org/hg/rdf/raw-file/default/rdf-json/index.html
+
+    :param graph: the given graph
+    :type graph: :class:`rdflib.graph.Graph`
+    :return: a *JSON* serialization of the graph
+    :rtype: str
+    """
+    value_types = {
+        URIRef: 'uri',
+        Literal: 'literal',
+        BNode: 'bnode'
+    }
 
     json_root = {}
     subjects = []
@@ -70,9 +78,7 @@ def to_json(graph):
             json_values = []
 
             for v in graph.objects(s,p):
-                value = {}
-                value['value'] = v
-                value['type'] = value_types[type(v)]
+                value = {'value': v, 'type': value_types[type(v)]}
                 if type(v) is Literal and v.language:
                     value['lang'] = unicode(v.language)
                 if type(v) is Literal and v.datatype:
