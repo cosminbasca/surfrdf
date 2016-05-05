@@ -19,14 +19,14 @@ class ResultProxy(object):
     """
 
     def __init__(self, params = None, store = None, instance_factory = None):
-        self.__params = params if params else dict()
-        self.__get_by_response = None
+        self._params = params if params else dict()
+        self._get_by_response = None
 
         if store:
-            self.__params["store"] = store
+            self._params["store"] = store
 
         if instance_factory:
-            self.__params["instance_factory"] = instance_factory
+            self._params["instance_factory"] = instance_factory
 
     def instance_factory(self, instance_factory_func):
         """ Specify the function for converting triples into instances.
@@ -49,21 +49,21 @@ class ResultProxy(object):
 
         """
 
-        params = self.__params.copy()
+        params = self._params.copy()
         params["instance_factory"] = instance_factory_func
         return ResultProxy(params)
 
     def limit(self, value):
         """ Set the limit for returned result count. """
 
-        params = self.__params.copy()
+        params = self._params.copy()
         params["limit"] = value
         return ResultProxy(params)
 
     def offset(self, value):
         """ Set the limit for returned results. """
 
-        params = self.__params.copy()
+        params = self._params.copy()
         params["offset"] = value
         return ResultProxy(params)
 
@@ -84,7 +84,7 @@ class ResultProxy(object):
 
          """
 
-        params                  = self.__params.copy()
+        params                  = self._params.copy()
         params['full']          = True
         params['direct_only']   = direct_only
         return ResultProxy(params)
@@ -106,14 +106,14 @@ class ResultProxy(object):
 
         """
 
-        params = self.__params.copy()
+        params = self._params.copy()
         params["order"] = value
         return ResultProxy(params)
 
     def desc(self):
         """ Set sorting order to descending. """
 
-        params = self.__params.copy()
+        params = self._params.copy()
         params["desc"] = True
         return ResultProxy(params)
 
@@ -133,7 +133,7 @@ class ResultProxy(object):
 
         """
 
-        params = self.__params.copy()
+        params = self._params.copy()
         # Don't overwrite existing get_by parameters, just append new ones.
         # Overwriting get_by params would cause resource.some_attr.get_by()
         # to work incorrectly.
@@ -185,7 +185,7 @@ class ResultProxy(object):
 
         """
 
-        params = self.__params.copy()
+        params = self._params.copy()
         params.setdefault("filter", [])
         for name, value in kwargs.items():
             attr, direct = attr2rdf(name)
@@ -199,31 +199,30 @@ class ResultProxy(object):
     def context(self, context):
         """ Specify context/graph that resources should be loaded from. """
 
-        params = self.__params.copy()
+        params = self._params.copy()
         params["context"] = context
         return ResultProxy(params)
 
     def __execute_get_by(self):
-        if self.__get_by_response is None:
+        if self._get_by_response is None:
             self.__get_by_args = {}
 
             for key in ['limit', 'offset', 'full', 'order', 'desc', 'get_by',
                         'direct_only', 'context', 'filter']:
-                if key in self.__params:
-                    self.__get_by_args[key] = self.__params[key]
+                if key in self._params:
+                    self.__get_by_args[key] = self._params[key]
 
-            store = self.__params['store']
-            self.__get_by_response = store.get_by(self.__get_by_args)
+            store = self._params['store']
+            self._get_by_response = store.get_by(self.__get_by_args)
 
-        return self.__get_by_args, self.__get_by_response
+        return self.__get_by_args, self._get_by_response
 
     def __iterator(self):
         get_by_args, get_by_response = self.__execute_get_by()
 
-        instance_factory = self.__params['instance_factory']
+        instance_factory = self._params['instance_factory']
         for instance_data in get_by_response:
             yield instance_factory(get_by_args, instance_data)
-
 
     def __iter__(self):
         """ Return iterator over resources in this collection. """

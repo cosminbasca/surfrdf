@@ -324,9 +324,11 @@ def value_to_rdf(value):
 
     :param object value: the value
     :return: the converted value (if possible)
-    :rtype: :class:`rdflib.term.Literal` or object
+    :rtype: :class:`rdflib.term.Literal` or :class:`rdflib.term.BNode` or :class:`rdflib.term.URIRef` or object
     """
-    if isinstance(value, (basestring, str, unicode, float, int, long, bool, datetime, date, time, decimal.Decimal)):
+    if isinstance(value, (URIRef, BNode)):
+        return value
+    elif isinstance(value, (basestring, str, unicode, float, int, long, bool, datetime, date, time, decimal.Decimal)):
         if type(value) is basestring and string_conforms_to_base64(value):
             return Literal(value, datatype=URIRef('http://www.w3.org/2001/XMLSchema#base64Binary'))
         return Literal(value)
