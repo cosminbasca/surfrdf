@@ -31,7 +31,8 @@ Install SuRF:
 
 Starting with version **1.1.9** the *surf.rdflib* and *surf.sparql_protocol* plugins are bundled with *SuRF*.
 
-You'll need one of the following plugins (also installable by `pip`):
+You might need one of the following plugins (also installable by *pip*) for stores not supported by *rdflib* or
+which do not expose a *SPARQL* endpoint:
 
 -  *surf.allegro_franz*, for the AllegroGraph RDFStore
 -  *surf.sesame2*, for stores with a Sesame2 HTTP API

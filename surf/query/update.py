@@ -42,17 +42,18 @@ from surf.util import is_uri
 a = RDF['type']
 
 # Update
-MODIFY      = 'MODIFY'
-INSERT      = 'INSERT'
+MODIFY = 'MODIFY'
+INSERT = 'INSERT'
 INSERT_DATA = 'INSERT_DATA'
-DELETE      = 'DELETE'
+DELETE = 'DELETE'
 DELETE_DATA = 'DELETE_DATA'
-LOAD        = 'LOAD'
-CLEAR       = 'CLEAR'
+LOAD = 'LOAD'
+CLEAR = 'CLEAR'
 
 # Manage
-CREATE      = 'CREATE'
-DROP        = 'DROP'
+CREATE = 'CREATE'
+DROP = 'DROP'
+
 
 class QueryUpdate(Query):
     """ Update query. """
@@ -62,7 +63,7 @@ class QueryUpdate(Query):
     TYPES.extend([MODIFY, INSERT, INSERT_DATA, DELETE, DELETE_DATA, LOAD, CLEAR, CREATE, DROP])
 
     def __init__(self, type, *vars):
-        Query.__init__(self, type, *vars)
+        super(QueryUpdate, self).__init__(type, *vars)
         self._into_uri = []
         self._from_uri = []
         self._template = []
