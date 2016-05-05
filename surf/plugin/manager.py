@@ -38,6 +38,7 @@ import pkg_resources
 from surf.exceptions import PluginNotFoundException
 from surf.plugin.reader import RDFReader
 from surf.plugin.writer import RDFWriter
+from surf.log import info
 from .rdflib.reader import ReaderPlugin as RdflibReader
 from .rdflib.writer import WriterPlugin as RdflibWriter
 from .sparql_protocol.reader import ReaderPlugin as SparqlReader
@@ -54,15 +55,14 @@ _readers = {}
 _writers = {}
 
 
-def _init_plugins(plugins, entry_point_name, logger=None):
+def _init_plugins(plugins, entry_point_name):
     for entry_point in pkg_resources.iter_entry_points(entry_point_name):
         plugin_class = entry_point.load()
         plugins[entry_point.name] = plugin_class
-        if logger and hasattr(logger, 'info'):
-            logger.info('loaded plugin [%s]'%entry_point.name)
+        info('loaded plugin [%s]'%entry_point.name)
 
 
-def load_plugins(reload=False, logger=None):
+def load_plugins(reload=False):
     """
     Call this method to load the plugins into the manager. The method is called
     by default when a :class:`surf.store.Store` is instantiated. To cause a reload, call the method with `reload`
@@ -73,8 +73,8 @@ def load_plugins(reload=False, logger=None):
     """
     global _plugins_loaded
     if not _plugins_loaded or reload:
-        _init_plugins(_readers, ENTRY_POINT_READER, logger)
-        _init_plugins(_writers, ENTRY_POINT_WRITER, logger)
+        _init_plugins(_readers, ENTRY_POINT_READER)
+        _init_plugins(_writers, ENTRY_POINT_WRITER)
         _plugins_loaded = True
 
 
@@ -157,3 +157,5 @@ def get_writer(writer_id, reader, *args, **kwargs):
 # ----------------------------------------------------------------------------------------------------------------------
 register("rdflib", RdflibReader, RdflibWriter)
 register("sparql_protocol", SparqlReader, SparqlWriter)
+# load the rest of the plugins
+load_plugins(reload=False)

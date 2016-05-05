@@ -33,14 +33,12 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
-import logging
+from surf.log import *
 from surf.plugin.manager import load_plugins, get_reader, get_writer
 from surf.plugin.reader import RDFReader, NoneReader
 from surf.plugin.writer import RDFWriter, NoneWriter
-from surf.log import deprecated
 from surf.query import Query
 from surf.rdf import URIRef
-from surf.util import LogMixin
 
 __author__ = 'Cosmin Basca'
 
@@ -49,7 +47,8 @@ __author__ = 'Cosmin Basca'
 # this explicitly says that no context should be used.
 NO_CONTEXT = "no-context"
 
-class Store(LogMixin):
+
+class Store(object):
     """ The `Store` class is comprised of a reader and a writer, getting
     access to an underlying triple store. Also store specific parameters must
     be handled by the class, the plugins act based on various settings.
@@ -66,11 +65,8 @@ class Store(LogMixin):
 
     def __init__(self, reader = None, writer = None, *args, **kwargs):
         super(Store, self).__init__()
-        self.log_level = kwargs.get('log_level', logging.NOTSET)
 
-        self.log.info('initializing the store')
-        # TODO: move this to plugin manager module
-        load_plugins(logger=self.log)
+        info('initializing the store')
 
         self.__default_context = None
         if "default_context" in kwargs:
@@ -80,19 +76,16 @@ class Store(LogMixin):
             self.reader = reader if isinstance(reader, RDFReader) else get_reader(reader, *args, **kwargs)
         else:
             self.reader = NoneReader(*args, **kwargs)
-        self.reader.log_level = self.log_level
 
         if writer:
             self.writer = writer if isinstance(writer, RDFWriter) else get_writer(writer, self.reader, *args, **kwargs)
         else:
             self.writer = NoneWriter(self.reader, *args, **kwargs)
-        self.writer.log_level = self.log_level
 
         if hasattr(self.reader, 'use_subqueries'):
-            self.use_subqueries = property(fget = lambda self: self.reader.use_subqueries)
+            self.use_subqueries = property(fget=lambda self: self.reader.use_subqueries)
 
-        self.log.info('store initialized')
-
+        info('store initialized')
 
     def __add_default_context(self, context):
         """ Return default context if context is None. """
@@ -103,30 +96,6 @@ class Store(LogMixin):
             context = self.__default_context
 
         return context
-
-    def _set_level(self, level):
-        self.log.setLevel(level)
-        self.reader.log_level = level
-        self.writer.log_level = level
-
-    @deprecated
-    def enable_logging(self, enable):
-        """ Toggle `logging` on or off. """
-        #TODO: -------------------[remove in v1.2.0]------------------------
-#        deprecation('the enable_logging method will be removed in version 1.2.0, use the logging and log_level properties instead!')
-        #TODO: -------------------[remove in v1.2.0]------------------------
-        level = enable and logging.DEBUG or logging.NOTSET
-        self.log.setLevel(level)
-        self.reader.enable_logging(enable)
-        self.writer.enable_logging(enable)
-
-    @deprecated
-    def is_enable_logging(self):
-        """ True if `logging` is enabled, False otherwise. """
-        #TODO: -------------------[remove in v1.2.0]------------------------
-#        deprecation('the is_enabled_logging method will be removed in version 1.2.0, use the logging and log_level properties instead!')
-        #TODO: -------------------[remove in v1.2.0]------------------------
-        return (self.log.level == logging.DEBUG)
 
     def close(self):
         """ Close the `store`.
@@ -139,15 +108,15 @@ class Store(LogMixin):
 
         try:
             self.reader.close()
-            self.log.debug('reader closed successfully')
+            debug('reader closed successfully')
         except Exception:
-            self.log.exception("Error on closing the reader")
+            error("Error on closing the reader")
 
         try:
             self.writer.close()
-            self.log.debug('writer closed successfully')
+            debug('writer closed successfully')
         except Exception:
-            self.log.exception("Error on closing the writer")
+            error("Error on closing the writer")
 
     #---------------------------------------------------------------------------
     # the reader interface

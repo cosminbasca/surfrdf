@@ -30,57 +30,95 @@
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 # OF THE POSSIBILITY OF SUCH DAMAGE.
-import warnings
-import logging
-
 __author__ = 'Cosmin Basca'
 
-# TODO: create a global surf logger
+LOGGER_NAME = 'surf'
 
-__levels__ = {
-    'debug'     :logging.DEBUG,
-    'info'      :logging.INFO,
-    'warning'   :logging.WARNING,
-    'error'     :logging.ERROR,
-    'critical'  :logging.CRITICAL,
-}
+_logger = None
 
-surf_logger     = logging.getLogger('surf')
-surf_logger.addHandler(logging.StreamHandler())
-surf_logger.setLevel(logging.INFO)
+DISABLED = 100
+CRITICAL = 50
+ERROR = 40
+WARNING = 30
+INFO = 20
+DEBUG = 10
+NOTSET = 0
 
-# enable deprecation warnings to show up
-#TODO: turn off when no more deprecated functions are in use!
-warnings.simplefilter('always')
 
-def set_loglevel(level='info'):
-    global surf_logger
-    if isinstance(level, basestring):
-        surf_logger.setLevel(__levels__.get(level, 'info'))
-    else:
-        surf_logger.setLevel(level)
+def debug(msg, *args):
+    if __debug__:
+        if _logger:
+            _logger.log(DEBUG, msg, *args)
 
-def enable_root_logger():
-    logging.root.disabled = False
 
-def disable_root_logger():
-    logging.root.disabled = True
+def info(msg, *args):
+    if _logger:
+        _logger.log(INFO, msg, *args)
 
-def deprecation(message):
-    warnings.warn(message, DeprecationWarning, stacklevel=2)
 
-def deprecated(func):
-    """This is a decorator which can be used to mark functions
-    as deprecated. It will result in a warning being emmitted
-    when the function is used.
+def warn(msg, *args):
+    if _logger:
+        _logger.log(WARNING, msg, *args)
 
-    the function is included *as is* from:
-    http://code.activestate.com/recipes/391367/"""
-    def newFunc(*args, **kwargs):
-        warnings.warn("Call to deprecated function %s." % func.__name__,
-                      category=DeprecationWarning)
-        return func(*args, **kwargs)
-    newFunc.__name__ = func.__name__
-    newFunc.__doc__ = func.__doc__
-    newFunc.__dict__.update(func.__dict__)
-    return newFunc
+
+def error(msg, *args):
+    if _logger:
+        _logger.log(ERROR, msg, *args)
+
+
+def get_logger(name=LOGGER_NAME, handler=None):
+    import logging
+
+    LOG_FORMAT = '%(asctime)s %(levelname)-8s %(name)-15s %(message)s'
+    logging._acquireLock()
+    try:
+        # general setup
+        formatter = logging.Formatter(LOG_FORMAT)
+
+        if not handler:
+            handler = [logging.StreamHandler()]
+        elif not isinstance(handler, (list, tuple)):
+            handler = [handler]
+
+        logger = logging.getLogger(name)
+        logger.propagate = 0
+        for hndlr in handler:
+            hndlr.setFormatter(formatter)
+            logger.addHandler(hndlr)
+    finally:
+        logging._releaseLock()
+
+    return logger
+
+
+def setup_logger(name=LOGGER_NAME, handler=None):
+    global _logger
+    _logger = get_logger(name=name, handler=handler)
+
+
+def uninstall_logger():
+    global _logger
+    _logger = None
+
+
+def set_logger(logger):
+    global _logger
+    if logger:
+        _logger = logger
+
+
+def set_logger_level(level, name=None):
+    import logging
+
+    logging._acquireLock()
+    try:
+        logger = logging.getLogger(name) if name else logging.root
+        if isinstance(level, basestring):
+            level = level.upper()
+        logger.setLevel(level)
+    finally:
+        logging._releaseLock()
+
+
+def disable_logger(name=None):
+    set_logger_level(DISABLED, name=name)

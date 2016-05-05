@@ -35,6 +35,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
+from surf.log import *
 from surf.plugin.query_reader import RDFQueryReader
 from allegro_franz.util import toRdfLib
 from surf.rdf import URIRef
@@ -102,18 +103,18 @@ class ReaderPlugin(RDFQueryReader):
             return self.__execute_ask(unicode(query))
 
     def __execute_ask(self, q_string):
-        self.log.debug(q_string)
+        debug(q_string)
         boolQuery = self.__con.prepareBooleanQuery(QueryLanguage.SPARQL, q_string)
         return boolQuery.evaluate()
 
     def __execute_select(self, q_string):
-        self.log.debug(q_string)
+        debug(q_string)
         tupleQuery = self.__con.prepareTupleQuery(QueryLanguage.SPARQL, q_string)
         tupleQuery.setIncludeInferred(self.inference)
         return tupleQuery.evaluate()
 
     def execute_sparql(self, q_string, format = 'JSON'):
-        self.log.debug(q_string)
+        debug(q_string)
         tupleQuery = self.__con.prepareQuery(QueryLanguage.SPARQL, q_string)
         tupleQuery.setIncludeInferred(self.inference)
         # Do some magic as Franz's API doesn't provide a unified API for

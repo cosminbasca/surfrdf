@@ -1,13 +1,18 @@
 import surf
+from surf.log import setup_logger, set_logger_level
+import logging
 
-store = surf.Store(reader = "rdflib",
-                   writer = "rdflib",
-                   rdflib_store = "IOMemory")
+setup_logger()
+set_logger_level(logging.DEBUG)
+
+store = surf.Store(reader="rdflib",
+                   writer="rdflib",
+                   rdflib_store="IOMemory")
 
 session = surf.Session(store)
 
 print "Load RDF data"
-store.load_triples(source = "http://www.w3.org/People/Berners-Lee/card.rdf")
+store.load_triples(source="http://www.w3.org/People/Berners-Lee/card.rdf")
 
 Person = session.get_class(surf.ns.FOAF["Person"])
 

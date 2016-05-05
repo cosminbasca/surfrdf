@@ -36,6 +36,7 @@
 __author__ = 'Cosmin Basca'
 
 
+from surf.log import *
 from surf.plugin.writer import RDFWriter
 
 from allegro_franz.reader import ReaderPlugin
@@ -125,11 +126,11 @@ class WriterPlugin(RDFWriter):
 
     # used by the sesame api
     def __add(self, s = None, p = None, o = None, context = None):
-        self.log.info('ADD TRIPLE: %s, %s, %s, %s' % (s, p, o, context))
+        info('ADD TRIPLE: %s, %s, %s, %s' % (s, p, o, context))
         self.__con.addTriple(toSesame(s, self.__f), toSesame(p, self.__f), toSesame(o, self.__f), contexts = toSesame(context, self.__f))
 
     def __remove(self, s = None, p = None, o = None, context = None):
-        self.log.info('REM TRIPLE: %s, %s, %s, %s' % (s, p, o, context))
+        info('REM TRIPLE: %s, %s, %s, %s' % (s, p, o, context))
         self.__con.removeTriples(toSesame(s, self.__f), toSesame(p, self.__f), toSesame(o, self.__f), contexts = toSesame(context, self.__f))
 
     def index_triples(self, **kwargs):

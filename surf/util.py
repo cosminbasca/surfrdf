@@ -410,28 +410,3 @@ def single(attr):
     :rtype: :class:`Single`
     """
     return Single(attr)
-
-
-class LogMixin(object):
-    """
-    A logger mixin
-    """
-
-    def __init__(self):
-        self.log = logging.getLogger(self.__class__.__name__)
-        self.log.addHandler(logging.StreamHandler())
-
-    @property
-    def logging(self):
-        return self.log.level != logging.NOTSET
-
-    @property
-    def log_level(self):
-        return self.log.level
-
-    @log_level.setter
-    def log_level(self, level):
-        self.log.setLevel(level)
-
-    def disable_logging(self):
-        self.log.setLevel(logging.NOTSET)

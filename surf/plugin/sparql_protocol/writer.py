@@ -43,6 +43,7 @@ from surf.plugin.writer import RDFWriter
 from surf.query import Filter, Group, NamedGroup, Union
 from surf.query.update import insert, delete, clear, load
 from surf.rdf import BNode, Literal, URIRef
+from surf.log import *
 
 
 class SparqlWriterException(Exception):
@@ -185,7 +186,7 @@ class WriterPlugin(RDFWriter):
 
         try:
             for query_str in translated:
-                self.log.debug(query_str)
+                debug(query_str)
                 
                     
                 self.__sparql_wrapper.setQuery(query_str)
@@ -202,7 +203,7 @@ class WriterPlugin(RDFWriter):
             raise SparqlWriterException(msg), None, sys.exc_info()[2]
 
     def __add_many(self, triples, context = None):
-        self.log.debug("ADD several triples")
+        debug("ADD several triples")
 
         query = insert()
 
@@ -214,7 +215,7 @@ class WriterPlugin(RDFWriter):
 
         try:
             query_str = unicode(query)
-            self.log.debug(query_str)
+            debug(query_str)
             self.__sparql_wrapper.setQuery(query_str)
             self.__sparql_wrapper.query().convert()
             return True
@@ -230,7 +231,7 @@ class WriterPlugin(RDFWriter):
         return self.__add_many([(s, p, o)], context)
 
     def __remove(self, s = None, p = None, o = None, context = None):
-        self.log.debug('REM : %s, %s, %s, %s' % (s, p, o, context))
+        debug('REM : %s, %s, %s, %s' % (s, p, o, context))
 
         query = delete()
         try:
@@ -255,16 +256,16 @@ class WriterPlugin(RDFWriter):
                 query.where(where_group)
 
             query_str = unicode(query)
-            self.log.debug(query_str)
+            debug(query_str)
             self.__sparql_wrapper.setQuery(query_str)
             self.__sparql_wrapper.query().convert()
             return True
         except EndPointNotFound, notfound:
-            self.log.exception("SPARQL endpoint not found")
+            error("SPARQL endpoint not found")
         except QueryBadFormed, badquery:
-            self.log.exception("Bad-formed SPARQL query")
+            error("Bad-formed SPARQL query")
         except SPARQLWrapperException, sparqlwrapper:
-            self.log.exception("SPARQLWrapper exception")
+            error("SPARQLWrapper exception")
 
         return None
 
@@ -297,7 +298,7 @@ class WriterPlugin(RDFWriter):
                 query.into(context)
 
             query_str = unicode(query)
-            self.log.debug(query_str)
+            debug(query_str)
             self.__sparql_wrapper.setQuery(query_str)
             self.__sparql_wrapper.query().convert()
             return True

@@ -39,7 +39,8 @@ import warnings
 
 from surf.plugin.writer import RDFWriter
 from surf.rdf import ConjunctiveGraph
-from reader import ReaderPlugin
+from surf.log import *
+from .reader import ReaderPlugin
 
 
 class WriterPlugin(RDFWriter):
@@ -114,11 +115,11 @@ class WriterPlugin(RDFWriter):
         self.__remove(s, p, o, context)
 
     def __add(self, s = None, p = None, o = None, context = None):
-        self.log.info('ADD: %s, %s, %s, %s' % (s, p, o, context))
+        info('ADD: %s, %s, %s, %s' % (s, p, o, context))
         self.__graph.add((s, p, o))
 
     def __remove(self, s = None, p = None, o = None, context = None):
-        self.log.info('REM: %s, %s, %s, %s' % (s, p, o, context))
+        info('REM: %s, %s, %s, %s' % (s, p, o, context))
         self.__graph.remove((s, p, o))
 
     def index_triples(self, **kwargs):

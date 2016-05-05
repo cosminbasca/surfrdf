@@ -33,10 +33,10 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
-from surf.log import deprecation
 from surf.exceptions import NoResultFound, MultipleResultsFound
 
 __author__ = ['Peteris Caune', 'Cosmin Basca']
+
 
 class LazyResourceLoader(list):
     ''' the :class:`surf.resource.value.LazyResourceLoader` class is used by the
@@ -209,11 +209,6 @@ class LazyResourceLoader(list):
         ''' get the `full` `query` attribute. Syntactic sugar
         for :meth:`surf.resource.Resource.query_attribute` method.
         '''
-        #TODO: -------------------[remove in v1.2.0]------------------------
-        if 'only_direct' in kwargs:
-            deprecation('the only_direct argument is deprecated and will be removed in version 1.2.0, use direct_only instead!')
-            direct_only = kwargs['only_direct']
-        #TODO: -------------------[remove in v1.2.0]------------------------
         return self.__query_attribute().full(direct_only)
 
     def order(self, value = True):

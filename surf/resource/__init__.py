@@ -33,7 +33,6 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
-from surf.log import deprecation
 from surf.namespace import get_namespace_url, get_prefix, OWL, all, RDF_TYPE
 from surf.rdf import BNode, ClosedNamespace, ConjunctiveGraph, Graph, Literal
 from surf.rdf import Namespace, RDF, RDFS, URIRef
@@ -547,11 +546,6 @@ class Resource(object):
         self.__set_predicate_values(results_d, True)
         self.__full_direct = True
 
-        #TODO: -------------------[remove in v1.2.0]------------------------
-        if 'only_direct' in kwargs:
-            deprecation('the only_direct argument is deprecated and will be removed in version 1.2.0, use direct_only instead!')
-            direct_only = kwargs['only_direct']
-        #TODO: -------------------[remove in v1.2.0]------------------------
         if not direct_only:
             results_i = self.session[self.store_key].load(self, False)
             self.__set_predicate_values(results_i, False)

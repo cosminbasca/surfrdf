@@ -1,12 +1,12 @@
 import surf
 
-store = surf.Store(reader = 'sparql_protocol',
-                   endpoint = 'http://dbpedia.org/sparql',
-                   default_graph = 'http://dbpedia.org')
+store = surf.Store(reader='sparql_protocol',
+                   endpoint='http://dbpedia.org/sparql',
+                   default_graph='http://dbpedia.org')
 
 print 'Create the session'
 session = surf.Session(store, {})
-session.enable_logging = False
+# session.log_level = False
 
 PhilCollinsAlbums = session.get_class(surf.ns.YAGO['PhilCollinsAlbums'])
 
@@ -24,5 +24,5 @@ for a in all_albums:
     if a.dbpedia_name and a.dbpedia_cover:
         # Resource attributes are list-like, with convenience 
         # properties "first" and "one". 
-        print '\tCover %s for "%s"' % (a.dbpedia_cover.first, 
+        print '\tCover %s for "%s"' % (a.dbpedia_cover.first,
                                        a.dbpedia_name.first)

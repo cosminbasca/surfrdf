@@ -68,9 +68,7 @@ class Session(object):
     """
 
     # TODO: add cache
-
-    def __init__(self, default_store = None, mapping = {},
-                 auto_persist = False, auto_load = False):
+    def __init__(self, default_store=None, mapping=None, auto_persist=False, auto_load=False):
         """ Create a new `session` object that handles the creation of types
         and instances, also the session binds itself to the `Resource` objects
         to allow the Resources to access the data `store` and perform
@@ -81,13 +79,13 @@ class Session(object):
 
         """
 
+        if mapping is None:
+            mapping = {}
         self.mapping = mapping
 
-        self.__auto_persist = auto_persist
-        self.__auto_load = auto_load
-        #self.__use_cached = use_cached
-        #self.__cache_expire = cache_expire
-        self.__stores = {}
+        self._auto_persist = auto_persist
+        self._auto_load = auto_load
+        self._stores = {}
 
         if default_store:
             if type(default_store) is not Store:
@@ -97,103 +95,77 @@ class Session(object):
     # Emulate a dict for the sessions stores.
     def __len__(self):
         """ Total number of `stores` managed by the session. """
-        return len(self.__stores)
+        return len(self._stores)
 
     def __getitem__(self, key):
         """ Return the `store` associated with the key. """
 
-        return self.__stores[key]
+        return self._stores[key]
 
     def __setitem__(self, key, value):
         """ Set the `store` for the specified key, if value not a `Store`
         instance ignored. """
 
         if type(value) is Store :
-            self.__stores[key] = value
+            self._stores[key] = value
 
     def __delitem__(self, key):
         """ Remove the specified `store` from the management `session`. """
-        del self.__stores[key]
+        del self._stores[key]
 
     def __iter__(self):
         """ `iterator` over the managed `stores`. """
-        return self.__stores.__iter__()
+        return self._stores.__iter__()
 
     def __reversed__(self):
-        return self.__stores.__reversed__()
+        return self._stores.items().__reversed__()
 
     def __contains__(self, item):
         """ True if the `item` is contained within the managed `stores`. """
-
-        return self.__stores.__contains__(item)
+        return self._stores.__contains__(item)
 
     def keys(self):
         """ The `keys` that are assigned to the managed `stores`. """
+        return self._stores.keys()
 
-        return self.__stores.keys()
-
-    def set_auto_persist(self, val):
-        """ Setter function for the `auto_persist` property.
-
-        Do not use this, use the `auto_persist` property instead.
-
+    @property
+    def auto_persist(self):
         """
+        Toggle `auto_persistence` (no need to explicitly call `commit`,
+        `resources` are persisted to the `store` each time a modification occurs)
+        on or off. Accepts boolean values.
+        """
+        return self._auto_persist
 
+    @auto_persist.setter
+    def auto_persist(self, val):
         if not isinstance(val, bool):
             val = False
-            
-        self.__auto_persist = val
+        self._auto_persist = val
 
-    auto_persist = property(fget = lambda self: self.__auto_persist,
-                            fset = set_auto_persist)
-    """ Toggle `auto_persistence` (no need to explicitly call `commit`,
-    `resources` are persisted to the `store` each time a modification occurs)
-    on or off. Accepts boolean values. """
-
-    def set_auto_load(self, val):
-        """ Setter function for the `auto_load` property.
-
-        Do not use it, use the `auto_load` property instead
-
+    @property
+    def auto_load(self):
         """
+        Toggle `auto_load` (no need to explicitly call `load`, `resources` are
+        loaded from the `store` automatically on creation) on or off.
+        Accepts boolean values.
+        """
+        return self._auto_load
 
+    @auto_load.setter
+    def auto_load(self, val):
         if not isinstance(val, bool):
             val = False
+        self._auto_load = val
 
-        self.__auto_load = val
+    @property
+    def log_level(self):
+        return {sid: store.log_level for sid, store in self._stores.iteritems()}
 
-    auto_load = property(fget = lambda self: self.__auto_load,
-                         fset = set_auto_load)
-    """Toggle `auto_load` (no need to explicitly call `load`, `resources` are
-    loaded from the `store` automatically on creation) on or off.
-    Accepts boolean values. """
-
-    def get_enable_logging(self):
-        """ Getter function for the `enable_logging` property.
-
-        Do not use this, use the `enable_logging` property instead.
-
-        """
-
-        for store in self.__stores:
-            if not self.__stores[store].is_enable_logging():
-                return False
-
-        return True
-
-    def set_enable_logging(self, enable):
-        """ Setter function for the `enable_logging` property.
-
-        Do not use this, use the `enable_logging` property instead.
-
-        """
-
-        for store in self.__stores:
-            self.__stores[store].enable_logging(enable)
-
-    enable_logging = property(fget = get_enable_logging,
-                              fset = set_enable_logging)
-    """ Toggle `logging` on or off. Accepts boolean values. """
+    @log_level.setter
+    def log_level(self, level):
+        for sid, store in self._stores.iteritems():
+            store.log_level = level
 
     # TODO: add caching ... need strategies
     '''def set_use_cached(self,val):
@@ -216,10 +188,10 @@ class Session(object):
 
         """
 
-        if DEFAULT_STORE_KEY in self.__stores:
+        if DEFAULT_STORE_KEY in self._stores:
             return DEFAULT_STORE_KEY
-        elif len(self.__stores) > 0:
-            return self.__stores.keys()[0]
+        elif len(self._stores) > 0:
+            return self._stores.keys()[0]
         return None
 
     default_store_key = property(fget = get_default_store_key)
@@ -248,7 +220,7 @@ class Session(object):
 
         ds_key = self.default_store_key
         if ds_key:
-            return self.__stores[ds_key]
+            return self._stores[ds_key]
         return None
 
     default_store = property(fget = get_default_store,
@@ -282,9 +254,9 @@ class Session(object):
 
         """
 
-        for store in self.__stores.keys():
-            self.__stores[store].close()
-            del self.__stores[store]
+        for store in self._stores.keys():
+            self._stores[store].close()
+            del self._stores[store]
 
         self.mapping = None
 

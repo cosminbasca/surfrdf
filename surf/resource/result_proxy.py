@@ -1,9 +1,9 @@
 """ Module for ResultProxy. """
 
 from surf.exceptions import NoResultFound, MultipleResultsFound
-from surf.log import deprecation
 from surf.rdf import Literal
 from surf.util import attr2rdf, value_to_rdf
+
 
 class ResultProxy(object):
     """ Interface to :meth:`surf.store.Store.get_by`.
@@ -83,12 +83,6 @@ class ResultProxy(object):
         subqueries to fully load multiple resources in one request.
 
          """
-
-        #TODO: -------------------[remove in v1.2.0]------------------------
-        if 'only_direct' in kwargs:
-            deprecation('the only_direct argument is deprecated and will be removed in version 1.2.0, use direct_only instead!')
-            direct_only = kwargs['only_direct']
-        #TODO: -------------------[remove in v1.2.0]------------------------
 
         params                  = self.__params.copy()
         params['full']          = True

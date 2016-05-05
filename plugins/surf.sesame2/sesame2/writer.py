@@ -33,14 +33,14 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
-__author__ = 'Cosmin Basca'
-
-
+from surf.log import *
 from surf.plugin.writer import RDFWriter
 from allegro import Allegro
 
 from surf.rdf import BNode, Literal, URIRef
 from reader import ReaderPlugin
+
+__author__ = 'Cosmin Basca'
 
 
 class WriterPlugin(RDFWriter):
@@ -62,7 +62,7 @@ class WriterPlugin(RDFWriter):
             self.__repository = kwargs['repository'] if 'repository' in kwargs else None
             self.__use_allegro_extensions = kwargs['use_allegro_extensions'] if 'use_allegro_extensions' in kwargs else False
 
-            self.log.info('INIT: %s, %s, %s, %s' % (self.server, 
+            info('INIT: %s, %s, %s, %s' % (self.server,
                                                     self.port, 
                                                     self.root_path, 
                                                     self.repository_path)) 
@@ -72,7 +72,7 @@ class WriterPlugin(RDFWriter):
 
             if self.__use_allegro_extensions:
                 opened = self.get_allegro().open_repository(self.repository)
-                self.log.info('ALLEGRO repository opened: ' + unicode(opened))
+                info('ALLEGRO repository opened: ' + unicode(opened))
 
     server = property(lambda self: self.__server)
     port = property(lambda self: self.__port)

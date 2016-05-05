@@ -40,6 +40,7 @@ except ImportError, e:
     from simplejson import loads
 from surf.plugin.query_reader import RDFQueryReader
 from surf.rdf import ConjunctiveGraph
+from surf.log import *
 
 __author__ = 'Cosmin Basca'
 
@@ -78,11 +79,11 @@ class ReaderPlugin(RDFQueryReader):
     # execute
     def _execute(self, query):
         q_string = unicode(query)
-        self.log.debug(q_string)
+        debug(q_string)
         return self.__graph.query(q_string)
 
     def execute_sparql(self, q_string, format = None):
-        self.log.debug(q_string)
+        debug(q_string)
 
         result = self.__graph.query(q_string)
         return loads(result.serialize(format='json'))

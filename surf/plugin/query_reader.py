@@ -39,6 +39,7 @@ from surf.plugin.reader import RDFReader
 from surf.query import Query, Union
 from surf.query import a, ask, select, optional_group, named_group
 from surf.rdf import URIRef
+from surf.log import *
 
 __author__ = 'Cosmin Basca'
 
@@ -445,5 +446,5 @@ class RDFQueryReader(RDFReader):
         try:
             return self._convert(query_result, *keys)
         except Exception:
-            self.log.exception("Error on convert")
+            error("Error on convert")
         return []

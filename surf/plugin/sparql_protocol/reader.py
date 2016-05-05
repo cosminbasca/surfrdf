@@ -36,12 +36,12 @@
 __author__ = 'Cosmin Basca'
 
 import sys
-
 from SPARQLWrapper import SPARQLWrapper, JSON
 from SPARQLWrapper.SPARQLExceptions import EndPointNotFound, QueryBadFormed
 
 from surf.util import json_to_rdflib
 from surf.plugin.query_reader import RDFQueryReader
+from surf.log import *
 
 
 class SparqlReaderException(Exception):
@@ -98,7 +98,7 @@ class ReaderPlugin(RDFQueryReader):
 
     def execute_sparql(self, q_string, format = 'JSON'):
         try:
-            self.log.debug(q_string)
+            debug(q_string)
             self.__sparql_wrapper.setQuery(q_string)
             return self.__sparql_wrapper.query().convert()
         except EndPointNotFound, _:

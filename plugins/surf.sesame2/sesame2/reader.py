@@ -33,12 +33,12 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
-__author__ = 'Cosmin Basca'
-
-
+from surf.log import *
 from surf.util import json_to_rdflib
 from surf.plugin.query_reader import RDFQueryReader
 from allegro import Allegro
+
+__author__ = 'Cosmin Basca'
 
 
 class ReaderPlugin(RDFQueryReader):
@@ -51,7 +51,7 @@ class ReaderPlugin(RDFQueryReader):
         self.__repository = kwargs['repository'] if 'repository' in kwargs else None
         self.__use_allegro_extensions = kwargs['use_allegro_extensions'] if 'use_allegro_extensions' in kwargs else False
 
-        self.log.info('INIT: %s, %s, %s, %s' % (self.server, 
+        info('INIT: %s, %s, %s, %s' % (self.server,
                                                 self.port, 
                                                 self.root_path, 
                                                 self.repository_path)) 
@@ -61,7 +61,7 @@ class ReaderPlugin(RDFQueryReader):
 
         if self.__use_allegro_extensions:
             opened = self.get_allegro().open_repository(self.repository)
-            self.log.info('ALLEGRO repository opened: %s' % opened)
+            info('ALLEGRO repository opened: %s' % opened)
 
     server = property(lambda self: self.__server)
     port = property(lambda self: self.__port)
@@ -106,7 +106,7 @@ class ReaderPlugin(RDFQueryReader):
 
     def execute_sparql(self, query, format='JSON'):
         try:
-            self.log.debug(query)
+            debug(query)
             result = self.get_allegro().sparql_query(self.repository,
                                                     query, 
                                                     infer = self.inference, 
@@ -118,7 +118,7 @@ class ReaderPlugin(RDFQueryReader):
                 return result
 
         except Exception, e:
-            self.log.exception("Exception on query")
+            error("Exception on query")
 
     def close(self):
         pass

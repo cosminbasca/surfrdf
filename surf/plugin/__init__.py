@@ -36,12 +36,10 @@
 from abc import ABCMeta
 import logging
 
-from surf.util import LogMixin
-
 __author__ = 'Cosmin Basca'
 
 
-class Plugin(LogMixin):
+class Plugin(object):
     """
     Super class for all SuRF plugins, provides basic instantiation and `logging`.
     """
@@ -50,7 +48,6 @@ class Plugin(LogMixin):
 
     def __init__(self, *args, **kwargs):
         super(Plugin, self).__init__()
-        self.log_level = logging.NOTSET
         self._inference = False
 
     def close(self):
