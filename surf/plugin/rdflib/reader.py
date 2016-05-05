@@ -49,19 +49,31 @@ class ReaderPlugin(RDFQueryReader):
     def __init__(self, *args, **kwargs):
         RDFQueryReader.__init__(self, *args, **kwargs)
 
-        self.__rdflib_store = kwargs.get("rdflib_store", "IOMemory")
-        self.__rdflib_identifier = kwargs.get("rdflib_identifier") 
-        self.__commit_pending_transaction_on_close = \
+        self._rdflib_store = kwargs.get("rdflib_store", "IOMemory")
+        self._rdflib_identifier = kwargs.get("rdflib_identifier")
+        self._commit_pending_transaction_on_close = \
             kwargs.get("commit_pending_transaction_on_close", True)
 
-        self.__graph = ConjunctiveGraph(store = self.__rdflib_store,
-                                        identifier = self.__rdflib_identifier)
+        self._graph = ConjunctiveGraph(
+            store=self._rdflib_store,
+            identifier=self._rdflib_identifier
+        )
 
-    rdflib_store = property(lambda self: self.__rdflib_store)
-    rdflib_identifier = property(lambda self: self.__rdflib_identifier)
-    graph = property(lambda self: self.__graph)
-    commit_pending_transaction_on_close = \
-        property(lambda self: self.__commit_pending_transaction_on_close)
+    @property
+    def rdflib_store(self):
+        return self._rdflib_store
+
+    @property
+    def rdflib_identifier(self):
+        return self._rdflib_identifier
+
+    @property
+    def graph(self):
+        return self._graph
+
+    @property
+    def commit_pending_transaction_on_close(self):
+        return self._commit_pending_transaction_on_close
 
     def _to_table(self, result):
         # Elements in result.selectionF are instances of rdflib.Variable,
@@ -76,18 +88,17 @@ class ReaderPlugin(RDFQueryReader):
         # askAnswer is list with boolean values, we want first value. 
         return result.askAnswer[0]
 
-    # execute
     def _execute(self, query):
         q_string = unicode(query)
         debug(q_string)
-        return self.__graph.query(q_string)
+        return self._graph.query(q_string)
 
-    def execute_sparql(self, q_string, format = None):
+    def execute_sparql(self, q_string, format=None):
         debug(q_string)
 
-        result = self.__graph.query(q_string)
+        result = self._graph.query(q_string)
         return loads(result.serialize(format='json'))
 
     def close(self):
-        self.__graph.close(commit_pending_transaction = self.__commit_pending_transaction_on_close)
+        self._graph.close(commit_pending_transaction=self._commit_pending_transaction_on_close)
 

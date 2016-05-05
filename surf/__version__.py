@@ -39,5 +39,5 @@ __author__ = 'Cosmin Basca'
 
 VersionSpec = namedtuple('VersionSpec', ['major', 'minor', 'revision'])
 
-version = VersionSpec(1, 1, 9)
+version = VersionSpec(1, 2, 0)
 str_version = '.'.join(map(str, version))

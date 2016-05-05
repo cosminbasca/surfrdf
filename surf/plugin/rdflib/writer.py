@@ -47,33 +47,42 @@ class WriterPlugin(RDFWriter):
     def __init__(self, reader, *args, **kwargs):
         RDFWriter.__init__(self, reader, *args, **kwargs)
         if isinstance(self.reader, ReaderPlugin):
-            self.__rdflib_store = self.reader.rdflib_store
-            self.__rdflib_identifier = self.reader.rdflib_identifier
-            self.__commit_pending_transaction_on_close = \
+            self._rdflib_store = self.reader.rdflib_store
+            self._rdflib_identifier = self.reader.rdflib_identifier
+            self._commit_pending_transaction_on_close = \
                 self.reader.commit_pending_transaction_on_close
 
             self._graph = self.reader.graph
         else:
-            self.__rdflib_store = kwargs.get("rdflib_store", "IOMemory")
-            self.__rdflib_identifier = kwargs.get("rdflib_identifier")
-            self.__commit_pending_transaction_on_close = \
+            self._rdflib_store = kwargs.get("rdflib_store", "IOMemory")
+            self._rdflib_identifier = kwargs.get("rdflib_identifier")
+            self._commit_pending_transaction_on_close = \
                 kwargs.get("commit_pending_transaction_on_close", True)
 
-            self._graph = ConjunctiveGraph(store=self.__rdflib_store, identifier=self.__rdflib_identifier)
+            self._graph = ConjunctiveGraph(store=self._rdflib_store, identifier=self._rdflib_identifier)
 
-            warnings.warn("Graph is not readable through the reader plugin",
-                          UserWarning)
+            warnings.warn("Graph is not readable through the reader plugin", UserWarning)
 
-    rdflib_store = property(lambda self: self.__rdflib_store)
-    rdflib_identifier = property(lambda self: self.__rdflib_identifier)
-    graph = property(lambda self: self.__graph)
-    commit_pending_transaction_on_close = \
-        property(lambda self: self.__commit_pending_transaction_on_close)
+    @property
+    def rdflib_store(self):
+        return self._rdflib_store
+
+    @property
+    def rdflib_identifier(self):
+        return self._rdflib_identifier
+
+    @property
+    def graph(self):
+        return self._graph
+
+    @property
+    def commit_pending_transaction_on_close(self):
+        return self._commit_pending_transaction_on_close
 
     def _save(self, *resources):
         for resource in resources:
             s = resource.subject
-            self.__remove(s)
+            self._graph_remove(s)
             for p, objs in resource.rdf_direct.items():
                 for o in objs:
                     self.__add(s, p, o)
@@ -84,7 +93,7 @@ class WriterPlugin(RDFWriter):
         for resource in resources:
             s = resource.subject
             for p in resource.rdf_direct:
-                self.__remove(s, p)
+                self._graph_remove(s, p)
             for p, objs in resource.rdf_direct.items():
                 for o in objs:
                     self.__add(s, p, o)
@@ -94,9 +103,9 @@ class WriterPlugin(RDFWriter):
     def _remove(self, *resources, **kwargs):
         inverse = kwargs.get("inverse")
         for resource in resources:
-            self.__remove(s=resource.subject)
+            self._graph_remove(s=resource.subject)
             if inverse:
-                self.__remove(o=resource.subject)
+                self._graph_remove(o=resource.subject)
 
         self._graph.commit()
 
@@ -107,45 +116,54 @@ class WriterPlugin(RDFWriter):
         self.__add(s, p, o, context)
 
     def _set_triple(self, s=None, p=None, o=None, context=None):
-        self.__remove(s, p, context=context)
+        self._graph_remove(s, p, context=context)
         self.__add(s, p, o, context)
 
     def _remove_triple(self, s=None, p=None, o=None, context=None):
-        self.__remove(s, p, o, context)
+        self._graph_remove(s, p, o, context)
 
     def __add(self, s=None, p=None, o=None, context=None):
         info('ADD: %s, %s, %s, %s' % (s, p, o, context))
         self._graph.add((s, p, o))
 
-    def __remove(self, s=None, p=None, o=None, context=None):
+    def _graph_remove(self, s=None, p=None, o=None, context=None):
         info('REM: %s, %s, %s, %s' % (s, p, o, context))
         self._graph.remove((s, p, o))
 
     def index_triples(self, **kwargs):
-        """ Index triples if this functionality is present.  
-        
-        Return `True` if successful.
-        
         """
-
+        Index triples if this functionality is present.
+        
+        :return: True if successful
+        :rtype: bool
+        """
         # TODO: can indexing be forced ?
-        return True
+        return False
 
-    def load_triples(self, source=None, publicID=None, format="xml", **args):
-        """ Load files (or resources on the web) into the triple-store. """
+    def load_triples(self, source=None, public_id=None, format="xml", **args):
+        """
+        Load files (or resources on the web) into the triple-store.
 
-        if source:
+        :param str source: the source file to load RDF triples from
+        :param public_id: the :mod:`rdflib` publicID
+        :param str format: the source file format
+        :param dict args: extra args passed to :meth:`rdflib.graph.Graph.parse`
+        :return: True if successful
+        :rtype: bool
+        """
+        if source is not None:
             debug("have %s triples, loading ...", len(self._graph))
-            self._graph.parse(source, publicID=publicID, format=format, **args)
+            self._graph.parse(source, publicID=public_id, format=format, **args)
             debug("load complete; have %s triples", len(self._graph))
             return True
 
         return False
 
     def _clear(self, context=None):
-        """ Clear the triple-store. """
-
+        """
+        Clear the triple-store.
+        """
         self._graph.remove((None, None, None))
 
     def close(self):
-        self._graph.close(commit_pending_transaction=self.__commit_pending_transaction_on_close)
+        self._graph.close(commit_pending_transaction=self._commit_pending_transaction_on_close)

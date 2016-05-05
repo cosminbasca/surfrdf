@@ -39,10 +39,10 @@ from surf.exceptions import PluginNotFoundException
 from surf.plugin.reader import RDFReader
 from surf.plugin.writer import RDFWriter
 from surf.log import info
-from .rdflib.reader import ReaderPlugin as RdflibReader
-from .rdflib.writer import WriterPlugin as RdflibWriter
-from .sparql_protocol.reader import ReaderPlugin as SparqlReader
-from .sparql_protocol.writer import WriterPlugin as SparqlWriter
+from .rdflib import ReaderPlugin as RdflibReader
+from .rdflib import WriterPlugin as RdflibWriter
+from .sparql_protocol import ReaderPlugin as SparqlReader
+from .sparql_protocol import WriterPlugin as SparqlWriter
 
 __author__ = 'Cosmin Basca'
 
