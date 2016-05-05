@@ -68,9 +68,10 @@ API reference
 .. toctree::
    :maxdepth: 2
    
-   modules/exc
+   modules/exceptions
    modules/namespace
    modules/rdf
+   modules/log
    modules/plugin
    modules/query
    modules/resource

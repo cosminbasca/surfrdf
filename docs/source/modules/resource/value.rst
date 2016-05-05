@@ -1,7 +1,7 @@
-The :mod:`surf.resource.value` Module
--------------------------------------
+The :mod:`surf.resource` Module
+-------------------------------
 
-.. automodule:: surf.resource.value
+.. automodule:: surf.resource
    :members:
    :inherited-members:
    :show-inheritance:
