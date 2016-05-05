@@ -105,22 +105,17 @@ class Store(object):
         and :func:`surf.plugin.reader.RDFReader.close` methods.
 
         """
-
         try:
             self.reader.close()
             debug('reader closed successfully')
-        except Exception:
-            error("Error on closing the reader")
+        except Exception, e:
+            error("Error on closing the reader: %s", e.message)
 
         try:
             self.writer.close()
             debug('writer closed successfully')
-        except Exception:
-            error("Error on closing the writer")
-
-    #---------------------------------------------------------------------------
-    # the reader interface
-    #---------------------------------------------------------------------------
+        except Exception, e:
+            error("Error on closing the writer: %s", e.message)
 
     def get(self, resource, attribute, direct):
         """ :func:`surf.plugin.reader.RDFReader.get` method. """
@@ -154,10 +149,6 @@ class Store(object):
         params["context"] = self.__add_default_context(params.get("context"))
         return self.reader.get_by(params)
 
-    #---------------------------------------------------------------------------
-    # the query reader interface
-    #---------------------------------------------------------------------------
-
     def execute(self, query):
         """see :meth:`surf.plugin.query_reader.RDFQueryReader.execute` method. """
 
@@ -172,10 +163,6 @@ class Store(object):
         if hasattr(self.reader, 'execute_sparql') and type(sparql_query) in [str, unicode]:
             return self.reader.execute_sparql(sparql_query, format = format)
         return None
-
-    #---------------------------------------------------------------------------
-    # the writer interface
-    #---------------------------------------------------------------------------
 
     def clear(self, context = None):
         """ See :func:`surf.plugin.writer.RDFWriter.clear` method. """
