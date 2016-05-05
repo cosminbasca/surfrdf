@@ -47,7 +47,7 @@ __author__ = 'Cosmin Basca'
 
 class ReaderPlugin(RDFQueryReader):
     def __init__(self, *args, **kwargs):
-        RDFQueryReader.__init__(self, *args, **kwargs)
+        super(ReaderPlugin, self).__init__(*args, **kwargs)
 
         self._rdflib_store = kwargs.get("rdflib_store", "IOMemory")
         self._rdflib_identifier = kwargs.get("rdflib_identifier")

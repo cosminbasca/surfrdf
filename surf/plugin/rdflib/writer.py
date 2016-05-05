@@ -45,7 +45,8 @@ from .reader import ReaderPlugin
 
 class WriterPlugin(RDFWriter):
     def __init__(self, reader, *args, **kwargs):
-        RDFWriter.__init__(self, reader, *args, **kwargs)
+        super(WriterPlugin, self).__init__(reader, *args, **kwargs)
+
         if isinstance(self.reader, ReaderPlugin):
             self._rdflib_store = self.reader.rdflib_store
             self._rdflib_identifier = self.reader.rdflib_identifier
@@ -82,7 +83,7 @@ class WriterPlugin(RDFWriter):
     def _save(self, *resources):
         for resource in resources:
             s = resource.subject
-            self._graph_remove(s)
+            self._remove_from_graph(s)
             for p, objs in resource.rdf_direct.items():
                 for o in objs:
                     self.__add(s, p, o)
@@ -93,7 +94,7 @@ class WriterPlugin(RDFWriter):
         for resource in resources:
             s = resource.subject
             for p in resource.rdf_direct:
-                self._graph_remove(s, p)
+                self._remove_from_graph(s, p)
             for p, objs in resource.rdf_direct.items():
                 for o in objs:
                     self.__add(s, p, o)
@@ -103,9 +104,9 @@ class WriterPlugin(RDFWriter):
     def _remove(self, *resources, **kwargs):
         inverse = kwargs.get("inverse")
         for resource in resources:
-            self._graph_remove(s=resource.subject)
+            self._remove_from_graph(s=resource.subject)
             if inverse:
-                self._graph_remove(o=resource.subject)
+                self._remove_from_graph(o=resource.subject)
 
         self._graph.commit()
 
@@ -116,17 +117,17 @@ class WriterPlugin(RDFWriter):
         self.__add(s, p, o, context)
 
     def _set_triple(self, s=None, p=None, o=None, context=None):
-        self._graph_remove(s, p, context=context)
+        self._remove_from_graph(s, p, context=context)
         self.__add(s, p, o, context)
 
     def _remove_triple(self, s=None, p=None, o=None, context=None):
-        self._graph_remove(s, p, o, context)
+        self._remove_from_graph(s, p, o, context)
 
     def __add(self, s=None, p=None, o=None, context=None):
         info('ADD: %s, %s, %s, %s' % (s, p, o, context))
         self._graph.add((s, p, o))
 
-    def _graph_remove(self, s=None, p=None, o=None, context=None):
+    def _remove_from_graph(self, s=None, p=None, o=None, context=None):
         info('REM: %s, %s, %s, %s' % (s, p, o, context))
         self._graph.remove((s, p, o))
 

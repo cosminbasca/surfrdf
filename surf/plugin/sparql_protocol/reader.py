@@ -50,30 +50,34 @@ class SparqlReaderException(Exception):
 
 class ReaderPlugin(RDFQueryReader):
     def __init__(self, *args, **kwargs):
-        RDFQueryReader.__init__(self, *args, **kwargs)
+        super(ReaderPlugin, self).__init__(*args, **kwargs)
 
-        self.__endpoint = kwargs['endpoint'] if 'endpoint' in kwargs else None
-        self.__results_format = JSON
+        self._endpoint = kwargs['endpoint'] if 'endpoint' in kwargs else None
+        self._results_format = JSON
 
-
-        self.__sparql_wrapper = SPARQLWrapper(self.__endpoint, returnFormat=self.__results_format)
-        user        = kwargs.get('user',None)
-        password    = kwargs.get('password',None)
-        if user and password:
-            self.__sparql_wrapper.setCredentials(user, password)
+        self._sparql_wrapper = SPARQLWrapper(self._endpoint, returnFormat=self._results_format)
+        user = kwargs.get('user', None)
+        password = kwargs.get('password', None)
+        if user is not None and password is not None:
+            self._sparql_wrapper.setCredentials(user, password)
 
         if kwargs.get("use_keepalive", "").lower().strip() == "true":
             if hasattr(SPARQLWrapper, "setUseKeepAlive"):
-                self.__sparql_wrapper.setUseKeepAlive()
+                self._sparql_wrapper.setUseKeepAlive()
 
-    endpoint = property(lambda self: self.__endpoint)
-    results_format = property(lambda self: self.__results_format)
+    @property
+    def endpoint(self):
+        return self._endpoint
+
+    @property
+    def results_format(self):
+        return self._results_format
 
     def _to_table(self, result):
         if not isinstance(result, dict):
             return result
 
-        if not "results" in result:
+        if "results" not in result:
             return result
 
         converted = []
@@ -84,23 +88,21 @@ class ReaderPlugin(RDFQueryReader):
                     rdf_item[key] = json_to_rdflib(obj)
                 except ValueError:
                     continue
-
             converted.append(rdf_item)
 
         return converted
 
     def _ask(self, result):
-        '''
+        """
         returns the boolean value of a ASK query
-        '''
-
+        """
         return result.get("boolean")
 
-    def execute_sparql(self, q_string, format = 'JSON'):
+    def execute_sparql(self, q_string, format='JSON'):
         try:
             debug(q_string)
-            self.__sparql_wrapper.setQuery(q_string)
-            return self.__sparql_wrapper.query().convert()
+            self._sparql_wrapper.setQuery(q_string)
+            return self._sparql_wrapper.query().convert()
         except EndPointNotFound, _:
             raise SparqlReaderException("Endpoint not found"), None, sys.exc_info()[2]
         except QueryBadFormed, _:
@@ -108,10 +110,8 @@ class ReaderPlugin(RDFQueryReader):
         except Exception, e:
             raise SparqlReaderException("Exception: %s" % e), None, sys.exc_info()[2]
 
-    # execute
     def _execute(self, query):
         return self.execute_sparql(unicode(query))
 
     def close(self):
         pass
-
