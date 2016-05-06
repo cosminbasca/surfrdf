@@ -16,8 +16,14 @@ Mapper (ORM), similar in concept to Object Relational Mappers like *SQLAlchemy*.
 Documentation
 =============
 
-http://surf-rdf.readthedocs.io/en/latest/
+You can read the latest documentation online at: http://surf-rdf.readthedocs.io/en/latest/
+When building from source, you can build your own documentation by following these steps:
 
+.. code:: sh
+
+    $ cd docs
+    $ pip install -r requirements.txt
+    $ make html
 
 Install
 =======
@@ -31,7 +37,7 @@ Install SuRF:
 
 Starting with version **1.1.9** the *surf.rdflib* and *surf.sparql_protocol* plugins are bundled with *SuRF*.
 
-You might need one of the following plugins (also installable by *pip*) for stores not supported by *rdflib* or
+You might need one of the following plugins (also installable with *pip*) for stores not supported by *rdflib* or
 which do not expose a *SPARQL* endpoint:
 
 -  *surf.allegro_franz*, for the AllegroGraph RDFStore
@@ -58,17 +64,6 @@ The example below shows how to query a resource using the rdflib in-memory backe
     ...
     Timothy Berners-Lee
 
-Documentation
-=============
-
-You can read the documentation online at http://packages.python.org/SuRF/
-
-To build the documentation yourself, install sphinx and run the build step:
-
-.. code:: sh
-
-        $ pip install sphinx
-        $ python setup.py build_sphinx
 
 Testing
 =======
@@ -77,5 +72,7 @@ Testing
 
 .. code:: sh
 
-        $ tox
-
+    $ # test over multiple python versions with tox
+    $ tox
+    $ # or run the tests in surf
+    $ py.test surf
