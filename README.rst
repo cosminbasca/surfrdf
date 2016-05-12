@@ -76,3 +76,12 @@ Testing
     $ tox
     $ # or run the tests in surf
     $ py.test surf
+
+
+If you have host running *Docker* you can easily test against different interpreters with
+
+.. code:: sh
+
+    $ ./run-docker-tests.sh
+
+If you have a ``.tox`` folder in the project-directory, it will be used to keep the tox-environments.

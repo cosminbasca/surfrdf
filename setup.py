@@ -15,7 +15,7 @@
 #      in the documentation and/or other materials provided with
 #      the distribution.
 #    * Neither the name of DERI nor the
-#      names of its contributors may be used to endorse or promote  
+#      names of its contributors may be used to endorse or promote
 #      products derived from this software without specific prior
 #      written permission.
 
@@ -92,6 +92,10 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language:: Python:: 3.2',
+        'Programming Language:: Python:: 3.3',
+        'Programming Language:: Python:: 3.4',
+        'Programming Language:: Python:: 3.5',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     keywords='Python SPARQL RDF resource mapper ORM query Semantic Web RDFS rdflib Object-Oriented',
