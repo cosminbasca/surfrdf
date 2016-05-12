@@ -34,10 +34,7 @@
 
 # -*- coding: utf-8 -*-
 
-try:
-    from json import loads
-except ImportError, e:
-    from simplejson import loads
+from json import loads
 from surf.plugin.query_reader import RDFQueryReader
 from surf.rdf import ConjunctiveGraph
 from surf.log import *

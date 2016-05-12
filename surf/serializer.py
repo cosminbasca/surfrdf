@@ -36,10 +36,8 @@
 
 __author__ = 'Cosmin Basca'
 
-try:
-    from json import dumps
-except ImportError, e:
-    from simplejson import dumps
+from json import dumps
+import six
 from surf.rdf import BNode, Literal, URIRef
 
 
