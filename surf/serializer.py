@@ -78,12 +78,12 @@ def to_json(graph):
             for v in graph.objects(s,p):
                 value = {'value': v, 'type': value_types[type(v)]}
                 if type(v) is Literal and v.language:
-                    value['lang'] = unicode(v.language)
+                    value['lang'] = six.text_type(v.language)
                 if type(v) is Literal and v.datatype:
-                    value['datatype'] = unicode(v.datatype)
+                    value['datatype'] = six.text_type(v.datatype)
 
                 json_values.append(value)
-            json_subjects[unicode(p)] = json_values
-        json_root[unicode(s)] = json_subjects
+            json_subjects[six.text_type(p)] = json_values
+        json_root[six.text_type(s)] = json_subjects
 
     return dumps(json_root)

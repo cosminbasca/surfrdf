@@ -15,7 +15,7 @@
 #      in the documentation and/or other materials provided with
 #      the distribution.
 #    * Neither the name of DERI nor the
-#      names of its contributors may be used to endorse or promote  
+#      names of its contributors may be used to endorse or promote
 #      products derived from this software without specific prior
 #      written permission.
 
@@ -35,6 +35,7 @@
 # -*- coding: utf-8 -*-
 
 from json import loads
+import six
 from surf.plugin.query_reader import RDFQueryReader
 from surf.rdf import ConjunctiveGraph
 from surf.log import *
@@ -74,19 +75,19 @@ class ReaderPlugin(RDFQueryReader):
 
     def _to_table(self, result):
         # Elements in result.selectionF are instances of rdflib.Variable,
-        # rdflib.Variable is subclass of unicode. We convert them to 
-        # unicode here anyway to hide rdflib internals from clients. 
-        vars = [unicode(var) for var in result.vars]
+        # rdflib.Variable is subclass of unicode strings. We convert them to
+        # unicode strings here anyway to hide rdflib internals from clients.
+        vars = [six.text_type(var) for var in result.vars]
 
         # Convert each row to dict: { var->value, ... }
         return [dict(zip(vars, row)) for row in result]
 
     def _ask(self, result):
-        # askAnswer is list with boolean values, we want first value. 
+        # askAnswer is list with boolean values, we want first value.
         return result.askAnswer[0]
 
     def _execute(self, query):
-        q_string = unicode(query)
+        q_string = six.text_type(query)
         debug(q_string)
         return self._graph.query(q_string)
 

@@ -33,8 +33,9 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
+import six
 from surf.log import *
-from surf.plugin.manager import load_plugins, get_reader, get_writer
+from surf.plugin.manager import get_reader, get_writer
 from surf.plugin.reader import RDFReader, NoneReader
 from surf.plugin.writer import RDFWriter, NoneWriter
 from surf.query import Query
@@ -108,14 +109,14 @@ class Store(object):
         try:
             self.reader.close()
             debug('reader closed successfully')
-        except Exception, e:
-            error("Error on closing the reader: %s", e.message)
+        except Exception as e:
+            error("Error on closing the reader: %s", six.text_type(e))
 
         try:
             self.writer.close()
             debug('writer closed successfully')
-        except Exception, e:
-            error("Error on closing the writer: %s", e.message)
+        except Exception as e:
+            error("Error on closing the writer: %s", six.text_type(e))
 
     def get(self, resource, attribute, direct):
         """ :func:`surf.plugin.reader.RDFReader.get` method. """
@@ -160,15 +161,15 @@ class Store(object):
     def execute_sparql(self, sparql_query, format = 'JSON'):
         """see :meth:`surf.plugin.query_reader.RDFQueryReader.execute_sparql` method. """
 
-        if hasattr(self.reader, 'execute_sparql') and type(sparql_query) in [str, unicode]:
-            return self.reader.execute_sparql(sparql_query, format = format)
+        if hasattr(self.reader, 'execute_sparql') and isinstance(sparql_query, six.string_types):
+            return self.reader.execute_sparql(sparql_query, format=format)
         return None
 
     def clear(self, context = None):
         """ See :func:`surf.plugin.writer.RDFWriter.clear` method. """
 
         context = self.__add_default_context(context)
-        self.writer.clear(context = context)
+        self.writer.clear(context=context)
 
     # Crud
     def save(self, *resources):

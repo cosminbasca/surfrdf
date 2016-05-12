@@ -33,9 +33,11 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
-__author__ = 'Cosmin Basca'
 
 from surf.query import Query
+
+__author__ = 'Cosmin Basca'
+
 
 class QueryTranslator(object):
     '''The `QueryTranslator` class is responsible with the translation of the query
@@ -51,13 +53,13 @@ class QueryTranslator(object):
             self.__query = query
         else:
             raise ValueError('query object must be of Query type')
-    query = property(fget = lambda self: self.__query,
-                     fset = set_query)
+    query = property(fget=lambda self: self.__query,
+                     fset=set_query)
     '''the `query`, a :class:`surf.query.Query` instance'''
 
     def translate(self):
         '''translates the `query` to the appropriate query language
 
         note: **must** be overriden by subclasses'''
-        return ''
+        raise NotImplementedError
 

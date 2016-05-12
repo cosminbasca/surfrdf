@@ -37,6 +37,7 @@
 __author__ = ['Cosmin Basca', 'Peteris Caune']
 
 from copy import deepcopy
+import six
 import sys
 from surf.rdf import ClosedNamespace, Namespace, RDF, RDFS
 
@@ -113,40 +114,37 @@ _fallback_namespace = SURF
 
 # Fix for http://code.google.com/p/rdflib/issues/detail?id=154
 def _unicode(namespace):
-    uri = unicode(namespace)
-    if not isinstance(uri, basestring) and hasattr(namespace, 'uri'):
-        uri = unicode(namespace.uri)
+    uri = six.text_type(namespace)
+    if not isinstance(uri, six.string_types) and hasattr(namespace, 'uri'):
+        uri = six.text_type(namespace.uri)
     return uri
 
 # an internal inverted dict - for fast access
-_INVERTED = {}
-for k, v in sys.modules[__name__].__dict__.items():
-    if isinstance(v, (Namespace, ClosedNamespace)):
-        if k == "_fallback_namespace":
-            # no, this is not a namespace prefix, this is just a variable name
-            continue
-        _INVERTED[_unicode(v)] = k
-        
-__DIRECT__ = {}
-for k, v in sys.modules[__name__].__dict__.items():
-    if isinstance(v, (Namespace, ClosedNamespace)):
-        __DIRECT__[k] = v
-        
+namespaces = [(_unicode(obj), name) for name, obj in globals().items()
+              if isinstance(obj, (Namespace, ClosedNamespace)) and name != "_fallback_namespace"]
+_INVERTED = dict(namespaces)
+
+namespaces = [(name, obj) for name, obj in globals().items() if isinstance(obj, (Namespace, ClosedNamespace))]
+__DIRECT__ = dict(namespaces)
+
+del namespaces
+
+
 def __add_inverted(prefix):
     ns_dict = sys.modules[__name__].__dict__
     _INVERTED[_unicode(ns_dict[prefix])] = prefix
-    
+
 def __add_direct(prefix):
     ns_dict = sys.modules[__name__].__dict__
     __DIRECT__[prefix] = ns_dict[prefix]
-    
+
 def all(copy=False):
     """ Return all registered namespaces as a dict, if `copy` is `True` than a copy
     of the dictionary is returned. By default, the actual internal dict is returned,
     and therefore any changes are reflected in the namespace manager.
     """
     return deepcopy(__DIRECT__) if copy else __DIRECT__
-            
+
 def base(property):
     """ Return the base part of a URI, `property` is a string denoting a URI.
 
@@ -194,9 +192,9 @@ def register(**namespaces):
         prefix = key.upper()
         if not type(uri) in [Namespace, ClosedNamespace]:
             uri = Namespace(uri)
-        
+
         ns_dict[prefix] = uri
-        
+
         # Also keep inverted dict up-to-date.
         __add_inverted(prefix)
         __add_direct(prefix)
@@ -227,7 +225,7 @@ def get_fallback_namespace():
 def get_namespace(base):
     """ Return the `namespace` short hand notation and the URI based on the
     URI `base`.
-    
+
     The namespace is a `rdf.namespace.Namespace`
 
     .. code-block:: python
@@ -240,8 +238,8 @@ def get_namespace(base):
 
     global _anonymous_count
     ns_dict = sys.modules[__name__].__dict__
-    
-    if not type(base) in [str, unicode]:
+
+    if not isinstance(base, six.string_types):
         base = str(base)
 
     try:

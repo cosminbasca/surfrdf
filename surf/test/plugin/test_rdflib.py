@@ -1,4 +1,5 @@
 import pytest
+import six
 import surf
 import os
 from rdflib.term import Literal
@@ -22,8 +23,8 @@ def test_rdflib_store():
 
         # clean store
         store.clear()
-    except Exception, e:
-        pytest.fail(e.message, pytrace=True)
+    except Exception as e:
+        pytest.fail(str(e), pytrace=True)
 
 
 def test_rdflib_load():
@@ -31,7 +32,7 @@ def test_rdflib_load():
                        writer="rdflib",
                        rdflib_store="IOMemory")
 
-    print "Load RDF data"
+    six.print_("Load RDF data")
     store.load_triples(source=_card_file)
     assert len(store) == 76
 
@@ -47,4 +48,4 @@ def test_rdflib_query():
     all_persons = Person.all()
 
     assert len(all_persons) == 1
-    assert all_persons.one().foaf_name.first == Literal(u'Timothy Berners-Lee')
+    assert all_persons.one().foaf_name.first == Literal(six.u('Timothy Berners-Lee'))

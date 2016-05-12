@@ -1,4 +1,5 @@
 import pytest
+import six
 import surf
 from rdflib.term import Literal
 from surf.resource.lazy import LazyResourceLoader
@@ -9,13 +10,13 @@ class MockStore(object):
     def __init__(self):
         self.__expect_args = {}
         self.__data = []
-        
+
     def expect_args(self, args):
         self.__expect_args.update(args)
-    
+
     def set_data(self, data):
         self.__data = data
-    
+
     def get_by(self, params):
         if params != self.__expect_args:
             raise AssertionError("%s != %s" % (params, self.__expect_args))
@@ -93,8 +94,8 @@ def test_limit_offset(store_value):
     try:
         store.expect_args({"limit": 10, "offset": 5})
         list(value.limit(10).offset(5))
-    except Exception, e:
-        pytest.fail(e.message, pytrace=True)
+    except Exception as e:
+        pytest.fail(six.text_type(e), pytrace=True)
 
 
 def test_full(store_value):
@@ -105,8 +106,8 @@ def test_full(store_value):
     try:
         store.expect_args({'full': True, 'direct_only': True})
         list(value.full(direct_only=True))
-    except Exception, e:
-        pytest.fail(e.message, pytrace=True)
+    except Exception as e:
+        pytest.fail(six.text_type(e), pytrace=True)
 
 
 def test_order_desc(store_value):
@@ -117,8 +118,8 @@ def test_order_desc(store_value):
     try:
         store.expect_args({"order": "some_attr", "desc": True})
         list(value.order("some_attr").desc())
-    except Exception, e:
-        pytest.fail(e.message, pytrace=True)
+    except Exception as e:
+        pytest.fail(six.text_type(e), pytrace=True)
 
 
 def test_get_by(store_value):
@@ -130,8 +131,8 @@ def test_get_by(store_value):
         expected = [(surf.ns.FOAF["name"], Literal(u"Jane"), True)]
         store.expect_args({"get_by": expected})
         list(value.get_by(foaf_name="Jane"))
-    except Exception, e:
-        pytest.fail(e.message, pytrace=True)
+    except Exception as e:
+        pytest.fail(six.text_type(e), pytrace=True)
 
 
 def test_context(store_value):
@@ -142,8 +143,8 @@ def test_context(store_value):
     try:
         store.expect_args({"context": "my_context"})
         list(value.context("my_context"))
-    except Exception, e:
-        pytest.fail(e.message, pytrace=True)
+    except Exception as e:
+        pytest.fail(six.text_type(e), pytrace=True)
 
 
 def test_filter(store_value):
@@ -154,8 +155,8 @@ def test_filter(store_value):
     try:
         store.expect_args({"filter": [(surf.ns.FOAF["name"], Literal(u"f"), True)]})
         list(value.filter(foaf_name="f"))
-    except Exception, e:
-        pytest.fail(e.message, pytrace=True)
+    except Exception as e:
+        pytest.fail(six.text_type(e), pytrace=True)
 
 
 def test_get_by_resource(store_value):
@@ -168,5 +169,5 @@ def test_get_by_resource(store_value):
         expected = [(surf.ns.FOAF["knows"], resource.subject, True)]
         store.expect_args({"get_by": expected})
         list(value.get_by(foaf_knows=resource))
-    except Exception, e:
-        pytest.fail(e.message, pytrace=True)
+    except Exception as e:
+        pytest.fail(six.text_type(e), pytrace=True)

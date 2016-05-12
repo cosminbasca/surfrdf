@@ -1,21 +1,22 @@
 import pytest
+import six
 import re
 
 from surf.query import select, describe, ask
-from surf.query.translator.sparql import SparqlTranslator 
+from surf.query.translator.sparql import SparqlTranslator
 from surf.rdf import URIRef
 
 
 def canonical(sparql_string):
     """
     Strip extra whitespace, convert to lowercase.
-    
+
     This can be used to compare generated SPARQL queries and ignore whitespace,
     capitalization differences.
     """
 
-    assert(isinstance(sparql_string, unicode))
-    
+    assert(isinstance(sparql_string, six.string_types))
+
     result = sparql_string.strip().lower()
     result = re.sub("\s\s+", " ", result)
     replacements = [
@@ -24,7 +25,7 @@ def canonical(sparql_string):
         (" }", "}"),                    # whitespace before }
         (" .", "."),                    # whitespace before dot
     ]
-    
+
     for str1, str2 in replacements:
         result = result.replace(str1, str2)
 
@@ -46,7 +47,7 @@ def test_simple():
     result = SparqlTranslator(query).translate()
 
     # Translated query should be unicode object.
-    assert isinstance(result, unicode)
+    assert isinstance(result, six.string_types)
 
     result = canonical(result)
     assert expected == result
@@ -179,9 +180,7 @@ def test_str():
 
     query = select("?s", "?p", "?o").where(("?s", "?p", "?o"))
     # test str()
-    assert expected == canonical(unicode(str(query)))
-    # test unicode()
-    assert expected == canonical(unicode(query))
+    assert expected == canonical(six.text_type(query))
 
 
 def test_ask():

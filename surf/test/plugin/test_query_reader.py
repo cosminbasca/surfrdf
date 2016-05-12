@@ -28,5 +28,5 @@ def test_convert_unicode_exception():
         logging.disable(logging.ERROR)
         MyQueryReader().convert(None)
         logging.disable(logging.NOTSET)
-    except Exception, e:
-        pytest.fail(e.message, pytrace=True)
+    except Exception as e:
+        pytest.fail(str(e), pytrace=True)

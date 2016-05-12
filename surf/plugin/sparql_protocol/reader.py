@@ -15,7 +15,7 @@
 #      in the documentation and/or other materials provided with
 #      the distribution.
 #    * Neither the name of DERI nor the
-#      names of its contributors may be used to endorse or promote  
+#      names of its contributors may be used to endorse or promote
 #      products derived from this software without specific prior
 #      written permission.
 
@@ -35,6 +35,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
+import six
 import sys
 from SPARQLWrapper import SPARQLWrapper, JSON
 from SPARQLWrapper.SPARQLExceptions import EndPointNotFound, QueryBadFormed
@@ -103,15 +104,18 @@ class ReaderPlugin(RDFQueryReader):
             debug(q_string)
             self._sparql_wrapper.setQuery(q_string)
             return self._sparql_wrapper.query().convert()
-        except EndPointNotFound, _:
-            raise SparqlReaderException("Endpoint not found"), None, sys.exc_info()[2]
-        except QueryBadFormed, _:
-            raise SparqlReaderException("Bad query: %s" % q_string), None, sys.exc_info()[2]
-        except Exception, e:
-            raise SparqlReaderException("Exception: %s" % e), None, sys.exc_info()[2]
+        except EndPointNotFound:
+            e = SparqlReaderException("Endpoint not found")
+            six.reraise(type(e), e, sys.exc_info()[2])
+        except QueryBadFormed:
+            e = SparqlReaderException("Bad query: %s" % q_string)
+            six.reraise(type(e), e, sys.exc_info()[2])
+        except Exception as e:
+            e = SparqlReaderException("Exception: %s" % e)
+            six.reraise(type(e), e, sys.exc_info()[2])
 
     def _execute(self, query):
-        return self.execute_sparql(unicode(query))
+        return self.execute_sparql(six.text_type(query))
 
     def close(self):
         pass

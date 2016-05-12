@@ -70,15 +70,15 @@ class QueryUpdate(Query):
         self._remote_uri = None
         self._clear_uri = None
 
-    query_into_uri = property(fget = lambda self: self._into_uri)
+    query_into_uri = property(fget=lambda self: self._into_uri)
     ''''''
-    query_from_uri = property(fget = lambda self: self._from_uri)
+    query_from_uri = property(fget=lambda self: self._from_uri)
     ''''''
-    query_template = property(fget = lambda self: self._template)
+    query_template = property(fget=lambda self: self._template)
     ''''''
-    query_remote_uri = property(fget = lambda self: self._remote_uri)
+    query_remote_uri = property(fget=lambda self: self._remote_uri)
     ''''''
-    query_clear_uri = property(fget = lambda self: self._clear_uri)
+    query_clear_uri = property(fget=lambda self: self._clear_uri)
     ''''''
 
     def into(self, *uris):
@@ -120,9 +120,10 @@ class QueryUpdate(Query):
         self._clear_uri = uri
         return self
 
-    def __unicode__(self):
+    def __str__(self):
         # Importing here to avoid circular imports.
-        from surf.query.translator.sparul import SparulTranslator
+        if 'SparulTranslator' not in globals():
+            from surf.query.translator.sparul import SparulTranslator
         return SparulTranslator(self).translate()
 
 
@@ -130,15 +131,19 @@ def insert(data = False):
     q_type = data and INSERT_DATA or INSERT
     return QueryUpdate(q_type)
 
+
 def delete(data = False):
     q_type = data and DELETE_DATA or DELETE
     return QueryUpdate(q_type)
 
+
 def load():
     return QueryUpdate(LOAD)
 
+
 def clear():
     return QueryUpdate(CLEAR)
+
 
 #TODO: to be supported in the near future
 def modify():

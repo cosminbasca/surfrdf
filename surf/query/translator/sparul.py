@@ -67,8 +67,8 @@ class SparulTranslator(SparqlTranslator):
         if len(query.query_into_uri) == 1:
             into_exp = "INTO <%s>" % query.query_into_uri[0]
 
-        return rep % ({'remote_uri':remote_uri,
-                       'into_exp':into_exp})
+        return rep % ({'remote_uri': remote_uri,
+                       'into_exp': into_exp})
 
     def _translate_clear(self, query):
         

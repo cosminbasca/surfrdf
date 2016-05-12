@@ -34,15 +34,16 @@
 
 # -*- coding: utf-8 -*-
 from surf.namespace import get_namespace_url, get_prefix, OWL, all, RDF_TYPE
-from surf.rdf import BNode, ClosedNamespace, ConjunctiveGraph, Graph, Literal
-from surf.rdf import Namespace, RDF, RDFS, URIRef
+from surf.rdf import BNode, ClosedNamespace, ConjunctiveGraph, Literal
+from surf.rdf import Namespace, RDF, URIRef
 from surf.resource.lazy import LazyResourceLoader
 from surf.resource.result_proxy import ResultProxy
 from surf.serializer import to_json
-from surf.store import NO_CONTEXT, Store
+from surf.store import NO_CONTEXT
 from surf.util import attr2rdf, namespace_split, rdf2attr
 from surf.util import uri_to_class, uuid_subject, value_to_rdf
 from collections import defaultdict
+import six
 
 __author__ = 'Cosmin Basca'
 
@@ -193,7 +194,7 @@ class Resource(object):
         if context == NO_CONTEXT:
             self.__context  = None
         elif context:
-            self.__context  = URIRef(unicode(context))
+            self.__context  = URIRef(six.text_type(context))
         elif self.session and self.store_key:
             self.__context  = self.session[self.store_key].default_context
         
@@ -347,7 +348,7 @@ class Resource(object):
         """
 
         for ns in namespaces:
-            if type(ns) in [str, unicode]:
+            if isinstance(ns, six.string_types):
                 self.__namespaces[ns] = get_namespace_url(ns)
             elif type(ns) in [Namespace, ClosedNamespace]:
                 self.__namespaces[get_prefix(ns)] = ns
@@ -755,7 +756,7 @@ class Resource(object):
     def __str__(self):
         """ Return `string` representation of the resource. """
 
-        return '{%s : %s}' % (unicode(self.subject), unicode(self.uri))
+        return '{%s : %s}' % (six.text_type(self.subject), six.text_type(self.uri))
 
     def save(self):
         """ Save the `resource` to the data `store`. """
@@ -824,11 +825,11 @@ class Resource(object):
         for s, p, o in graph:
             attr_name = None
             value = None
-            if unicode(s) == unicode(self.subject):
+            if six.text_type(s) == six.text_type(self.subject):
                 attr_name = rdf2attr(p, True)
                 #value = self.__lazy([o])
                 value = o
-            elif unicode(o) == unicode(self.subject):
+            elif six.text_type(o) == six.text_type(self.subject):
                 attr_name = rdf2attr(p, False)
                 #value = self.__lazy([s])
                 value = s

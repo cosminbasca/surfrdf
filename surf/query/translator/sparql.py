@@ -33,8 +33,9 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
+import six
 from surf.query.translator import QueryTranslator
-from surf.query import Query, SELECT, ASK, DESCRIBE, CONSTRUCT, Group
+from surf.query import Query, SELECT, ASK, DESCRIBE, Group
 from surf.query import NamedGroup, OptionalGroup, Union, Filter
 from surf.rdf import BNode, Literal, URIRef
 from surf.util import is_uri
@@ -47,7 +48,7 @@ class SparqlTranslator(QueryTranslator):
     '''translates a query to SPARQL'''
 
     def translate(self):
-        if self.query.query_type in [SELECT, DESCRIBE]:
+        if self.query.query_type in (SELECT, DESCRIBE):
             return self._translate(self.query)
         elif self.query.query_type == ASK:
             return self._translate_ask(self.query)
@@ -58,14 +59,15 @@ class SparqlTranslator(QueryTranslator):
         if query.query_type == DESCRIBE:
             query_type = "DESCRIBE"
 
-        rep = u'%(query_type)s %(modifier)s %(vars)s %(from_)s %(from_named)s WHERE { %(where)s } %(order_by)s %(limit)s %(offset)s '
+        rep = six.u('%(query_type)s %(modifier)s %(vars)s %(from_)s %(from_named)s WHERE { %(where)s } %(order_by)s '
+                    '%(limit)s %(offset)s ')
         modifier = query.query_modifier and query.query_modifier.upper() or ''
         limit = query.query_limit and ' LIMIT %d ' % (query.query_limit) or ''
         offset = query.query_offset and ' OFFSET %d ' % (query.query_offset) or ''        
         where = '. '.join([self._statement(stmt) for stmt in self.query.query_data])
         vars = ' '.join([var for var in query.query_vars])
-        from_ = ' '.join([ "FROM <%s>" % uri for uri in query.query_from])
-        from_named = ' '.join([ "FROM NAMED <%s>" % uri for uri in query.query_from_named])
+        from_ = ' '.join(["FROM <%s>" % uri for uri in query.query_from])
+        from_named = ' '.join(["FROM NAMED <%s>" % uri for uri in query.query_from_named])
         if len(self.query.query_order_by) > 0:
             order_by = ' ORDER BY %s' % (' '.join([var for var in self.query.query_order_by]))
         else:
@@ -82,7 +84,7 @@ class SparqlTranslator(QueryTranslator):
                      'order_by'     : order_by, })
 
     def _translate_ask(self, query):
-        rep = u'ASK %(from_)s %(from_named)s { %(where)s }'
+        rep = six.u('ASK %(from_)s %(from_named)s { %(where)s }')
         from_ = ' '.join([ "FROM <%s>" % uri for uri in query.query_from])
         from_named = ' '.join([ "FROM NAMED <%s>" % uri for uri in query.query_from_named])
         where = '. '.join([self._statement(stmt) for stmt in self.query.query_data])
@@ -93,7 +95,7 @@ class SparqlTranslator(QueryTranslator):
     def _term(self, term):
         if type(term) in [URIRef, BNode]:
             return '%s' % (term.n3())
-        elif type(term) in [str, unicode]:
+        elif isinstance(term, six.string_types):
             if term.startswith('?'):
                 return '%s' % term
             elif is_uri(term):

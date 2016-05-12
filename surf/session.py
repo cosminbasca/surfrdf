@@ -35,9 +35,11 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca'
 
+import six
+
 from surf.rdf import BNode, URIRef
 from surf.resource import Resource
-from surf.store import Store, NO_CONTEXT
+from surf.store import Store
 from surf.util import DE_CAMEL_CASE_DEFAULT
 from surf.util import attr2rdf, de_camel_case, is_uri, uri_to_classname
 
@@ -236,7 +238,7 @@ class Session(object):
 
         """
 
-        for store in self._stores.keys():
+        for store in tuple(self._stores):
             self._stores[store].close()
             del self._stores[store]
 
@@ -293,7 +295,7 @@ class Session(object):
         classes = classes if isinstance(classes, (tuple, set, list)) else []
 
         if not type(subject) in [URIRef, BNode]:
-            subject = URIRef(unicode(subject))
+            subject = URIRef(six.text_type(subject))
 
         if not store:
             store = self.default_store_key
@@ -310,7 +312,7 @@ class Session(object):
         classes = classes if isinstance(classes, (tuple, set, list)) else []
 
         if not isinstance(subject, URIRef):
-            subject = URIRef(unicode(subject))
+            subject = URIRef(six.text_type(subject))
 
         if concept is None:
             concept = Resource.concept(subject)

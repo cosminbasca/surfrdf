@@ -37,7 +37,8 @@ import logging
 from datetime import datetime, date, time
 import decimal
 import re
-from urlparse import urlparse
+import six
+from six.moves.urllib.parse import urlparse
 from uuid import uuid4
 
 from surf.namespace import get_namespace, get_namespace_url
@@ -162,7 +163,7 @@ def attr2rdf(attr_name):
     :return: a (uri representation, True if it's a direct predicate or False if its an inverse predicate) tuple.
     :rtype: tuple
     """
-    
+
     def to_rdf(attr_name):
         prefix, predicate = attr_name.split('_', 1)
         ns = get_namespace_url(prefix)
@@ -310,7 +311,7 @@ def pretty_rdf(uri):
         uri = uri.subject
     if type(uri) is URIRef:
         NS, symbol = uri_split(uri)
-        if unicode(NS).startswith('NS'):
+        if six.text_type(NS).startswith('NS'):
             pretty = symbol
         else:
             pretty = NS.lower() + ':' + symbol
@@ -328,8 +329,8 @@ def value_to_rdf(value):
     """
     if isinstance(value, (URIRef, BNode)):
         return value
-    elif isinstance(value, (basestring, str, unicode, float, int, long, bool, datetime, date, time, decimal.Decimal)):
-        if type(value) is basestring and string_conforms_to_base64(value):
+    elif isinstance(value, (six.string_types, float, six.integer_types, datetime, date, time, decimal.Decimal)):
+        if isinstance(value, six.string_types) and string_conforms_to_base64(value):
             return Literal(value, datatype=URIRef('http://www.w3.org/2001/XMLSchema#base64Binary'))
         return Literal(value)
 

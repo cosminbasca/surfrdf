@@ -30,6 +30,10 @@
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 # OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import six
+
+
 __author__ = 'Cosmin Basca'
 
 LOGGER_NAME = 'surf'
@@ -113,7 +117,7 @@ def set_logger_level(level, name=None):
     logging._acquireLock()
     try:
         logger = logging.getLogger(name) if name else logging.root
-        if isinstance(level, basestring):
+        if isinstance(level, six.string_types):
             level = level.upper()
         logger.setLevel(level)
     finally:

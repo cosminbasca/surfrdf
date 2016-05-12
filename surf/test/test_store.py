@@ -2,6 +2,7 @@
 import pytest
 
 import logging
+import six
 import surf
 from surf import Session, Store
 from surf.plugin.reader import RDFReader
@@ -27,8 +28,8 @@ def test_multiples():
         store.save(rob, michael)
         store.update(rob, michael)
         store.remove(rob, michael)
-    except Exception, e:
-        pytest.fail(e.message, pytrace=True)
+    except Exception as e:
+        pytest.fail(six.text_type(e), pytrace=True)
 
 
 def test_close_unicode_exception():
@@ -53,7 +54,7 @@ def test_close_unicode_exception():
             pass
 
         def close(self):
-            raise Exception(u"Some unicode: ā")
+            raise Exception(six.u("Some unicode: ā"))
 
     class MockWriter(RDFWriter):
         def _set_triple(self, s=None, p=None, o=None, context=None):
@@ -78,7 +79,7 @@ def test_close_unicode_exception():
             pass
 
         def close(self):
-            raise Exception(u"Some unicode: ā")
+            raise Exception(six.u("Some unicode: ā"))
 
     try:
         reader = MockReader()
@@ -86,8 +87,8 @@ def test_close_unicode_exception():
         logging.disable(logging.ERROR)
         store.close()
         logging.disable(logging.NOTSET)
-    except Exception, e:
-        pytest.fail(e.message, pytrace=True)
+    except Exception as e:
+        pytest.fail(six.text_type(e), pytrace=True)
 
 
 def test_successful_close():
@@ -143,5 +144,5 @@ def test_successful_close():
         reader = MockReader()
         store = Store(reader, MockWriter(reader), log_level=logging.NOTSET)
         store.close()
-    except Exception, e:
-        pytest.fail(e.message, pytrace=True)
+    except Exception as e:
+        pytest.fail(six.text_type(e), pytrace=True)

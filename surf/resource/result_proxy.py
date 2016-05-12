@@ -1,5 +1,6 @@
 """ Module for ResultProxy. """
 
+import six
 from surf.exceptions import NoResultFound, MultipleResultsFound
 from surf.rdf import Literal
 from surf.util import attr2rdf, value_to_rdf
@@ -191,7 +192,7 @@ class ResultProxy(object):
             attr, direct = attr2rdf(name)
             assert direct, "Only direct attributes can be used for filters"
             # Assume by plain strings user means literals
-            if type(value) in [str, unicode]:
+            if isinstance(value, six.string_types):
                 value = Literal(value)
             params["filter"].append((attr, value, direct))
         return ResultProxy(params)

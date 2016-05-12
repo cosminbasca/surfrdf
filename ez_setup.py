@@ -13,11 +13,14 @@ the appropriate options to ``use_setuptools()``.
 
 This file can also be run as a script to install or upgrade setuptools.
 """
+from hashlib import md5
+import os
 import sys
+
+
 DEFAULT_VERSION = "0.6c11"
 DEFAULT_URL     = "http://pypi.python.org/packages/%s/s/setuptools/" % sys.version[:3]
-
-md5_data = {
+MD5_DATA = {
     'setuptools-0.6b1-py2.3.egg': '8822caf901250d848b996b7f25c6e6ca',
     'setuptools-0.6b1-py2.4.egg': 'b79a8a403e4502fbb85ee3f1941735cb',
     'setuptools-0.6b2-py2.3.egg': '5657759d8a6d8fc44070a9d07272d99b',
@@ -62,20 +65,18 @@ md5_data = {
     'setuptools-0.6c9-py2.6.egg': 'ca37b1ff16fa2ede6e19383e7b59245a',
 }
 
-import sys, os
-try: from hashlib import md5
-except ImportError: from md5 import md5
 
 def _validate_md5(egg_name, data):
-    if egg_name in md5_data:
+    if egg_name in MD5_DATA:
         digest = md5(data).hexdigest()
-        if digest != md5_data[egg_name]:
+        if digest != MD5_DATA[egg_name]:
             print >>sys.stderr, (
                 "md5 validation of %s failed!  (Possible download problem?)"
                 % egg_name
             )
             sys.exit(2)
     return data
+
 
 def use_setuptools(
     version=DEFAULT_VERSION, download_base=DEFAULT_URL, to_dir=os.curdir,
@@ -100,10 +101,10 @@ def use_setuptools(
     try:
         import pkg_resources
     except ImportError:
-        return do_download()       
+        return do_download()
     try:
         pkg_resources.require("setuptools>="+version); return
-    except pkg_resources.VersionConflict, e:
+    except pkg_resources.VersionConflict as e:
         if was_imported:
             print >>sys.stderr, (
             "The required version of setuptools (>=%s) is not available, and\n"
@@ -166,40 +167,6 @@ and place it in this directory before rerunning this script.)
     return os.path.realpath(saveto)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def main(argv, version=DEFAULT_VERSION):
     """Install or upgrade setuptools and EasyInstall"""
     try:
@@ -249,10 +216,10 @@ def update_md5(filenames):
     for name in filenames:
         base = os.path.basename(name)
         f = open(name,'rb')
-        md5_data[base] = md5(f.read()).hexdigest()
+        MD5_DATA[base] = md5(f.read()).hexdigest()
         f.close()
 
-    data = ["    %r: %r,\n" % it for it in md5_data.items()]
+    data = ["    %r: %r,\n" % it for it in MD5_DATA.items()]
     data.sort()
     repl = "".join(data)
 
@@ -276,9 +243,3 @@ if __name__=='__main__':
         update_md5(sys.argv[2:])
     else:
         main(sys.argv[1:])
-
-
-
-
-
-

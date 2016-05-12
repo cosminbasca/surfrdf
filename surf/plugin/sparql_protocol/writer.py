@@ -13,7 +13,7 @@
 #      in the documentation and/or other materials provided with
 #      the distribution.
 #    * Neither the name of DERI nor the
-#      names of its contributors may be used to endorse or promote  
+#      names of its contributors may be used to endorse or promote
 #      products derived from this software without specific prior
 #      written permission.
 
@@ -33,12 +33,13 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Cosmin Basca, Adam Gzella'
 
+import six
 import sys
 
 from SPARQLWrapper import SPARQLWrapper, JSON
 from SPARQLWrapper.SPARQLExceptions import EndPointNotFound, QueryBadFormed, SPARQLWrapperException
 
-from reader import ReaderPlugin
+from .reader import ReaderPlugin
 from surf.plugin.writer import RDFWriter
 from surf.query import Filter, Group, NamedGroup, Union
 from surf.query.update import insert, delete, clear, load
@@ -184,8 +185,8 @@ class WriterPlugin(RDFWriter):
 
     def _execute(self, *queries):
         """ Execute several queries. """
-        
-        translated = [unicode(query) for query in queries]  
+
+        translated = [six.text_type(query) for query in queries]
         if self._combine_queries:
             translated = ["\n".join(translated)]
 
@@ -198,13 +199,15 @@ class WriterPlugin(RDFWriter):
 
             return True
 
-        except EndPointNotFound, _:
-            raise SparqlWriterException("Endpoint not found"), None, sys.exc_info()[2]
-        except QueryBadFormed, _:
-            raise SparqlWriterException("Bad query: %s" % query_str), None, sys.exc_info()[2]
-        except Exception, e:
-            msg = "Exception: %s (query: %s)" % (e, query_str)
-            raise SparqlWriterException(msg), None, sys.exc_info()[2]
+        except EndPointNotFound:
+            e = SparqlWriterException("Endpoint not found")
+            six.reraise(type(e), e, sys.exc_info()[2])
+        except QueryBadFormed:
+            e = SparqlWriterException("Bad query: %s" % query_str)
+            six.reraise(type(e), e, sys.exc_info()[2])
+        except Exception as e:
+            e = SparqlWriterException("Exception: %s (query: %s)" % (e, query_str))
+            six.reraise(type(e), e, sys.exc_info()[2])
 
     def _add_many(self, triples, context=None):
         debug("ADD several triples")
@@ -216,19 +219,22 @@ class WriterPlugin(RDFWriter):
         for s, p, o in triples:
             query.template((s, p, o))
 
-        query_str = unicode(query)
+        query_str = six.text_type(query)
         try:
             debug(query_str)
             self._sparql_wrapper.setQuery(query_str)
             self._sparql_wrapper.query().convert()
             return True
 
-        except EndPointNotFound, _:
-            raise SparqlWriterException("Endpoint not found"), None, sys.exc_info()[2]
-        except QueryBadFormed, _:
-            raise SparqlWriterException("Bad query: %s" % query_str), None, sys.exc_info()[2]
-        except Exception, e:
-            raise SparqlWriterException("Exception: %s" % e), None, sys.exc_info()[2]
+        except EndPointNotFound:
+            e = SparqlWriterException("Endpoint not found")
+            six.reraise(type(e), e, sys.exc_info()[2])
+        except QueryBadFormed:
+            e = SparqlWriterException("Bad query: %s" % query_str)
+            six.reraise(type(e), e, sys.exc_info()[2])
+        except Exception as e:
+            e = SparqlWriterException("Exception: %s" % str(e))
+            six.reraise(type(e), e, sys.exc_info()[2])
 
     def _add(self, s, p, o, context=None):
         return self._add_many([(s, p, o)], context)
@@ -256,16 +262,16 @@ class WriterPlugin(RDFWriter):
                 where_group.append(filter)
                 query.where(where_group)
 
-            query_str = unicode(query)
+            query_str = six.text_type(query)
             debug(query_str)
             self._sparql_wrapper.setQuery(query_str)
             self._sparql_wrapper.query().convert()
             return True
-        except EndPointNotFound, _:
+        except EndPointNotFound:
             error("SPARQL endpoint not found")
-        except QueryBadFormed, _:
+        except QueryBadFormed:
             error("Bad-formed SPARQL query")
-        except SPARQLWrapperException, _:
+        except SPARQLWrapperException:
             error("SPARQLWrapper exception")
 
         return None
@@ -303,7 +309,7 @@ class WriterPlugin(RDFWriter):
             if context:
                 query.into(context)
 
-            query_str = unicode(query)
+            query_str = six.text_type(query)
             debug(query_str)
             self._sparql_wrapper.setQuery(query_str)
             self._sparql_wrapper.query().convert()
@@ -318,22 +324,22 @@ class WriterPlugin(RDFWriter):
         self._remove_from_endpoint(None, None, None, context=context)
 
     def _term(self, term):
-        if type(term) in [URIRef, BNode]:
-            return u'{0:s}'.format
-        elif type(term) in [str, unicode]:
+        if isinstance(term, (URIRef, BNode)):
+            return six.u('{0:s}'.format(term))
+        elif isinstance(term, six.string_types):
             if term.startswith('?'):
-                return u'{0:s}'.format(term)
+                return six.u('{0:s}'.format(term))
             elif is_uri(term):
-                return u'<{0:s}>'.format(term)
+                return six.u('<{0:s}>'.format(term))
             else:
-                return u'"{0:s}"'.format(term)
-        elif type(term) is Literal:
+                return six.u('"{0:s}"'.format(term))
+        elif isinstance(term, Literal):
             return term.n3()
-        elif type(term) in [list, tuple]:
+        elif isinstance(term, (list, tuple)):
             return '"{0:s}"@{1:s}'.format(term[0], term[1])
         elif type(term) is type and hasattr(term, 'uri'):
-            return u'{0:s}'.format
+            return six.u('{0:s}'.format(term))
         elif hasattr(term, 'subject'):
-            return u'{0:s}'.format
+            return six.u('{0:s}'.format(term))
 
         return term.__str__()
