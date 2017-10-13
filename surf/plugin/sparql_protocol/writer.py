@@ -143,6 +143,10 @@ class WriterPlugin(RDFWriter):
 
         self._sparql_wrapper.setMethod("POST")
 
+        default_graph = kwargs.get('default_graph',None)
+        if default_graph:
+            self._sparql_wrapper.addDefaultGraph(default_graph)
+
     @property
     def endpoint(self):
         return self._endpoint
