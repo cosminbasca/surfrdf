@@ -1,3 +1,20 @@
+from builtins import str
+try:
+    unicode = unicode
+except NameError:
+    # 'unicode' is undefined, must be Python 3
+    str = str
+    unicode = str
+    bytes = bytes
+    basestring = (str,bytes)
+else:
+    # 'unicode' exists, must be Python 2
+    str = str
+    unicode = unicode
+    bytes = str
+    basestring = basestring
+
+
 import pytest
 import re 
 
@@ -14,7 +31,7 @@ def canonical(sparql_string):
     capitalization differences.
     """
     
-    assert(isinstance(sparql_string, unicode))
+    assert(isinstance(sparql_string, basestring))
     
     result = sparql_string.strip().lower()
     result = re.sub("\s\s+", " ", result)
@@ -147,7 +164,7 @@ def test_unicode():
     statement = URIRef("http://a"), URIRef("http://b"), URIRef("http://c")
     query = insert().template(statement)
     result = SparulTranslator(query).translate()
-    assert isinstance(result, unicode)
+    assert isinstance(result, basestring)
 
 
 def test_str():
@@ -160,6 +177,6 @@ def test_str():
     query = insert().template(statement)
 
     # test str()
-    assert expected == canonical(unicode(str(query)))
+    assert expected == canonical(str(str(query)))
     # test unicode()
-    assert expected == canonical(unicode(query))
+    assert expected == canonical(str(query))

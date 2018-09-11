@@ -33,6 +33,7 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
+from builtins import range
 from abc import ABCMeta, abstractmethod
 
 from surf.plugin.reader import RDFReader
@@ -40,6 +41,7 @@ from surf.query import Query, Union
 from surf.query import a, ask, select, optional_group, named_group
 from surf.rdf import URIRef
 from surf.log import *
+from future.utils import with_metaclass
 
 __author__ = 'Cosmin Basca'
 
@@ -190,17 +192,15 @@ def _apply_solution_modifiers(params, query):
     return query
 
 
-class RDFQueryReader(RDFReader):
+class RDFQueryReader(with_metaclass(ABCMeta, RDFReader)):
     """
     Super class for SuRF Reader plugins that wrap queryable `stores`.
     """
 
-    __metaclass__ = ABCMeta
-
     def __init__(self, *args, **kwargs):
         super(RDFQueryReader, self).__init__(*args, **kwargs)
         self.use_subqueries = kwargs.get('use_subqueries', False)
-        if isinstance(self.use_subqueries, str):
+        if isinstance(self.use_subqueries, basestring):
             self.use_subqueries = (self.use_subqueries.lower() == 'true')
         elif not isinstance(self.use_subqueries, bool):
             raise ValueError('The use_subqueries parameter must be a bool or a string set to "true" or "false"')

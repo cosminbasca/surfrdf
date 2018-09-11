@@ -1,3 +1,4 @@
+from __future__ import print_function
 import pytest
 import surf
 import os
@@ -22,7 +23,7 @@ def test_rdflib_store():
 
         # clean store
         store.clear()
-    except Exception, e:
+    except Exception as e:
         pytest.fail(e.message, pytrace=True)
 
 
@@ -31,7 +32,7 @@ def test_rdflib_load():
                        writer="rdflib",
                        rdflib_store="IOMemory")
 
-    print "Load RDF data"
+    print("Load RDF data")
     store.load_triples(source=_card_file)
     assert len(store) == 76
 

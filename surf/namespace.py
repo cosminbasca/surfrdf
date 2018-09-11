@@ -1,3 +1,4 @@
+from builtins import str
 # Copyright (c) 2009, Digital Enterprise Research Institute (DERI),
 # NUI Galway
 # All rights reserved.
@@ -34,6 +35,7 @@
 
 # -*- coding: utf-8 -*-
 
+from past.builtins import basestring
 __author__ = ['Cosmin Basca', 'Peteris Caune']
 
 from copy import deepcopy
@@ -114,14 +116,14 @@ _fallback_namespace = SURF
 
 # Fix for http://code.google.com/p/rdflib/issues/detail?id=154
 def _unicode(namespace):
-    uri = unicode(namespace)
+    uri = str(namespace)
     if not isinstance(uri, basestring) and hasattr(namespace, 'uri'):
-        uri = unicode(namespace.uri)
+        uri = str(namespace.uri)
     return uri
 
 # an internal inverted dict - for fast access
 _INVERTED = {}
-for k, v in sys.modules[__name__].__dict__.items():
+for k, v in list(sys.modules[__name__].__dict__.items()):
     if isinstance(v, (Namespace, ClosedNamespace)):
         if k == "_fallback_namespace":
             # no, this is not a namespace prefix, this is just a variable name
@@ -129,7 +131,7 @@ for k, v in sys.modules[__name__].__dict__.items():
         _INVERTED[_unicode(v)] = k
         
 __DIRECT__ = {}
-for k, v in sys.modules[__name__].__dict__.items():
+for k, v in list(sys.modules[__name__].__dict__.items()):
     if isinstance(v, (Namespace, ClosedNamespace)):
         __DIRECT__[k] = v
         
@@ -242,7 +244,7 @@ def get_namespace(base):
     global _anonymous_count
     ns_dict = sys.modules[__name__].__dict__
     
-    if not type(base) in [str, unicode]:
+    if not type(base) in [str, str]:
         base = str(base)
 
     try:

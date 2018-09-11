@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*-
+from builtins import str
 import pytest
 import surf
 from surf.query import select
@@ -46,7 +47,7 @@ def test_to_table():
     try:
         store = surf.store.Store(reader="sparql_protocol")
         store.reader._to_table(data)
-    except Exception, e:
+    except Exception as e:
         pytest.fail(e.message, pytrace=True)
 
 

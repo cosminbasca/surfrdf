@@ -17,5 +17,5 @@ def test_close_multiples_stores():
 
         # Should not fail.
         session.close()
-    except Exception, e:
+    except Exception as e:
         pytest.fail(e.message, pytrace=True)

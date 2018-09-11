@@ -93,7 +93,7 @@ class SparqlTranslator(QueryTranslator):
     def _term(self, term):
         if type(term) in [URIRef, BNode]:
             return '%s' % (term.n3())
-        elif type(term) in [str, unicode]:
+        elif type(term) in [str, str]:
             if term.startswith('?'):
                 return '%s' % term
             elif is_uri(term):
