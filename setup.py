@@ -93,6 +93,7 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.4',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     keywords='Python SPARQL RDF resource mapper ORM query Semantic Web RDFS rdflib Object-Oriented',
