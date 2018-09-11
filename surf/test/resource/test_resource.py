@@ -5,8 +5,9 @@ import pytest
 import surf
 from surf import Resource
 from surf.rdf import URIRef
-from surf.util import uri_split
+from surf.util import uri_split, error_message
 from rdflib.term import Literal
+from surf.util import error_message
 
 
 @pytest.fixture
@@ -170,7 +171,7 @@ def test_instance(store_session):
         subject = surf.ns.SURF.test1
         Thing._instance(subject, [surf.ns.OWL.Thing], store=Thing.store_key)
     except Exception as e:
-        pytest.fail(e.message, pytrace=True)
+        pytest.fail(error_message(e), pytrace=True)
 
 
 @pytest.mark.skip(reason="type mapping hasn't been implemented yet")
@@ -261,7 +262,7 @@ def test_query_attribute_unicode(store_session):
         original_get_by, RP.get_by = RP.get_by, mock_get_by
         resource.query_attribute(u"foaf_knows")
     except Exception as e:
-        pytest.fail(e.message, pytrace=True)
+        pytest.fail(error_message(e), pytrace=True)
     finally:
         # Regardless of results, revert our patch so other tests are not
         # affected.

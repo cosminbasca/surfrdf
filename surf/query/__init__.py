@@ -38,10 +38,12 @@ from builtins import str
 try:
     # Python 2
     from __builtin__ import str as builtin_str
+    _py_version = 2
 except ImportError:
     # Python 3
     from builtins import str as builtin_str
     basestring = str
+    _py_version = 3
 
 from surf.rdf import BNode, Graph, ConjunctiveGraph, Literal, Namespace
 from surf.rdf import RDF, URIRef
@@ -404,7 +406,10 @@ class Query(object):
         return self._unicode()
 
     def __str__(self):
-        return str(self._unicode()).encode("utf-8")
+        if _py_version == 3:
+            return self._unicode()
+        else:
+            return str(self._unicode()).encode("utf-8")
 
 
 def validate_statement(statement):

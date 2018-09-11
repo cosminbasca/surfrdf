@@ -1,1 +1,9 @@
-{}
+{
+  "surf/test/plugin/test_rdflib.py::test_rdflib_query": true,
+  "surf/test/resource/test_resource.py::test_dict_access": true,
+  "surf/test/resource/test_resource.py::test_empty_attribute_sync": true,
+  "surf/test/resource/test_resource.py::test_loaded_attribute_sync": true,
+  "surf/test/resource/test_resource.py::test_query_attribute_unicode": true,
+  "surf/test/resource/test_resource_value.py::test_contains": true,
+  "surf/test/resource/test_resource_value.py::test_get_one_exceptions": true
+}

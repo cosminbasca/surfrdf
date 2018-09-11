@@ -3,6 +3,8 @@ import pytest
 import surf
 import os
 from rdflib.term import Literal
+from surf.util import error_message
+
 
 _card_file = os.path.join(os.path.split(os.path.abspath(__file__))[0], 'card.rdf')
 
@@ -24,7 +26,7 @@ def test_rdflib_store():
         # clean store
         store.clear()
     except Exception as e:
-        pytest.fail(e.message, pytrace=True)
+        pytest.fail(error_message(e), pytrace=True)
 
 
 def test_rdflib_load():

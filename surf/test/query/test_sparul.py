@@ -177,6 +177,6 @@ def test_str():
     query = insert().template(statement)
 
     # test str()
-    assert expected == canonical(str(str(query)))
+    assert expected == canonical(str(unicode(query)))
     # test unicode()
     assert expected == canonical(str(query))

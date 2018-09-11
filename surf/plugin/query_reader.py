@@ -34,6 +34,7 @@
 
 # -*- coding: utf-8 -*-
 from builtins import range
+from past.builtins import basestring
 from abc import ABCMeta, abstractmethod
 
 from surf.plugin.reader import RDFReader
@@ -157,7 +158,7 @@ def _apply_solution_modifiers(params, query):
             return (s, p, o) if direct else (o, p, s)
 
         for attribute, values, direct in params["get_by"]:
-            if hasattr(values, "__iter__"):
+            if not isinstance(values, basestring) and hasattr(values, "__iter__"):
                 where_clause = Union()
                 for value in values:
                     where_clause.append(order_terms("?s", attribute, value))
@@ -244,7 +245,7 @@ class RDFQueryReader(with_metaclass(ABCMeta, RDFReader)):
         query.optional_group(("?s", a, "?c"))
 
         context = params.get("context", None)
-        if not (context is None):
+        if context is not None:
             query.from_(context)
 
         # Load just subjects and their types

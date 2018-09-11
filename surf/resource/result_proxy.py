@@ -1,5 +1,5 @@
 """ Module for ResultProxy. """
-
+from past.builtins import basestring
 from builtins import object
 from surf.exceptions import NoResultFound, MultipleResultsFound
 from surf.rdf import Literal
@@ -139,14 +139,14 @@ class ResultProxy(object):
         # Overwriting get_by params would cause resource.some_attr.get_by()
         # to work incorrectly.
         params.setdefault("get_by", [])
-        for name, value in list(kwargs.items()):
+        for name, value in kwargs.items():
             attr, direct = attr2rdf(name)
 
             if hasattr(value, "subject"):
                 # If value has a subject attribute, this must be a Resource, 
                 # take its subject.
                 value = value.subject
-            elif hasattr(value, "__iter__"):
+            elif not isinstance(value, basestring) and hasattr(value, "__iter__"):
                 # Map alternatives
                 value = [hasattr(val, "subject")
                                         and val.subject
