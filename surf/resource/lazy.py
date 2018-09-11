@@ -64,10 +64,11 @@ class LazyResourceLoader(list):
         # For lazy loading list contents
         self.__getvalues = getvalues_callable
         self.__data_loaded = False
+        self.__rdf_values = {}
 
     def __prepare_values(self):
         if not self.__data_loaded:
-            self[:], self.__rdf_values = self.__getvalues()
+            self[:], self.__rdf_values  = self.__getvalues()
             self.__data_loaded = True
 
     def get_one(self):
@@ -124,10 +125,11 @@ class LazyResourceLoader(list):
         return list.__getitem__(self, key)
 
     def __setitem__(self, key, value):
-        self.__prepare_values()
+        if key != slice(None, None, None):
+            self.__prepare_values()
 
-        self.set_dirty(True)
-        self.__rdf_values[key] = self.to_rdf(value)
+            self.set_dirty(True)
+            self.__rdf_values[key] = self.to_rdf(value)
         return list.__setitem__(self, key, value)
 
     def __delitem__(self, key):

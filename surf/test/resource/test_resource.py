@@ -1,6 +1,7 @@
 from builtins import str
 from builtins import range
 from builtins import object
+from past.builtins import basestring
 import pytest
 import surf
 from surf import Resource
