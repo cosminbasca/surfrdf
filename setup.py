@@ -64,6 +64,7 @@ with open('CHANGELOG.rst') as f:
 deps = [
     'rdflib>=4.2.1',
     'SPARQLWrapper>=1.7.6',
+    "future"
 ]
 
 test_deps = [
