@@ -325,9 +325,9 @@ class WriterPlugin(RDFWriter):
         self._remove_from_endpoint(None, None, None, context=context)
 
     def _term(self, term):
-        if type(term) in [URIRef, BNode]:
+        if isinstance(term, (URIRef, BNode)):
             return u'{0:s}'.format
-        elif type(term) in [str, str]:
+        elif isinstance(term, (str, str)):
             if term.startswith('?'):
                 return u'{0:s}'.format(term)
             elif is_uri(term):
@@ -336,7 +336,7 @@ class WriterPlugin(RDFWriter):
                 return u'"{0:s}"'.format(term)
         elif type(term) is Literal:
             return term.n3()
-        elif type(term) in [list, tuple]:
+        elif isinstance(term, (list, tuple)):
             return '"{0:s}"@{1:s}'.format(term[0], term[1])
         elif type(term) is type and hasattr(term, 'uri'):
             return u'{0:s}'.format

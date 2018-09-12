@@ -70,7 +70,7 @@ class NamedGroup(Group):
     """
     def __init__(self, name = None):
         super(NamedGroup, self).__init__()
-        if isinstance(name, URIRef) or (type(name) in [str, str] and name.startswith('?')):
+        if isinstance(name, URIRef) or (isinstance(name, str) and name.startswith('?')):
             self.name = name
         else:
             raise ValueError("Invalid specifier for named group"

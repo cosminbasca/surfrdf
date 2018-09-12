@@ -195,7 +195,7 @@ def register(**namespaces):
     for key in namespaces:
         uri = namespaces[key]
         prefix = key.upper()
-        if not type(uri) in [Namespace, ClosedNamespace]:
+        if not isinstance(uri, (Namespace, ClosedNamespace)):
             uri = Namespace(uri)
         
         ns_dict[prefix] = uri
@@ -244,7 +244,7 @@ def get_namespace(base):
     global _anonymous_count
     ns_dict = sys.modules[__name__].__dict__
     
-    if not type(base) in [str, str]:
+    if not isinstance(base, (str, str)):
         base = str(base)
 
     try:

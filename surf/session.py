@@ -301,7 +301,7 @@ class Session(object):
 
         classes = classes if isinstance(classes, (tuple, set, list)) else []
 
-        if not type(subject) in [URIRef, BNode]:
+        if not isinstance(subject, (URIRef, BNode)):
             subject = URIRef(str(subject))
 
         if not store:

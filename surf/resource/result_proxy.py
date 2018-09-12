@@ -191,7 +191,7 @@ class ResultProxy(object):
             attr, direct = attr2rdf(name)
             assert direct, "Only direct attributes can be used for filters"
             # Assume by plain strings user means literals
-            if type(value) in [str, str]:
+            if isinstance(value, str):
                 value = Literal(value)
             params["filter"].append((attr, value, direct))
         return ResultProxy(params)

@@ -188,7 +188,7 @@ class Resource(with_metaclass(ResourceMeta, object)):
         
         if subject is None:
             subject = uuid_subject(namespace)
-        elif not type(subject) in [URIRef, BNode]:
+        elif not isinstance(subject, (URIRef, BNode)):
             subject = URIRef(subject)
 
         self.__subject  = subject
@@ -337,7 +337,7 @@ class Resource(with_metaclass(ResourceMeta, object)):
             inst = r
             if isinstance(value[r], Resource) :
                 inst = value[r]
-            elif type(r) in [URIRef, BNode]:
+            elif isinstance(r, (URIRef, BNode)):
                 inst = cls._instance(r, value[r])
             attr_value.append(inst)
         return attr_value
@@ -350,9 +350,9 @@ class Resource(with_metaclass(ResourceMeta, object)):
         """
 
         for ns in namespaces:
-            if type(ns) in [str, str]:
+            if isinstance(ns, str):
                 self.__namespaces[ns] = get_namespace_url(ns)
-            elif type(ns) in [Namespace, ClosedNamespace]:
+            elif isinstance(ns, (Namespace, ClosedNamespace)):
                 self.__namespaces[get_prefix(ns)] = ns
 
     def bind_namespaces_to_graph(self, graph):
@@ -746,12 +746,12 @@ class Resource(with_metaclass(ResourceMeta, object)):
         graph.add((self.subject, RDF['type'], self.uri))
         for predicate in self.__rdf_direct:
             for value in self.__rdf_direct[predicate]:
-                if type(value) in [URIRef, Literal, BNode]:
+                if isinstance(value, (URIRef, Literal, BNode)):
                     graph.add((self.subject, predicate, value))
         if not direct:
             for predicate in self.__rdf_inverse:
                 for value in self.__rdf_inverse[predicate]:
-                    if type(value) in [URIRef, Literal, BNode]:
+                    if isinstance(value, (URIRef, Literal, BNode)):
                         graph.add((value, predicate, self.subject))
         return graph
 

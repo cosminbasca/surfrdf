@@ -91,9 +91,9 @@ class SparqlTranslator(QueryTranslator):
                      'where'        : where, })
 
     def _term(self, term):
-        if type(term) in [URIRef, BNode]:
+        if isinstance(term, (URIRef, BNode)):
             return '%s' % (term.n3())
-        elif type(term) in [str, str]:
+        elif isinstance(term, str):
             if term.startswith('?'):
                 return '%s' % term
             elif is_uri(term):
@@ -102,7 +102,7 @@ class SparqlTranslator(QueryTranslator):
                 return '"%s"' % term
         elif type(term) is Literal:
             return term.n3()
-        elif type(term) in [list, tuple]:
+        elif isinstance(term, (list, tuple)):
             return '"%s"@%s' % (term[0], term[1])
         elif type(term) is type and hasattr(term, 'uri'):
             return '%s' % term.uri().n3()
@@ -135,9 +135,7 @@ class SparqlTranslator(QueryTranslator):
         return ' { %s } ' % (SparqlTranslator(stmt).translate())
 
     def _statement(self, statement):
-        if type(statement) in [list, tuple]:
-            return self._triple_pattern(statement)
-        elif type(statement) is Group:
+        if type(statement) is Group:
             return self._group(statement)
         elif type(statement) is NamedGroup:
             return self._named_group(statement)
@@ -149,3 +147,6 @@ class SparqlTranslator(QueryTranslator):
             return self._filter(statement)
         elif type(statement) is Query:
             return self._subquery(statement)
+        elif isinstance(statement, (list, tuple)):
+            # Moved this at the bottom because other classes are list/tuple desc
+            return self._triple_pattern(statement)
