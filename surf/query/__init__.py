@@ -35,15 +35,9 @@
 # -*- coding: utf-8 -*-
 from builtins import object
 from builtins import str
-try:
-    # Python 2
-    from __builtin__ import str as builtin_str
-    _py_version = 2
-except ImportError:
-    # Python 3
-    from builtins import str as builtin_str
-    basestring = str
-    _py_version = 3
+from past.builtins import basestring
+import sys
+_py_version = sys.version_info[0]
 
 from surf.rdf import BNode, Graph, ConjunctiveGraph, Literal, Namespace
 from surf.rdf import RDF, URIRef
