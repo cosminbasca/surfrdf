@@ -408,7 +408,11 @@ class Query(object):
 
 def validate_statement(statement):
     if isinstance(statement, tuple(Query.STATEMENT_TYPES + [Query])):
-        if isinstance(statement, (list, tuple)):
+        # since `NamedGroup` inherits from `list` via `Group` here we want
+        # to use `type()` instead of `isinstance()` as we need to tell
+        # whether `statement` is e.g. a list/tuple or an instance of
+        # `NamedGroup`
+        if type(statement) in [list, tuple]:
             try:
                 s, p, o = statement
             except:
