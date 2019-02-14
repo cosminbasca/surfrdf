@@ -412,7 +412,7 @@ def validate_statement(statement):
         # to use `type()` instead of `isinstance()` as we need to tell
         # whether `statement` is e.g. a list/tuple or an instance of
         # `NamedGroup`
-        if type(statement) in [list, tuple]:
+        if isinstance(list, tuple) and not isinstance(group):
             try:
                 s, p, o = statement
             except:
