@@ -33,6 +33,7 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
+from builtins import object
 import inspect
 from surf.rdf import Namespace
 from surf.resource import Resource
