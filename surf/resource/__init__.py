@@ -517,7 +517,6 @@ class Resource(with_metaclass(ResourceMeta, object)):
         # Not using self.__setattr__, that would trigger loading of attributes
 #        object.__setattr__(self, attr_name, attr_value)
         super(Resource, self).__setattr__(attr_name, attr_value)
-        self.dirty = False
 
         return attr_value
 
