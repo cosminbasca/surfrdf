@@ -1,3 +1,4 @@
+from builtins import str
 # Copyright (c) 2009, Digital Enterprise Research Institute (DERI),
 # NUI Galway
 # All rights reserved.
@@ -33,6 +34,9 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
+
+from builtins import map
+from builtins import object
 from surf.namespace import get_namespace_url, get_prefix, OWL, all, RDF_TYPE
 from surf.rdf import BNode, ClosedNamespace, ConjunctiveGraph, Graph, Literal
 from surf.rdf import Namespace, RDF, RDFS, URIRef
@@ -43,6 +47,7 @@ from surf.store import NO_CONTEXT, Store
 from surf.util import attr2rdf, namespace_split, rdf2attr
 from surf.util import uri_to_class, uuid_subject, value_to_rdf
 from collections import defaultdict
+from future.utils import with_metaclass
 
 __author__ = 'Cosmin Basca'
 
@@ -96,7 +101,7 @@ class ResourceMeta(type):
         return getattr(self_as_instance, attr_name)
 
 
-class Resource(object):
+class Resource(with_metaclass(ResourceMeta, object)):
     """
     The Resource class, represents the transparent proxy object that exposes
     sets of RDF triples under the form of <s,p,o> and <s',p,s> as an object
@@ -164,8 +169,6 @@ class Resource(object):
         [rdflib.URIRef('http://p1'), <surf.session.FoafPerson object at 0xad049cc>]
 
     """
-
-    __metaclass__ = ResourceMeta
     _dirty_instances = set()
     
     def __init__(self, subject = None, block_auto_load = False, context = None,
@@ -185,7 +188,7 @@ class Resource(object):
         
         if subject is None:
             subject = uuid_subject(namespace)
-        elif not type(subject) in [URIRef, BNode]:
+        elif not isinstance(subject, (URIRef, BNode)):
             subject = URIRef(subject)
 
         self.__subject  = subject
@@ -193,7 +196,7 @@ class Resource(object):
         if context == NO_CONTEXT:
             self.__context  = None
         elif context:
-            self.__context  = URIRef(unicode(context))
+            self.__context  = URIRef(str(context))
         elif self.session and self.store_key:
             self.__context  = self.session[self.store_key].default_context
         
@@ -313,7 +316,7 @@ class Resource(object):
         # uris might be an iterator, but we want each
         # element from it as separate argument, so
         # converting to list.
-        classes = map(uri_to_class, list(uris[1:]))
+        classes = list(map(uri_to_class, list(uris[1:])))
 
         return cls.session.map_instance(uri, subject, classes = classes,
                                         block_auto_load = block_auto_load,
@@ -334,7 +337,7 @@ class Resource(object):
             inst = r
             if isinstance(value[r], Resource) :
                 inst = value[r]
-            elif type(r) in [URIRef, BNode]:
+            elif isinstance(r, (URIRef, BNode)):
                 inst = cls._instance(r, value[r])
             attr_value.append(inst)
         return attr_value
@@ -347,9 +350,9 @@ class Resource(object):
         """
 
         for ns in namespaces:
-            if type(ns) in [str, unicode]:
+            if isinstance(ns, str):
                 self.__namespaces[ns] = get_namespace_url(ns)
-            elif type(ns) in [Namespace, ClosedNamespace]:
+            elif isinstance(ns, (Namespace, ClosedNamespace)):
                 self.__namespaces[get_prefix(ns)] = ns
 
     def bind_namespaces_to_graph(self, graph):
@@ -413,7 +416,7 @@ class Resource(object):
             else:
                 if type(value) not in [list, tuple]: 
                     value = [value]
-                value               = map(value_to_rdf, value)
+                value               = list(map(value_to_rdf, value))
                 getvalues_callable  = prepare_getvalues_callable(value, rdf_dict[predicate])
                 value               = LazyResourceLoader(getvalues_callable, self, name)
 
@@ -514,7 +517,6 @@ class Resource(object):
         # Not using self.__setattr__, that would trigger loading of attributes
 #        object.__setattr__(self, attr_name, attr_value)
         super(Resource, self).__setattr__(attr_name, attr_value)
-        self.dirty = False
 
         return attr_value
 
@@ -561,7 +563,7 @@ class Resource(object):
 
         """
 
-        for p, v in results.items():
+        for p, v in list(results.items()):
             attr = rdf2attr(p, direct)
             value = self._lazy(v)
             if value:
@@ -591,7 +593,7 @@ class Resource(object):
             subjects.update(cls.session[cls.store_key].instances_by_attribute(cls, inverse_attributes, False, context))
         
         instances = []
-        for s, types in subjects.items():
+        for s, types in list(subjects.items()):
             if not isinstance(s, URIRef):
                 continue
 
@@ -628,7 +630,7 @@ class Resource(object):
         # In results?
         if (not _rdf_type and "direct" in data and RDF_TYPE in data["direct"]
             and data["direct"][RDF_TYPE]):
-            _rdf_type = data["direct"][RDF_TYPE].keys()[0]
+            _rdf_type = list(data["direct"][RDF_TYPE].keys())[0]
 
         if _rdf_type is None:
             # We don't know rdf:type, so cannot instantiate Resource,
@@ -743,19 +745,19 @@ class Resource(object):
         graph.add((self.subject, RDF['type'], self.uri))
         for predicate in self.__rdf_direct:
             for value in self.__rdf_direct[predicate]:
-                if type(value) in [URIRef, Literal, BNode]:
+                if isinstance(value, (URIRef, Literal, BNode)):
                     graph.add((self.subject, predicate, value))
         if not direct:
             for predicate in self.__rdf_inverse:
                 for value in self.__rdf_inverse[predicate]:
-                    if type(value) in [URIRef, Literal, BNode]:
+                    if isinstance(value, (URIRef, Literal, BNode)):
                         graph.add((value, predicate, self.subject))
         return graph
 
     def __str__(self):
         """ Return `string` representation of the resource. """
 
-        return '{%s : %s}' % (unicode(self.subject), unicode(self.uri))
+        return '{%s : %s}' % (str(self.subject), str(self.uri))
 
     def save(self):
         """ Save the `resource` to the data `store`. """
@@ -824,11 +826,11 @@ class Resource(object):
         for s, p, o in graph:
             attr_name = None
             value = None
-            if unicode(s) == unicode(self.subject):
+            if str(s) == str(self.subject):
                 attr_name = rdf2attr(p, True)
                 #value = self.__lazy([o])
                 value = o
-            elif unicode(o) == unicode(self.subject):
+            elif str(o) == str(self.subject):
                 attr_name = rdf2attr(p, False)
                 #value = self.__lazy([s])
                 value = s
