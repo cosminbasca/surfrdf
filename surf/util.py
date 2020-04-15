@@ -1,3 +1,4 @@
+from builtins import str
 # Copyright (c) 2009, Digital Enterprise Research Institute (DERI),
 # NUI Galway
 # All rights reserved.
@@ -33,12 +34,17 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
+from future import standard_library
+standard_library.install_aliases()
+from past.builtins import basestring
+from builtins import object
 import logging
 from datetime import datetime, date, time
 import decimal
 import re
-from urlparse import urlparse
+from urllib.parse import urlparse
 from uuid import uuid4
+import sys
 
 from surf.namespace import get_namespace, get_namespace_url
 from surf.namespace import get_fallback_namespace, SURF
@@ -60,6 +66,23 @@ pattern_inverse = re.compile('^is_[a-z0-9]+_[a-zA-Z0-9_\-]+_of$', re.DOTALL)
 DE_CAMEL_CASE_DEFAULT = 2 ** 0
 DE_CAMEL_CASE_FORCE_LOWER_CASE = 2 ** 1
 pattern = re.compile('([A-Z][A-Z][a-z])|([a-z][A-Z])')
+
+
+def error_message(exception):
+    """ Returns the message passed to the exception
+    (For compatibility reason.) Since Py2.6, Exception("something").message was deprecated.
+    It is not available in python 3. To simplify access to the message, we use this function.
+
+    :param exception: An Exception
+    :type exception: BaseException
+    :return: Exception message
+    :rtype: str
+    """
+    if sys.version_info[0] < 3:
+        return exception.message
+    elif len(exception.args):
+        return exception.args[0]
+    raise Exception("Error message was not possible to retrieve due to version compatibility")
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -89,7 +112,7 @@ def namespace_split(uri):
         (rdflib.URIRef('http://mynamespace/ns#'), 'some_property')
 
     :param str uri: the uri
-    :return: a (namespace, predicate) tuple. Types: (:class:`rdflib.term.URIRef`, str)
+    :return: a (namespace, predicate) tuple. Types: (:class:`rdflib.term.URIRef`, basestring)
     :rtype: tuple
     """
 
@@ -110,7 +133,7 @@ def uri_split(uri):
 
     :param uri: the uri
     :type uri: :class:`rdflib.term.URIRef` or basestring
-    :return: a (base, remainder) tuple. Types: (str, str)
+    :return: a (base, remainder) tuple. Types: (str, basestring)
     :rtype: tuple
     """
 
@@ -310,7 +333,7 @@ def pretty_rdf(uri):
         uri = uri.subject
     if type(uri) is URIRef:
         NS, symbol = uri_split(uri)
-        if unicode(NS).startswith('NS'):
+        if str(NS).startswith('NS'):
             pretty = symbol
         else:
             pretty = NS.lower() + ':' + symbol
@@ -328,7 +351,7 @@ def value_to_rdf(value):
     """
     if isinstance(value, (URIRef, BNode)):
         return value
-    elif isinstance(value, (basestring, str, unicode, float, int, long, bool, datetime, date, time, decimal.Decimal)):
+    elif isinstance(value, (basestring, str, float, int, bool, datetime, date, time, decimal.Decimal)):
         if type(value) is basestring and string_conforms_to_base64(value):
             return Literal(value, datatype=URIRef('http://www.w3.org/2001/XMLSchema#base64Binary'))
         return Literal(value)
