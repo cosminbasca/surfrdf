@@ -259,8 +259,10 @@ class WriterPlugin(RDFWriter):
                     where_group = Group()
 
                 where_group.append(("?s", "?p", "?o"))
-                filter = Filter("({0})".format(self.__build_filter(s, p, o)))
-                where_group.append(filter)
+                filters = self.__build_filter(s, p, o)
+                if filters:
+                    filter = Filter("({0})".format(filters))
+                    where_group.append(filter)
                 query.where(where_group)
 
             query_str = str(query)
