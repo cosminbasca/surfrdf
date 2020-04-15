@@ -63,7 +63,7 @@ def _group_by_context(resources):
 
 
 def _prepare_add_many_query(resources, context=None):
-    query = insert()
+    query = insert(data=True)
 
     if context:
         query.into(context)
