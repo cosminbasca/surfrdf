@@ -88,7 +88,7 @@ class ReaderPlugin(RDFQueryReader):
 
     def _ask(self, result):
         # askAnswer is list with boolean values, we want first value. 
-        return result.askAnswer[0]
+        return result.askAnswer
 
     def _execute(self, query):
         q_string = str(query)
