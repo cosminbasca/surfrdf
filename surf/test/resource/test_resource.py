@@ -1,9 +1,14 @@
+from builtins import str
+from builtins import range
+from builtins import object
+from past.builtins import basestring
 import pytest
 import surf
 from surf import Resource
 from surf.rdf import URIRef
-from surf.util import uri_split
+from surf.util import uri_split, error_message
 from rdflib.term import Literal
+from surf.util import error_message
 
 
 @pytest.fixture
@@ -135,7 +140,7 @@ def test_default_namespace(store_session):
     Person = session.get_class(surf.ns.FOAF.Person)
     surf.ns.register_fallback("http://example.com/ns#")
     p = Person()
-    assert unicode(p.subject).startswith("http://example.com/ns#")
+    assert str(p.subject).startswith("http://example.com/ns#")
 
 
 def test_multiple_sessions(store_session):
@@ -166,8 +171,8 @@ def test_instance(store_session):
 
         subject = surf.ns.SURF.test1
         Thing._instance(subject, [surf.ns.OWL.Thing], store=Thing.store_key)
-    except Exception, e:
-        pytest.fail(e.message, pytrace=True)
+    except Exception as e:
+        pytest.fail(error_message(e), pytrace=True)
 
 
 @pytest.mark.skip(reason="type mapping hasn't been implemented yet")
@@ -187,7 +192,7 @@ def test_type_mapping(store_session):
     t1.save()
 
     t1 = Thing("http://t1")
-    assert type(t1.surf_string_value.first) == unicode
+    assert type(t1.surf_string_value.first) == str
     assert type(t1.surf_bool_value.first) == bool
     assert type(t1.surf_float_value.first) == float
     assert type(t1.surf_int_value.first) == int
@@ -245,8 +250,8 @@ def test_query_attribute_unicode(store_session):
     def mock_get_by(self, **kwargs):
         """ Verify that all passed keywords are strings. """
 
-        for keyword in kwargs.keys():
-            assert isinstance(keyword, str), \
+        for keyword in list(kwargs.keys()):
+            assert isinstance(keyword, basestring), \
                 "Passed non-string keyword: %s" % keyword
 
     _, session = store_session
@@ -257,8 +262,8 @@ def test_query_attribute_unicode(store_session):
         # Patch ResultProxy with mock get_by method
         original_get_by, RP.get_by = RP.get_by, mock_get_by
         resource.query_attribute(u"foaf_knows")
-    except Exception, e:
-        pytest.fail(e.message, pytrace=True)
+    except Exception as e:
+        pytest.fail(error_message(e), pytrace=True)
     finally:
         # Regardless of results, revert our patch so other tests are not
         # affected.
