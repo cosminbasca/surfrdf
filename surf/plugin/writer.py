@@ -120,7 +120,7 @@ class RDFWriter(with_metaclass(ABCMeta, Plugin)):
             if not hasattr(resource, "subject"):
                 raise InvalidResourceException("Arguments must be of type surf.resource.Resource")
 
-        self._update(resource)
+        self._update(*resources)
 
     def remove(self, *resources, **kwargs):
         """
