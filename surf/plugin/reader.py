@@ -177,7 +177,7 @@ class NoneReader(RDFReader):
         pass
 
     def _get(self, subject, attribute, direct, context):
-        pass
+        return {}
 
     def _concept(self, subject):
         pass
