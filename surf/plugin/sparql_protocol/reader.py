@@ -1,3 +1,4 @@
+from builtins import str
 # Copyright (c) 2009, Digital Enterprise Research Institute (DERI),
 # NUI Galway
 # All rights reserved.
@@ -33,6 +34,7 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
+from future.utils import raise_
 __author__ = 'Cosmin Basca'
 
 import sys
@@ -83,7 +85,7 @@ class ReaderPlugin(RDFQueryReader):
         converted = []
         for binding in result["results"]["bindings"]:
             rdf_item = {}
-            for key, obj in binding.items():
+            for key, obj in list(binding.items()):
                 try:
                     rdf_item[key] = json_to_rdflib(obj)
                 except ValueError:
@@ -103,15 +105,15 @@ class ReaderPlugin(RDFQueryReader):
             debug(q_string)
             self._sparql_wrapper.setQuery(q_string)
             return self._sparql_wrapper.query().convert()
-        except EndPointNotFound, _:
-            raise SparqlReaderException("Endpoint not found"), None, sys.exc_info()[2]
-        except QueryBadFormed, _:
-            raise SparqlReaderException("Bad query: %s" % q_string), None, sys.exc_info()[2]
-        except Exception, e:
-            raise SparqlReaderException("Exception: %s" % e), None, sys.exc_info()[2]
+        except EndPointNotFound as _:
+            raise_(SparqlReaderException, "Endpoint not found", sys.exc_info()[2])
+        except QueryBadFormed as _:
+            raise_(SparqlReaderException, "Bad query: %s" % q_string, sys.exc_info()[2])
+        except Exception as e:
+            raise_(SparqlReaderException, "Exception: %s" % e, sys.exc_info()[2])
 
     def _execute(self, query):
-        return self.execute_sparql(unicode(query))
+        return self.execute_sparql(str(query))
 
     def close(self):
         pass

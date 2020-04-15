@@ -37,6 +37,7 @@ from abc import ABCMeta, abstractmethod
 
 from surf.plugin import Plugin
 from surf.plugin.reader import RDFReader
+from future.utils import with_metaclass
 
 __author__ = 'Cosmin Basca'
 
@@ -46,12 +47,10 @@ class InvalidResourceException(Exception):
         super(InvalidResourceException,self).__init__(self,*args,**kwargs)
 
 
-class RDFWriter(Plugin):
+class RDFWriter(with_metaclass(ABCMeta, Plugin)):
     """
     Super class for all surf Writer plugins.
     """
-
-    __metaclass__ = ABCMeta
 
     def __init__(self, reader, *args, **kwargs):
         super(RDFWriter, self).__init__(*args, **kwargs)
@@ -121,7 +120,7 @@ class RDFWriter(Plugin):
             if not hasattr(resource, "subject"):
                 raise InvalidResourceException("Arguments must be of type surf.resource.Resource")
 
-        self._update(resource)
+        self._update(*resources)
 
     def remove(self, *resources, **kwargs):
         """

@@ -1,3 +1,5 @@
+from builtins import str
+from past.builtins import basestring
 import pytest
 import re
 
@@ -14,7 +16,7 @@ def canonical(sparql_string):
     capitalization differences.
     """
 
-    assert(isinstance(sparql_string, unicode))
+    assert(isinstance(sparql_string, basestring))
     
     result = sparql_string.strip().lower()
     result = re.sub("\s\s+", " ", result)
@@ -46,7 +48,7 @@ def test_simple():
     result = SparqlTranslator(query).translate()
 
     # Translated query should be unicode object.
-    assert isinstance(result, unicode)
+    assert isinstance(result, basestring)
 
     result = canonical(result)
     assert expected == result
@@ -179,9 +181,9 @@ def test_str():
 
     query = select("?s", "?p", "?o").where(("?s", "?p", "?o"))
     # test str()
-    assert expected == canonical(unicode(str(query)))
+    assert expected == canonical(str(str(query)))
     # test unicode()
-    assert expected == canonical(unicode(query))
+    assert expected == canonical(str(query))
 
 
 def test_ask():
