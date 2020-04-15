@@ -33,18 +33,18 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
+from builtins import object
 from abc import ABCMeta
 import logging
+from future.utils import with_metaclass
 
 __author__ = 'Cosmin Basca'
 
 
-class Plugin(object):
+class Plugin(with_metaclass(ABCMeta, object)):
     """
     Super class for all SuRF plugins, provides basic instantiation and `logging`.
     """
-
-    __metaclass__ = ABCMeta
 
     def __init__(self, *args, **kwargs):
         super(Plugin, self).__init__()
