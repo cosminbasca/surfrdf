@@ -84,7 +84,7 @@ class WriterPlugin(RDFWriter):
         for resource in resources:
             s = resource.subject
             self._remove_from_graph(s)
-            for p, objs in resource.rdf_direct.items():
+            for p, objs in list(resource.rdf_direct.items()):
                 for o in objs:
                     self.__add(s, p, o)
 
@@ -95,7 +95,7 @@ class WriterPlugin(RDFWriter):
             s = resource.subject
             for p in resource.rdf_direct:
                 self._remove_from_graph(s, p)
-            for p, objs in resource.rdf_direct.items():
+            for p, objs in list(resource.rdf_direct.items()):
                 for o in objs:
                     self.__add(s, p, o)
 

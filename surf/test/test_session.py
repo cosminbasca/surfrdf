@@ -2,6 +2,7 @@
 import pytest
 
 from surf import Session, Store
+from surf.util import error_message
 
 
 def test_close_multiples_stores():
@@ -17,5 +18,5 @@ def test_close_multiples_stores():
 
         # Should not fail.
         session.close()
-    except Exception, e:
-        pytest.fail(e.message, pytrace=True)
+    except Exception as e:
+        pytest.fail(error_message(e), pytrace=True)
