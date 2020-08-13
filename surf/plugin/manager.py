@@ -123,7 +123,7 @@ def registered_readers():
     :return: the registered reader plugins
     :rtype: list or set
     """
-    return _readers.keys()
+    return list(_readers.keys())
 
 
 def registered_writers():
@@ -133,7 +133,7 @@ def registered_writers():
     :return: the registered writer plugins
     :rtype: list or set
     """
-    return _writers.keys()
+    return list(_writers.keys())
 
 
 def get_reader(reader_id, *args, **kwargs):

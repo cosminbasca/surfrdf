@@ -6,6 +6,7 @@ import surf
 from surf import Session, Store
 from surf.plugin.reader import RDFReader
 from surf.plugin.writer import RDFWriter
+from surf.util import error_message
 
 
 def test_multiples():
@@ -27,8 +28,8 @@ def test_multiples():
         store.save(rob, michael)
         store.update(rob, michael)
         store.remove(rob, michael)
-    except Exception, e:
-        pytest.fail(e.message, pytrace=True)
+    except Exception as e:
+        pytest.fail(error_message(e), pytrace=True)
 
 
 def test_close_unicode_exception():
@@ -86,8 +87,8 @@ def test_close_unicode_exception():
         logging.disable(logging.ERROR)
         store.close()
         logging.disable(logging.NOTSET)
-    except Exception, e:
-        pytest.fail(e.message, pytrace=True)
+    except Exception as e:
+        pytest.fail(error_message(e), pytrace=True)
 
 
 def test_successful_close():
@@ -143,5 +144,5 @@ def test_successful_close():
         reader = MockReader()
         store = Store(reader, MockWriter(reader), log_level=logging.NOTSET)
         store.close()
-    except Exception, e:
-        pytest.fail(e.message, pytrace=True)
+    except Exception as e:
+        pytest.fail(error_message(e), pytrace=True)

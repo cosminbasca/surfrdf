@@ -33,6 +33,7 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
+from builtins import map
 from collections import namedtuple
 
 __author__ = 'Cosmin Basca'

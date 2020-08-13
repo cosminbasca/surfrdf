@@ -33,12 +33,14 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
+from builtins import object
 from surf.log import *
 from surf.plugin.manager import load_plugins, get_reader, get_writer
 from surf.plugin.reader import RDFReader, NoneReader
 from surf.plugin.writer import RDFWriter, NoneWriter
 from surf.query import Query
 from surf.rdf import URIRef
+from surf.util import error_message
 
 __author__ = 'Cosmin Basca'
 
@@ -108,14 +110,14 @@ class Store(object):
         try:
             self.reader.close()
             debug('reader closed successfully')
-        except Exception, e:
-            error("Error on closing the reader: %s", e.message)
+        except Exception as e:
+            error("Error on closing the reader: %s", error_message(e))
 
         try:
             self.writer.close()
             debug('writer closed successfully')
-        except Exception, e:
-            error("Error on closing the writer: %s", e.message)
+        except Exception as e:
+            error("Error on closing the writer: %s", error_message(e))
 
     def get(self, resource, attribute, direct):
         """ :func:`surf.plugin.reader.RDFReader.get` method. """
@@ -160,7 +162,7 @@ class Store(object):
     def execute_sparql(self, sparql_query, format = 'JSON'):
         """see :meth:`surf.plugin.query_reader.RDFQueryReader.execute_sparql` method. """
 
-        if hasattr(self.reader, 'execute_sparql') and type(sparql_query) in [str, unicode]:
+        if hasattr(self.reader, 'execute_sparql') and isinstance(sparql_query, str):
             return self.reader.execute_sparql(sparql_query, format = format)
         return None
 

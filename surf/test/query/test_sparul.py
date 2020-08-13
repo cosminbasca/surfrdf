@@ -1,4 +1,6 @@
-import pytest
+from builtins import str
+from past.builtins import basestring, unicode
+
 import re 
 
 from surf.query.update import insert, load, delete, clear
@@ -14,7 +16,7 @@ def canonical(sparql_string):
     capitalization differences.
     """
     
-    assert(isinstance(sparql_string, unicode))
+    assert(isinstance(sparql_string, basestring))
     
     result = sparql_string.strip().lower()
     result = re.sub("\s\s+", " ", result)
@@ -147,7 +149,7 @@ def test_unicode():
     statement = URIRef("http://a"), URIRef("http://b"), URIRef("http://c")
     query = insert().template(statement)
     result = SparulTranslator(query).translate()
-    assert isinstance(result, unicode)
+    assert isinstance(result, basestring)
 
 
 def test_str():
@@ -160,6 +162,6 @@ def test_str():
     query = insert().template(statement)
 
     # test str()
-    assert expected == canonical(unicode(str(query)))
+    assert expected == canonical(str(unicode(query)))
     # test unicode()
-    assert expected == canonical(unicode(query))
+    assert expected == canonical(str(query))
