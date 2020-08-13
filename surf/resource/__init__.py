@@ -631,7 +631,9 @@ class Resource(with_metaclass(ResourceMeta, object)):
         # In results?
         if (not _rdf_type and "direct" in data and RDF_TYPE in data["direct"]
             and data["direct"][RDF_TYPE]):
-            _rdf_type = list(data["direct"][RDF_TYPE].keys())[0]
+            for _rdf_type in data["direct"][RDF_TYPE].keys():
+                if str(_rdf_type) != "http://www.w3.org/2002/07/owl#NamedIndividual" or len(data["direct"][RDF_TYPE]) == 1:
+                    break
 
         if _rdf_type is None:
             # We don't know rdf:type, so cannot instantiate Resource,
