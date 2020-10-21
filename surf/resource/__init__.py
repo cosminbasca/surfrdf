@@ -623,8 +623,8 @@ class Resource(with_metaclass(ResourceMeta, object)):
         for predicate, value, _ in params.get("get_by", []):
             # if rdf:type was filtered against several values,
             # we cannot use it for assigning type. 
-            # Check here if value is list-like.
-            if predicate == RDF_TYPE and not hasattr(value, "__iter__"):
+            # Check here that it is not a list.
+            if predicate == RDF_TYPE and isinstance(value, URIRef):
                 _rdf_type = value
                 break
 
