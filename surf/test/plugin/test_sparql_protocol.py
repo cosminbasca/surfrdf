@@ -1,9 +1,11 @@
 # -*- coding: UTF-8 -*-
+from builtins import str
 import pytest
 import surf
 from surf.query import select
 from surf.rdf import Literal, URIRef
 from surf.exceptions import CardinalityException
+from surf.util import error_message
 from surf.plugin.sparql_protocol.reader import SparqlReaderException
 from surf.plugin.sparql_protocol.writer import SparqlWriterException
 
@@ -46,8 +48,8 @@ def test_to_table():
     try:
         store = surf.store.Store(reader="sparql_protocol")
         store.reader._to_table(data)
-    except Exception, e:
-        pytest.fail(e.message, pytrace=True)
+    except Exception as e:
+        pytest.fail(error_message(e), pytrace=True)
 
 
 def test_exceptions():

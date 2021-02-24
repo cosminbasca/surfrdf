@@ -1,3 +1,4 @@
+from builtins import str
 # Copyright (c) 2009, Digital Enterprise Research Institute (DERI),
 # NUI Galway
 # All rights reserved.
@@ -34,9 +35,10 @@
 
 # -*- coding: utf-8 -*-
 
+from builtins import zip
 try:
     from json import loads
-except ImportError, e:
+except ImportError as e:
     from simplejson import loads
 from surf.plugin.query_reader import RDFQueryReader
 from surf.rdf import ConjunctiveGraph
@@ -79,17 +81,17 @@ class ReaderPlugin(RDFQueryReader):
         # Elements in result.selectionF are instances of rdflib.Variable,
         # rdflib.Variable is subclass of unicode. We convert them to 
         # unicode here anyway to hide rdflib internals from clients. 
-        vars = [unicode(var) for var in result.vars]
+        vars = [str(var) for var in result.vars]
 
         # Convert each row to dict: { var->value, ... }
-        return [dict(zip(vars, row)) for row in result]
+        return [dict(list(zip(vars, row))) for row in result]
 
     def _ask(self, result):
         # askAnswer is list with boolean values, we want first value. 
         return result.askAnswer[0]
 
     def _execute(self, query):
-        q_string = unicode(query)
+        q_string = str(query)
         debug(q_string)
         return self._graph.query(q_string)
 
