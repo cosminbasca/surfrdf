@@ -404,7 +404,7 @@ class Resource(with_metaclass(ResourceMeta, object)):
 
         predicate, direct = attr2rdf(name)
         if predicate:
-            rdf_dict = direct and self.__rdf_direct or self.__rdf_inverse
+            rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
             if not isinstance(value, list):
                 value = [value]
             rdf_dict[predicate] = []
@@ -447,7 +447,7 @@ class Resource(with_metaclass(ResourceMeta, object)):
         predicate, direct = attr2rdf(attr_name)
         if predicate:
             #value = self.__getattr__(attr_name)
-            rdf_dict = direct and self.__rdf_direct or self.__rdf_inverse
+            rdf_dict = self.__rdf_direct if direct else self.__rdf_inverse
             rdf_dict[predicate] = []
             self.dirty = True
         object.__delattr__(self, attr_name)
