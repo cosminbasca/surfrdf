@@ -1,3 +1,4 @@
+from builtins import str
 # Copyright (c) 2009, Digital Enterprise Research Institute (DERI),
 # NUI Galway
 # All rights reserved.
@@ -38,7 +39,7 @@ __author__ = 'Cosmin Basca'
 
 try:
     from json import dumps
-except ImportError, e:
+except ImportError as e:
     from simplejson import dumps
 from surf.rdf import BNode, Literal, URIRef
 
@@ -80,12 +81,12 @@ def to_json(graph):
             for v in graph.objects(s,p):
                 value = {'value': v, 'type': value_types[type(v)]}
                 if type(v) is Literal and v.language:
-                    value['lang'] = unicode(v.language)
+                    value['lang'] = str(v.language)
                 if type(v) is Literal and v.datatype:
-                    value['datatype'] = unicode(v.datatype)
+                    value['datatype'] = str(v.datatype)
 
                 json_values.append(value)
-            json_subjects[unicode(p)] = json_values
-        json_root[unicode(s)] = json_subjects
+            json_subjects[str(p)] = json_values
+        json_root[str(s)] = json_subjects
 
     return dumps(json_root)
