@@ -202,8 +202,9 @@ class Resource(with_metaclass(ResourceMeta, object)):
         
         self.__expired      = False
         self.__rdf_direct   = defaultdict(list)
-        self.__rdf_direct[RDF_TYPE].append(self.uri)
         self.__rdf_inverse  = defaultdict(list)
+        self.rdf_type = self.uri
+        self.dirty = False  # Reset dirty flag, which was automatically set in previous command
 
         self.__namespaces   = all()
         # __full_direct and __full_inverse are set to true after doing full load. 
