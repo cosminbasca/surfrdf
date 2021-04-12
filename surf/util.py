@@ -172,7 +172,7 @@ def attr2rdf(attr_name):
             return None
 
     if pattern_inverse.match(attr_name):
-        return to_rdf(attr_name.replace('is_', '').replace('_of', '')), False
+        return to_rdf(attr_name[3:-3]), False
     elif pattern_direct.match(attr_name):
         return to_rdf(attr_name), True
     return None, None
