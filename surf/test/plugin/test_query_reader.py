@@ -3,6 +3,7 @@ import pytest
 import logging
 import warnings
 from surf.plugin.query_reader import RDFQueryReader
+from surf.util import error_message
 
 
 def test_convert_unicode_exception():
@@ -28,5 +29,5 @@ def test_convert_unicode_exception():
         logging.disable(logging.ERROR)
         MyQueryReader().convert(None)
         logging.disable(logging.NOTSET)
-    except Exception, e:
-        pytest.fail(e.message, pytrace=True)
+    except Exception as e:
+        pytest.fail(error_message(e), pytrace=True)

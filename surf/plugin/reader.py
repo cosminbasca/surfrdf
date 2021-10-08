@@ -36,16 +36,15 @@
 from abc import ABCMeta, abstractmethod
 
 from surf.plugin import Plugin
+from future.utils import with_metaclass
 
 __author__ = 'Cosmin Basca'
 
 
-class RDFReader(Plugin):
+class RDFReader(with_metaclass(ABCMeta, Plugin)):
     """
     Super class for all surf Reader plugins.
     """
-
-    __metaclass__ = ABCMeta
 
     @abstractmethod
     def _get(self, subject, attribute, direct, context):

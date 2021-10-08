@@ -33,6 +33,7 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
+from builtins import object
 __author__ = 'Cosmin Basca'
 
 from surf.query import Query
