@@ -421,7 +421,7 @@ class RDFQueryReader(with_metaclass(ABCMeta, RDFReader)):
                         data[v] = []
 
                     value = row.get(keys[i + 1])
-                    if value:
+                    if value is not None:
                         data[v].append(value)
 
         return results
