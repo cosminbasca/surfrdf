@@ -187,12 +187,18 @@ def attr2rdf(attr_name):
     """
     
     def to_rdf(attr_name):
-        prefix, predicate = attr_name.split('_', 1)
-        ns = get_namespace_url(prefix)
-        try:
-            return ns[predicate]
-        except:
-            return None
+        # prefix and predicate are joined via underscore, but both can also contain underscores: my_prefix_my_predicate
+        # thus we need to iterate over all underscores to check which one separates the prefix from the predicate
+        attr_parts = attr_name.split('_')
+        for num_left_parts in range(1, len(attr_parts)):
+            prefix = "_".join(attr_parts[0:num_left_parts])
+            predicate = "_".join(attr_parts[num_left_parts:])
+            try:
+                ns = get_namespace_url(prefix)
+                return ns[predicate]
+            except:
+                continue
+        return None
 
     if pattern_inverse.match(attr_name):
         return to_rdf(attr_name.replace('is_', '').replace('_of', '')), False
