@@ -1,5 +1,6 @@
 """ Module for ResultProxy. """
-
+from past.builtins import basestring
+from builtins import object
 from surf.exceptions import NoResultFound, MultipleResultsFound
 from surf.rdf import Literal
 from surf.util import attr2rdf, value_to_rdf
@@ -145,12 +146,11 @@ class ResultProxy(object):
                 # If value has a subject attribute, this must be a Resource, 
                 # take its subject.
                 value = value.subject
-            elif hasattr(value, "__iter__"):
+            elif not isinstance(value, basestring) and hasattr(value, "__iter__"):
                 # Map alternatives
-                value = map(lambda val: hasattr(val, "subject")
+                value = [hasattr(val, "subject")
                                         and val.subject
-                                        or value_to_rdf(val),
-                            value)
+                                        or value_to_rdf(val) for val in value]
             else:
                 value = value_to_rdf(value)
 
@@ -187,11 +187,11 @@ class ResultProxy(object):
 
         params = self._params.copy()
         params.setdefault("filter", [])
-        for name, value in kwargs.items():
+        for name, value in list(kwargs.items()):
             attr, direct = attr2rdf(name)
             assert direct, "Only direct attributes can be used for filters"
             # Assume by plain strings user means literals
-            if type(value) in [str, unicode]:
+            if isinstance(value, str):
                 value = Literal(value)
             params["filter"].append((attr, value, direct))
         return ResultProxy(params)
@@ -240,7 +240,7 @@ class ResultProxy(object):
 
         item = None
         try:
-            item = iter(self).next()
+            item = next(iter(self))
         except StopIteration:
             pass
 
@@ -258,12 +258,12 @@ class ResultProxy(object):
 
         iterator = iter(self)
         try:
-            item = iterator.next()
+            item = next(iterator)
         except StopIteration:
             raise NoResultFound("List is empty")
 
         try:
-            iterator.next()
+            next(iterator)
         except StopIteration:
             # As expected, return item
             return item

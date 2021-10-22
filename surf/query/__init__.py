@@ -33,6 +33,12 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # -*- coding: utf-8 -*-
+from builtins import object
+from builtins import str
+from past.builtins import basestring
+import sys
+_py_version = sys.version_info[0]
+
 from surf.rdf import BNode, Graph, ConjunctiveGraph, Literal, Namespace
 from surf.rdf import RDF, URIRef
 import re
@@ -64,7 +70,7 @@ class NamedGroup(Group):
     """
     def __init__(self, name = None):
         super(NamedGroup, self).__init__()
-        if isinstance(name, URIRef) or (type(name) in [str, unicode] and name.startswith('?')):
+        if isinstance(name, URIRef) or (isinstance(name, str) and name.startswith('?')):
             self.name = name
         else:
             raise ValueError("Invalid specifier for named group"
@@ -84,18 +90,18 @@ class Union(Group):
     """
 
 
-class Filter(unicode):
+class Filter(str):
     """
     A **SPARQL** triple pattern filter
     """
     @classmethod
     def regex(cls, var, pattern, flag=None):
-        if isinstance(var, (str, unicode)) and var.startswith('?'):
+        if isinstance(var, basestring) and var.startswith('?'):
             pass
         else:
             raise ValueError('not a filter variable')
 
-        if isinstance(pattern, (str, unicode)):
+        if isinstance(pattern, basestring):
             pass
         elif isinstance(pattern, Literal):
             pattern = '"{0:s}"@{1:s}'.format(pattern, pattern.language)
@@ -107,14 +113,14 @@ class Filter(unicode):
         if flag is None:
             flag = ""
         else:
-            if not isinstance(flag, (str, unicode)):
+            if not isinstance(flag, basestring):
                 raise ValueError('not a filter flag')
 
         return Filter('regex({0:s},"{1:s}"{2:s})'.format(var, pattern, u',"{0:s}"'.format(flag)))
 
 
 def _validate_variable(variable):
-    if isinstance(variable, (str, unicode)):
+    if isinstance(variable, basestring):
         if variable.startswith('?'):
             return True
         elif re.match('\s*\(\s*.+\s+AS\s+\?.+\)\s*$', variable):
@@ -128,6 +134,7 @@ def _validate_variable(variable):
                             expression, or supported aggregate %s)'''
                          % (variable, str(Query.AGGREGATE_FUNCTIONS)))
     else:
+        print(variable, type(variable), str.__name__)
         raise ValueError('''Unknown variable type, all variables must either
                          start with a "?" or be among the recognized aggregates :
                          %s''' % Query.AGGREGATE_FUNCTIONS)
@@ -349,9 +356,10 @@ class Query(object):
 
         if not filter:
             return self
-        elif type(filter) in [str, unicode]:
+        elif isinstance(filter, basestring):
             filter = Filter(filter)
-        elif type(filter) is not Filter:
+        elif not isinstance(filter, Filter):
+            print(type(filter))
             raise ValueError('the filter must be of type Filter, str or unicode following the syntax of the query language')
         self._data.append(filter)
         return self
@@ -383,35 +391,45 @@ class Query(object):
 
         return self
 
-    def __unicode__(self):
+    def _unicode(self):
         # Importing here to avoid circular imports.
         from surf.query.translator.sparql import SparqlTranslator
         return SparqlTranslator(self).translate()
 
+    def __unicode__(self):
+        return self._unicode()
+
     def __str__(self):
-        return unicode(self).encode("utf-8")
+        if _py_version == 3:
+            return self._unicode()
+        else:
+            return str(self._unicode()).encode("utf-8")
 
 
 def validate_statement(statement):
     if isinstance(statement, tuple(Query.STATEMENT_TYPES + [Query])):
-        if isinstance(statement, (list, tuple)):
+        # since `NamedGroup` inherits from `list` via `Group` here we want
+        # to use `type()` instead of `isinstance()` as we need to tell
+        # whether `statement` is e.g. a list/tuple or an instance of
+        # `NamedGroup`
+        if type(statement) in [list, tuple]:
             try:
                 s, p, o = statement
             except:
                 raise ValueError('''Statement of type [list, tuple] does not
                                  have all the (s,p,o) members (the length of the
                                  supplied arguemnt must be at least 3)''')
-            if isinstance(s, (URIRef, BNode)) or (isinstance(s, (str, unicode)) and s.startswith('?')):
+            if isinstance(s, (URIRef, BNode)) or (isinstance(s, basestring) and s.startswith('?')):
                 pass
             else:
                 raise ValueError('The subject is not a valid variable type')
 
-            if isinstance(p, URIRef) or (isinstance(p, (str, unicode)) and p.startswith('?')):
+            if isinstance(p, URIRef) or (isinstance(p, basestring) and p.startswith('?')):
                 pass
             else:
                 raise ValueError('The predicate is not a valid variable type')
 
-            if isinstance(o, (URIRef, BNode, Literal)) or (isinstance(o, (str, unicode)) and o.startswith('?')):
+            if isinstance(o, (URIRef, BNode, Literal)) or (isinstance(o, basestring) and o.startswith('?')):
                 pass
             else:
                 raise ValueError(u'The object is not a valid variable type: {0:s}'.format(o))
